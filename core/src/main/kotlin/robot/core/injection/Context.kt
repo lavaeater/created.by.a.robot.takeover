@@ -8,14 +8,11 @@ import com.badlogic.gdx.graphics.g2d.PolygonSpriteBatch
 import com.badlogic.gdx.utils.viewport.ExtendViewport
 import eater.ecs.systems.CameraUpdateSystem
 import eater.ecs.systems.PhysicsDebugRendererSystem
-import eater.ecs.systems.UpdateActionsSystem
-import eater.ecs.systems.UtilityAiSystem
 import eater.injection.InjectionContext
 import ktx.box2d.createWorld
 import moist.ui.Hud
 import robot.core.GameConstants.GameHeight
 import robot.core.GameConstants.GameWidth
-import robot.core.ecs.systems.RenderSystem
 
 
 object Context : InjectionContext() {
