@@ -10,7 +10,6 @@ import eater.ecs.systems.CameraUpdateSystem
 import eater.ecs.systems.PhysicsDebugRendererSystem
 import eater.injection.InjectionContext
 import ktx.box2d.createWorld
-import moist.ui.Hud
 import robot.core.GameConstants.GameHeight
 import robot.core.GameConstants.GameWidth
 
@@ -29,7 +28,7 @@ object Context : InjectionContext() {
             )
             bindSingleton(createWorld())
             bindSingleton(getEngine())
-            bindSingleton(Hud(inject()))
+//            bindSingleton(Hud(inject()))
         }
     }
 

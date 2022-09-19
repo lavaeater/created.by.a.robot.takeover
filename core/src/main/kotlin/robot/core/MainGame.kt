@@ -1,8 +1,9 @@
 package robot.core
 
-import eater.core.MainGame
+import ktx.app.KtxGame
+import ktx.app.KtxScreen
 
-class MainGame : MainGame() {
+class MainGame : KtxGame<KtxScreen>() {
     override fun create() {
         addScreen(FirstScreen(this))
         setScreen<FirstScreen>()

@@ -9,14 +9,19 @@ import eater.core.BasicScreen
 import eater.injection.InjectionContext
 import eater.injection.InjectionContext.Companion.inject
 import eater.input.CommandMap
+import ktx.app.KtxGame
 import ktx.app.KtxInputAdapter
 import ktx.app.KtxScreen
 import ktx.app.clearScreen
 import ktx.assets.disposeSafely
 import ktx.assets.toInternalFile
 import ktx.graphics.use
+import robot.core.injection.Context
 
-class FirstScreen(val mainGame: MainGame) : KtxScreen, KtxInputAdapter {
+class FirstScreen(val mainGame: KtxGame<KtxScreen>) : KtxScreen, KtxInputAdapter {
+    init {
+        Context.initialize()
+    }
     private val batch = inject<PolygonSpriteBatch>()
     //private val assets = inject<Assets>()
     private val viewPort: ExtendViewport by lazy { inject() }
