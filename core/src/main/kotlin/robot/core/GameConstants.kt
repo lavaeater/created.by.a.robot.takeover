@@ -1,8 +1,8 @@
 package robot.core
 
 object GameConstants {
-    val GameHeight = 480f
-    val GameWidth = 640f
+    val GameHeight = 48f
+    val GameWidth = 64f
 }
 
 object Box2dCategories {

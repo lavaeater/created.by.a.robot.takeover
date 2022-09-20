@@ -10,6 +10,8 @@ import ktx.ashley.entity
 import ktx.ashley.with
 import ktx.box2d.body
 import ktx.box2d.box
+import ktx.box2d.circle
+import ktx.math.vec2
 
 fun createPlayerEntity() {
     /**
@@ -23,13 +25,16 @@ fun createPlayerEntity() {
                 userData = this@entity.entity
                 type = BodyDef.BodyType.DynamicBody
                 position.set(0f, 0f)
-                box(20f, 40f) {
+                box(4f, 8f) {
                     friction = 10f //Tune
                     density = 1f //tune
 //                    filter {
 //                        categoryBits = Box2dCategories.cities
 //                        maskBits = Box2dCategories.whatCitiesCollideWith
 //                    }
+                }
+                circle(10f, vec2(0f,0f)) {
+                    isSensor = true
                 }
             }
         }
