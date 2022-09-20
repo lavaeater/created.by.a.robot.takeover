@@ -23,7 +23,7 @@ fun createPlayerEntity() {
                 userData = this@entity.entity
                 type = BodyDef.BodyType.DynamicBody
                 position.set(0f, 0f)
-                box(2f, 4f) {
+                box(20f, 40f) {
                     friction = 10f //Tune
                     density = 1f //tune
 //                    filter {
@@ -33,7 +33,6 @@ fun createPlayerEntity() {
                 }
             }
         }
-        with<TransformComponent>()
         with<CameraFollow>()
     }
 }
