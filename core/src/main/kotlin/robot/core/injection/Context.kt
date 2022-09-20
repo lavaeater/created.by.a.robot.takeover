@@ -12,6 +12,7 @@ import eater.injection.InjectionContext
 import ktx.box2d.createWorld
 import robot.core.GameConstants.GameHeight
 import robot.core.GameConstants.GameWidth
+import robot.core.ecs.systems.CarPhysicsSystem
 
 
 object Context : InjectionContext() {
@@ -36,6 +37,7 @@ object Context : InjectionContext() {
         return PooledEngine().apply {
             addSystem(CameraUpdateSystem(inject(), inject()))
             addSystem(PhysicsDebugRendererSystem(inject(), inject()))
+            addSystem(CarPhysicsSystem())
 //            addSystem(RenderSystem())
 //            addSystem(UtilityAiSystem())
 //            addSystem(UpdateActionsSystem())

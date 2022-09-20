@@ -12,6 +12,7 @@ import ktx.box2d.body
 import ktx.box2d.box
 import ktx.box2d.circle
 import ktx.math.vec2
+import robot.core.ecs.components.Car
 
 fun createPlayerEntity() {
     /**
@@ -39,5 +40,6 @@ fun createPlayerEntity() {
             }
         }
         with<CameraFollow>()
+        with<Car>()
     }
 }

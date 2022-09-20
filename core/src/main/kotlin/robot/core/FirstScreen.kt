@@ -1,5 +1,6 @@
 package robot.core
 
+import com.badlogic.gdx.Input.Keys
 import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.OrthographicCamera
 import com.badlogic.gdx.graphics.Pixmap
@@ -22,6 +23,7 @@ import ktx.app.clearScreen
 import ktx.assets.disposeSafely
 import ktx.assets.toInternalFile
 import ktx.graphics.use
+import ktx.math.vec2
 import robot.core.ecs.createPlayerEntity
 import robot.core.injection.Context
 import space.earlygrey.shapedrawer.ShapeDrawer
@@ -29,6 +31,14 @@ import space.earlygrey.shapedrawer.ShapeDrawer
 class FirstScreen(val mainGame: KtxGame<KtxScreen>) : KtxScreen, KtxInputAdapter {
     init {
         Context.initialize()
+    }
+
+    val controlVector = vec2()
+    val commandMap = CommandMap("Car Controls").apply {
+        setBoth(Keys.W, "THROTTLE UP", { controlVector.y = 0f }, { controlVector.y = 1f} )
+        setBoth(Keys.S, "HMM, REVERSE?", { controlVector.y = 0f }, { controlVector.y = -1f} )
+        setBoth(Keys.A, "STEER LEFT", { controlVector.x = 0f }, { controlVector.x = -1f} )
+        setBoth(Keys.D, "STEER RIGHT", { controlVector.x = 0f }, { controlVector.x = 1f} )
     }
 
     private val batch = inject<PolygonSpriteBatch>()
