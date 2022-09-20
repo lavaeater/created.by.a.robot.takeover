@@ -1,5 +1,6 @@
 package robot.core.ecs
 
+import com.badlogic.ashley.core.Entity
 import com.badlogic.gdx.physics.box2d.BodyDef
 import eater.core.engine
 import eater.core.world
@@ -14,7 +15,7 @@ import ktx.box2d.circle
 import ktx.math.vec2
 import robot.core.ecs.components.Car
 
-fun createPlayerEntity() {
+fun createPlayerEntity(): Entity {
     /**
      * The player entity shall have
      * a sprite, a physical car body,

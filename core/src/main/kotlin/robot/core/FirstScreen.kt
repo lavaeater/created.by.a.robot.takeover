@@ -7,13 +7,10 @@ import com.badlogic.gdx.graphics.Pixmap
 import com.badlogic.gdx.graphics.Texture
 import com.badlogic.gdx.graphics.g2d.Batch
 import com.badlogic.gdx.graphics.g2d.PolygonSpriteBatch
-import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.badlogic.gdx.graphics.g2d.TextureRegion
 import com.badlogic.gdx.utils.viewport.ExtendViewport
-import eater.core.BasicScreen
 import eater.core.engine
 import eater.core.world
-import eater.injection.InjectionContext
 import eater.injection.InjectionContext.Companion.inject
 import eater.input.CommandMap
 import ktx.app.KtxGame
@@ -22,23 +19,36 @@ import ktx.app.KtxScreen
 import ktx.app.clearScreen
 import ktx.assets.disposeSafely
 import ktx.assets.toInternalFile
-import ktx.graphics.use
-import ktx.math.vec2
+import robot.core.ecs.components.Car
 import robot.core.ecs.createPlayerEntity
 import robot.core.injection.Context
 import space.earlygrey.shapedrawer.ShapeDrawer
+
+fun Int.has(flag: Int) = flag and this == flag
+fun Int.with(flag: Int) = this or flag
+fun Int.without(flag: Int) = this and flag.inv()
+
 
 class FirstScreen(val mainGame: KtxGame<KtxScreen>) : KtxScreen, KtxInputAdapter {
     init {
         Context.initialize()
     }
 
-    val controlVector = vec2()
+    val playerEntity by lazy { createPlayerEntity() }
+    val playerCar by lazy { Car.get(playerEntity) }
     val commandMap = CommandMap("Car Controls").apply {
-        setBoth(Keys.W, "THROTTLE UP", { controlVector.y = 0f }, { controlVector.y = 1f} )
-        setBoth(Keys.S, "HMM, REVERSE?", { controlVector.y = 0f }, { controlVector.y = -1f} )
-        setBoth(Keys.A, "STEER LEFT", { controlVector.x = 0f }, { controlVector.x = -1f} )
-        setBoth(Keys.D, "STEER RIGHT", { controlVector.x = 0f }, { controlVector.x = 1f} )
+        setBoth(Keys.W, "THROTTLE UP", { addFlag(Car.forward) }, { removeFlag(Car.forward) })
+        setBoth(Keys.S, "HMM, REVERSE?", { addFlag(Car.backwards) }, { removeFlag(Car.backwards) })
+        setBoth(Keys.A, "STEER LEFT", { addFlag(Car.left) }, { removeFlag(Car.left) })
+        setBoth(Keys.D, "STEER RIGHT", { addFlag(Car.right) }, { removeFlag(Car.right) })
+    }
+
+    private fun addFlag(flag: Int) {
+        playerCar.controlState = playerCar.controlState.with(flag)
+    }
+
+    private fun removeFlag(flag: Int) {
+        playerCar.controlState = playerCar.controlState.without(flag)
     }
 
     private val batch = inject<PolygonSpriteBatch>()
@@ -71,7 +81,6 @@ class FirstScreen(val mainGame: KtxGame<KtxScreen>) : KtxScreen, KtxInputAdapter
     }
 
     override fun show() {
-        createPlayerEntity()
     }
 
     override fun resize(width: Int, height: Int) {
@@ -83,8 +92,13 @@ class FirstScreen(val mainGame: KtxGame<KtxScreen>) : KtxScreen, KtxInputAdapter
         clearScreen(red = 0.7f, green = 0.7f, blue = 0.7f)
         camera.update(false) //True or false, what's the difference?
         batch.projectionMatrix = camera.combined
+        updatePlayerCarStuff(delta)
         updatePhysics(delta)
         updateEngine(delta)
+    }
+
+    private fun updatePlayerCarStuff(delta: Float) {
+        
     }
 
     private fun updateEngine(delta: Float) {
