@@ -56,7 +56,7 @@ class FirstScreen(val mainGame: KtxGame<KtxScreen>) : KtxScreen, KtxInputAdapter
     val cloudOfDots = Array(1000) {
         vec2(randomRange.random(), randomRange.random())
     }
-    val playerEntity by lazy { createPlayerEntity(2f, 4f,) }
+    val playerEntity by lazy { createPlayerEntity(vec2(),2f, 4f) }
     val playerCar by lazy { Car.get(playerEntity) }
     val commandMap = CommandMap("Car Controls").apply {
         setBoth(Keys.W, "THROTTLE UP", { removeFlag(Car.forward) }, { addFlag(Car.forward) })
@@ -86,8 +86,8 @@ class FirstScreen(val mainGame: KtxGame<KtxScreen>) : KtxScreen, KtxInputAdapter
     }
     private val timeStep = 1 / 60f
     private var accumulator = 0f
-    private val velIters = 8
-    private val posIters = 3
+    private val velIters = 16
+    private val posIters = 6
 
     private val shapeDrawerRegion: TextureRegion by lazy {
         val pixmap = Pixmap(1, 1, Pixmap.Format.RGBA8888)
