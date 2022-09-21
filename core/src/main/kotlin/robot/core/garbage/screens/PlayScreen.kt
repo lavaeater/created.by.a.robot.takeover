@@ -1,10 +1,29 @@
 package robot.core.garbage.screens
 
+import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.Input
 import com.badlogic.gdx.Screen
 import com.badlogic.gdx.graphics.GL20
+import com.badlogic.gdx.graphics.OrthographicCamera
+import com.badlogic.gdx.graphics.g2d.SpriteBatch
+import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer
 import com.badlogic.gdx.physics.box2d.World
-import com.topdowncar.game.entities.Car
+import com.badlogic.gdx.utils.viewport.FitViewport
+import com.badlogic.gdx.utils.viewport.Viewport
+import robot.core.garbage.Constants.DEFAULT_ZOOM
+import robot.core.garbage.Constants.GRAVITY
+import robot.core.garbage.Constants.POSITION_ITERATION
+import robot.core.garbage.Constants.PPM
+import robot.core.garbage.Constants.RESOLUTION
+import robot.core.garbage.Constants.VELOCITY_ITERATION
+import robot.core.garbage.entities.Car
+import robot.core.garbage.entities.Car.Companion.DRIVE_DIRECTION_BACKWARD
+import robot.core.garbage.entities.Car.Companion.DRIVE_DIRECTION_FORWARD
+import robot.core.garbage.entities.Car.Companion.DRIVE_DIRECTION_NONE
+import robot.core.garbage.entities.Car.Companion.TURN_DIRECTION_LEFT
+import robot.core.garbage.entities.Car.Companion.TURN_DIRECTION_NONE
+import robot.core.garbage.entities.Car.Companion.TURN_DIRECTION_RIGHT
+import robot.core.garbage.tools.MapLoader
 
 class PlayScreen : Screen {
     private val mBatch: SpriteBatch
@@ -26,7 +45,7 @@ class PlayScreen : Screen {
         mCamera.zoom = DEFAULT_ZOOM
         mViewport = FitViewport(RESOLUTION.x / PPM, RESOLUTION.y / PPM, mCamera)
         mMapLoader = MapLoader(mWorld)
-        mPlayer = Car(35.0f, 0.8f, 80, mMapLoader, Car.DRIVE_2WD, mWorld)
+        mPlayer = Car(35.0f, 0.8f, 80f, mMapLoader, Car.DRIVE_2WD, mWorld)
     }
 
     override fun show() {}
@@ -81,7 +100,7 @@ class PlayScreen : Screen {
      */
     private fun update(delta: Float) {
         mPlayer.update(delta)
-        mCamera.position.set(mPlayer.getBody().getPosition(), 0f)
+        mCamera.position.set(mPlayer.body.position, 0f)
         mCamera.update()
         mWorld.step(delta, VELOCITY_ITERATION, POSITION_ITERATION)
     }

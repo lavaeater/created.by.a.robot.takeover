@@ -1,9 +1,16 @@
 package robot.core.garbage.tools
 
+import com.badlogic.gdx.maps.objects.RectangleMapObject
+import com.badlogic.gdx.maps.tiled.TiledMap
+import com.badlogic.gdx.maps.tiled.TmxMapLoader
 import com.badlogic.gdx.math.Rectangle
+import com.badlogic.gdx.math.Vector2
+import com.badlogic.gdx.physics.box2d.Body
+import com.badlogic.gdx.physics.box2d.BodyDef
 import com.badlogic.gdx.physics.box2d.World
 import com.badlogic.gdx.utils.Array
-import com.topdowncar.game.Constants.MAP_NAME
+import com.badlogic.gdx.utils.Disposable
+import robot.core.garbage.Constants.MAP_NAME
 
 class MapLoader(private val mWorld: World) : Disposable {
     private val mMap: TiledMap

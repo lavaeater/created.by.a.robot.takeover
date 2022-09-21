@@ -6,14 +6,16 @@ import com.badlogic.gdx.utils.Pool.Poolable
 import ktx.ashley.mapperFor
 
 class Car : Component, Poolable {
-    var maxForwardSpeed = 100000f
-    var maxBackwardSpeed = 20000f
-    var maxDriveForce = 150000f
+    var maxTorque = 300f
+    var maxForwardSpeed = 10000f
+    var maxBackwardSpeed = 2000f
+    var maxDriveForce = 10000f
     var controlState = 0
     override fun reset() {
-        maxForwardSpeed = 100000f
-        maxBackwardSpeed = 20000f
-        maxDriveForce = 150000f
+        maxForwardSpeed = 10000f
+        maxBackwardSpeed = 2000f
+        maxDriveForce = 10000f
+        maxTorque = 100f
         controlState = 0
     }
 

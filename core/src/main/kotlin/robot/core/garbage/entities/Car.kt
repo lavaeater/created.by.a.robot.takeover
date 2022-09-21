@@ -1,8 +1,13 @@
 package robot.core.garbage.entities
 
+import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.physics.box2d.World
+import com.badlogic.gdx.physics.box2d.joints.PrismaticJointDef
+import com.badlogic.gdx.physics.box2d.joints.RevoluteJointDef
 import com.badlogic.gdx.utils.Array
-import com.topdowncar.game.BodyHolder
+import robot.core.garbage.BodyHolder
+import robot.core.garbage.Constants.PPM
+import robot.core.garbage.tools.MapLoader
 
 class Car(
     private val mRegularMaxSpeed: Float,
@@ -11,7 +16,7 @@ class Car(
     mapLoader: MapLoader,
     wheelDrive: Int,
     world: World
-) : BodyHolder(mapLoader.getPlayer()) {
+) : BodyHolder(mapLoader.player) {
     private var mDriveDirection = DRIVE_DIRECTION_NONE
     private var mTurnDirection = TURN_DIRECTION_NONE
     private var mCurrentWheelAngle = 0f
@@ -29,8 +34,8 @@ class Car(
      * @param world [com.topdowncar.game.screens.PlayScreen.mWorld] used to control and add physics objects
      */
     init {
-        getBody().setLinearDamping(LINEAR_DAMPING)
-        getBody().getFixtureList().get(0).setRestitution(RESTITUTION)
+        body.setLinearDamping(LINEAR_DAMPING)
+        body.getFixtureList().get(0).setRestitution(RESTITUTION)
         createWheels(world, wheelDrive)
     }
 
@@ -68,7 +73,7 @@ class Car(
             }
             val powered = wheelDrive == DRIVE_4WD || wheelDrive == DRIVE_2WD && i < 2
             val wheel = Wheel(
-                Vector2(getBody().getPosition().x * PPM + xOffset, getBody().getPosition().y * PPM + yOffset),
+                Vector2(body.getPosition().x * PPM + xOffset, body.getPosition().y * PPM + yOffset),
                 WHEEL_SIZE,
                 world,
                 i,
@@ -77,12 +82,12 @@ class Car(
             )
             if (i < 2) {
                 val jointDef = RevoluteJointDef()
-                jointDef.initialize(getBody(), wheel.getBody(), wheel.getBody().getWorldCenter())
+                jointDef.initialize(body, wheel.body, wheel.body.getWorldCenter())
                 jointDef.enableMotor = false
                 world.createJoint(jointDef)
             } else {
                 val jointDef = PrismaticJointDef()
-                jointDef.initialize(getBody(), wheel.getBody(), wheel.getBody().getWorldCenter(), Vector2(1f, 0f))
+                jointDef.initialize(body, wheel.body, wheel.body.getWorldCenter(), Vector2(1f, 0f))
                 jointDef.enableLimit = true
                 jointDef.upperTranslation = 0f
                 jointDef.lowerTranslation = jointDef.upperTranslation
@@ -136,10 +141,10 @@ class Car(
         //    mCurrentMaxSpeed = mRegularMaxSpeed * 1.5f;
         //}
         mCurrentMaxSpeed = mRegularMaxSpeed
-        if (getBody().getLinearVelocity().len() < mCurrentMaxSpeed) {
+        if (body.getLinearVelocity().len() < mCurrentMaxSpeed) {
             for (wheel in Array.ArrayIterator(mAllWheels)) {
                 if (wheel.isPowered) {
-                    wheel.getBody().applyForceToCenter(wheel.getBody().getWorldVector(baseVector), true)
+                    wheel.body.applyForceToCenter(wheel.body.getWorldVector(baseVector), true)
                 }
             }
         }
@@ -161,7 +166,7 @@ class Car(
         mTurnDirection = turnDirection
     }
 
-    fun update(delta: Float) {
+    override fun update(delta: Float) {
         super.update(delta)
         processInput()
         for (wheel in Array.ArrayIterator(mAllWheels)) {

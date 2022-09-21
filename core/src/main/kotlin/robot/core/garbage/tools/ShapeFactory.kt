@@ -1,8 +1,8 @@
 package robot.core.garbage.tools
 
 import com.badlogic.gdx.math.Vector2
-import com.badlogic.gdx.physics.box2d.World
-import com.topdowncar.game.Constants.PPM
+import com.badlogic.gdx.physics.box2d.*
+import robot.core.garbage.Constants.PPM
 
 object ShapeFactory {
     /**
@@ -18,7 +18,7 @@ object ShapeFactory {
     fun createRectangle(
         position: Vector2,
         size: Vector2,
-        type: BodyType,
+        type: BodyDef.BodyType,
         world: World,
         density: Float,
         sensor: Boolean

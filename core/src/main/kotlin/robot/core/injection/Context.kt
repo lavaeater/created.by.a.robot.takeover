@@ -37,9 +37,9 @@ object Context : InjectionContext() {
     private fun getEngine(): Engine {
         return PooledEngine().apply {
             addSystem(CameraUpdateSystem(inject(), inject()))
+            addSystem(RenderSystem(inject()))
             addSystem(PhysicsDebugRendererSystem(inject(), inject()))
             addSystem(CarPhysicsSystem())
-            addSystem(RenderSystem(inject()))
 //            addSystem(UtilityAiSystem())
 //            addSystem(UpdateActionsSystem())
         }

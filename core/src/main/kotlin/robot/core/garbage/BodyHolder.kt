@@ -148,9 +148,9 @@ abstract class BodyHolder {
     }
 
     companion object {
-        protected const val DIRECTION_NONE = 0
-        protected const val DIRECTION_FORWARD = 1
-        protected const val DIRECTION_BACKWARD = 2
-        private const val DRIFT_OFFSET = 1.0f
+        const val DIRECTION_NONE = 0
+        const val DIRECTION_FORWARD = 1
+        const val DIRECTION_BACKWARD = 2
+        const val DRIFT_OFFSET = 1.0f
     }
 }

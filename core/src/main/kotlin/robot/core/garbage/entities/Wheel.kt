@@ -1,7 +1,9 @@
 package robot.core.garbage.entities
 
+import com.badlogic.gdx.math.Vector2
+import com.badlogic.gdx.physics.box2d.BodyDef
 import com.badlogic.gdx.physics.box2d.World
-import com.topdowncar.game.BodyHolder
+import robot.core.garbage.BodyHolder
 
 class Wheel
 /**
@@ -13,7 +15,7 @@ class Wheel
  * @param car [Car] class used to set correct wheel angle depending of car rotation
  * @param powered is wheel powered or not
  */(
-    position: Vector2?, size: Vector2?, world: World?, id: Int, private val mCar: Car,
+    position: Vector2, size: Vector2, world: World, id: Int, private val mCar: Car,
     /**
      * Returning boolean value if wheel is powered or not
      * @return powered wheel or not
@@ -25,7 +27,7 @@ class Wheel
      * @param angle angle to which to rotate the wheel
      */
     fun setAngle(angle: Float) {
-        getBody().setTransform(getBody().getPosition(), mCar.getBody().getAngle() + angle * DEGTORAD)
+        body.setTransform(body.getPosition(), mCar.body.getAngle() + angle * DEGTORAD)
     }
 
     companion object {

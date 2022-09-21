@@ -17,7 +17,7 @@ import robot.core.Assets
 import robot.core.ecs.components.Car
 import robot.core.ecs.components.SpriteComponent
 
-fun createPlayerEntity(): Entity {
+fun createPlayerEntity(width: Float, height: Float): Entity {
     /**
      * The player entity shall have
      * a sprite, a physical car body,
@@ -29,14 +29,8 @@ fun createPlayerEntity(): Entity {
                 userData = this@entity.entity
                 type = BodyDef.BodyType.DynamicBody
                 position.set(0f, 0f)
-                box(4f, 8f) {
-                    friction = 0.1f //Tune
-                    density = 0.1f //tune
-
-//                    filter {
-//                        categoryBits = Box2dCategories.cities
-//                        maskBits = Box2dCategories.whatCitiesCollideWith
-//                    }
+                box(width, height) {
+                    density = 0.5f
                 }
                 circle(10f, vec2(0f,0f)) {
                     isSensor = true
