@@ -43,5 +43,6 @@ fun createPlayerEntity(): Entity {
         }
         with<CameraFollow>()
         with<Car>()
+        with<Sprite>()
     }
 }
