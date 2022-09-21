@@ -26,9 +26,9 @@ class CarPhysicsSystem : IteratingSystem(allOf(Car::class, Box2d::class).get()) 
 
     private fun updateDrive(body: Body, car: Car) {
         var desiredSpeed = 0f
-        if(car.controlState.has(Car.forward))
+        if (car.controlState.has(Car.forward))
             desiredSpeed = car.maxForwardSpeed
-        else if(car.controlState.has(Car.backwards))
+        else if (car.controlState.has(Car.backwards))
             desiredSpeed = car.maxBackwardSpeed
 
         val forwardVelocity = body.forwardVelocity()
@@ -43,16 +43,22 @@ class CarPhysicsSystem : IteratingSystem(allOf(Car::class, Box2d::class).get()) 
         body.applyForce(forwardNormal.scl(force), body.worldCenter, true)
 
         var desiredTorque = 0f
-        if(car.controlState.has(Car.left))
+        if (car.controlState.has(Car.left))
             desiredTorque = 150f
-        else if(car.controlState.has(Car.right))
+        else if (car.controlState.has(Car.right))
             desiredTorque = -150f
         body.applyTorque(desiredTorque, true)
     }
 
+    private val maxLateralImpulse = 3f
     private fun updateFriction(body: Body) {
         val impulse = body.lateralVelocity().scl(-body.mass)
+        if (impulse.len() > maxLateralImpulse)
+            impulse.scl(maxLateralImpulse / impulse.len())
         body.applyLinearImpulse(impulse, body.worldCenter, true)
+
+
+
         body.applyAngularImpulse(body.inertia * 0.1f * -body.angularVelocity, true)
 
         val forward = body.forwardVelocity()
