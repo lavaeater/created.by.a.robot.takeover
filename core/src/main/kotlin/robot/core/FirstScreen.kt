@@ -1,5 +1,6 @@
 package robot.core
 
+import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.Input.Keys
 import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.OrthographicCamera
@@ -13,12 +14,16 @@ import eater.core.engine
 import eater.core.world
 import eater.injection.InjectionContext.Companion.inject
 import eater.input.CommandMap
+import eater.input.KeyPress
 import ktx.app.KtxGame
 import ktx.app.KtxInputAdapter
 import ktx.app.KtxScreen
 import ktx.app.clearScreen
 import ktx.assets.disposeSafely
 import ktx.assets.toInternalFile
+import ktx.graphics.use
+import ktx.math.random
+import ktx.math.vec2
 import robot.core.ecs.components.Car
 import robot.core.ecs.createPlayerEntity
 import robot.core.injection.Context
@@ -34,13 +39,17 @@ class FirstScreen(val mainGame: KtxGame<KtxScreen>) : KtxScreen, KtxInputAdapter
         Context.initialize()
     }
 
+    val randomRange = (-500f..500f)
+    val cloudOfDots = Array(1000) {
+        vec2(randomRange.random(), randomRange.random())
+    }
     val playerEntity by lazy { createPlayerEntity() }
     val playerCar by lazy { Car.get(playerEntity) }
     val commandMap = CommandMap("Car Controls").apply {
-        setBoth(Keys.W, "THROTTLE UP", { addFlag(Car.forward) }, { removeFlag(Car.forward) })
-        setBoth(Keys.S, "HMM, REVERSE?", { addFlag(Car.backwards) }, { removeFlag(Car.backwards) })
-        setBoth(Keys.A, "STEER LEFT", { addFlag(Car.left) }, { removeFlag(Car.left) })
-        setBoth(Keys.D, "STEER RIGHT", { addFlag(Car.right) }, { removeFlag(Car.right) })
+        setBoth(Keys.W, "THROTTLE UP", { removeFlag(Car.forward) }, { addFlag(Car.forward) })
+        setBoth(Keys.S, "HMM, REVERSE?", { removeFlag(Car.backwards) }, { addFlag(Car.backwards) })
+        setBoth(Keys.A, "STEER LEFT", { removeFlag(Car.left) }, { addFlag(Car.left) })
+        setBoth(Keys.D, "STEER RIGHT", { removeFlag(Car.right) }, { addFlag(Car.right) })
     }
 
     private fun addFlag(flag: Int) {
@@ -81,6 +90,11 @@ class FirstScreen(val mainGame: KtxGame<KtxScreen>) : KtxScreen, KtxInputAdapter
     }
 
     override fun show() {
+        Gdx.input.inputProcessor = this
+    }
+
+    override fun hide() {
+        Gdx.input.inputProcessor = null
     }
 
     override fun resize(width: Int, height: Int) {
@@ -88,17 +102,25 @@ class FirstScreen(val mainGame: KtxGame<KtxScreen>) : KtxScreen, KtxInputAdapter
         batch.projectionMatrix = camera.combined
     }
 
+
+    override fun keyDown(keycode: Int): Boolean {
+        return commandMap.execute(keycode, KeyPress.Down)
+    }
+
+    override fun keyUp(keycode: Int): Boolean {
+        return commandMap.execute(keycode, KeyPress.Up)
+    }
+
     override fun render(delta: Float) {
         clearScreen(red = 0.7f, green = 0.7f, blue = 0.7f)
         camera.update(false) //True or false, what's the difference?
         batch.projectionMatrix = camera.combined
-        updatePlayerCarStuff(delta)
         updatePhysics(delta)
         updateEngine(delta)
-    }
-
-    private fun updatePlayerCarStuff(delta: Float) {
-        
+        batch.use {
+            for(v in cloudOfDots)
+                shapeDrawer.filledCircle(v, 2.5f, Color.GREEN)
+        }
     }
 
     private fun updateEngine(delta: Float) {

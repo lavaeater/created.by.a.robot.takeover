@@ -21,15 +21,16 @@ fun createPlayerEntity(): Entity {
      * a sprite, a physical car body,
      * perhaps some wheels?
      */
-    engine().entity {
+    return engine().entity {
         with<Box2d> {
             body = world().body {
                 userData = this@entity.entity
                 type = BodyDef.BodyType.DynamicBody
                 position.set(0f, 0f)
                 box(4f, 8f) {
-                    friction = 10f //Tune
-                    density = 1f //tune
+                    friction = 0.1f //Tune
+                    density = 0.1f //tune
+
 //                    filter {
 //                        categoryBits = Box2dCategories.cities
 //                        maskBits = Box2dCategories.whatCitiesCollideWith
