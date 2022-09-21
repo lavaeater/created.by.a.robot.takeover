@@ -13,6 +13,7 @@ import ktx.box2d.createWorld
 import robot.core.GameConstants.GameHeight
 import robot.core.GameConstants.GameWidth
 import robot.core.ecs.systems.CarPhysicsSystem
+import robot.core.ecs.systems.RenderSystem
 
 
 object Context : InjectionContext() {
@@ -38,7 +39,7 @@ object Context : InjectionContext() {
             addSystem(CameraUpdateSystem(inject(), inject()))
             addSystem(PhysicsDebugRendererSystem(inject(), inject()))
             addSystem(CarPhysicsSystem())
-//            addSystem(RenderSystem())
+            addSystem(RenderSystem(inject()))
 //            addSystem(UtilityAiSystem())
 //            addSystem(UpdateActionsSystem())
         }

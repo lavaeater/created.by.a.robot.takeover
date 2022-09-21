@@ -13,7 +13,9 @@ import ktx.box2d.body
 import ktx.box2d.box
 import ktx.box2d.circle
 import ktx.math.vec2
+import robot.core.Assets
 import robot.core.ecs.components.Car
+import robot.core.ecs.components.SpriteComponent
 
 fun createPlayerEntity(): Entity {
     /**
@@ -43,6 +45,8 @@ fun createPlayerEntity(): Entity {
         }
         with<CameraFollow>()
         with<Car>()
-        with<Sprite>()
+        with<SpriteComponent> {
+            texture = Assets.blueCarRegion.first()
+        }
     }
 }

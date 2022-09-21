@@ -19,8 +19,7 @@ import ktx.app.KtxGame
 import ktx.app.KtxInputAdapter
 import ktx.app.KtxScreen
 import ktx.app.clearScreen
-import ktx.assets.disposeSafely
-import ktx.assets.toInternalFile
+import ktx.assets.*
 import ktx.graphics.use
 import ktx.math.random
 import ktx.math.vec2
@@ -33,6 +32,20 @@ fun Int.has(flag: Int) = flag and this == flag
 fun Int.with(flag: Int) = this or flag
 fun Int.without(flag: Int) = this and flag.inv()
 
+object Assets: DisposableRegistry by DisposableContainer() {
+    private val blueCarTexture = Texture("cars/player-blue.png".toLocalFile(),true).apply {
+//        setFilter(
+//            Texture.TextureFilter.Linear,
+//            Texture.TextureFilter.Linear
+//        )
+    }.alsoRegister()
+    val blueCarRegion by lazy {
+        Array(8) {
+            TextureRegion(blueCarTexture, it * 16, 0, 16, 16)
+        }
+    }
+
+}
 
 class FirstScreen(val mainGame: KtxGame<KtxScreen>) : KtxScreen, KtxInputAdapter {
     init {
@@ -139,5 +152,6 @@ class FirstScreen(val mainGame: KtxGame<KtxScreen>) : KtxScreen, KtxInputAdapter
     override fun dispose() {
         image.disposeSafely()
         batch.disposeSafely()
+        Assets.disposeSafely()
     }
 }
