@@ -27,19 +27,29 @@ class CarPhysicsSystem : IteratingSystem(allOf(Car::class, Box2d::class).get()) 
 
     private fun updateDrive(body: Body, car: Car) {
         var desiredSpeed = 0f
-        if (car.controlState.has(Car.forward))
+        if (car.controlState.has(Car.forward)) {
             desiredSpeed = car.maxForwardSpeed
-        else if (car.controlState.has(Car.backwards))
+            car.currentDriveForce += car.acceleration
+            car.currentDriveForce
+        }
+        else if (car.controlState.has(Car.backwards)) {
             desiredSpeed = car.maxBackwardSpeed
+            car.currentDriveForce -= car.decceleration
+        } else {
+            car.currentDriveForce = 0f
+        }
+
+        car.currentDriveForce = MathUtils.clamp(car.currentDriveForce, -car.maxDriveForce, car.maxDriveForce)
 
         val forwardNormal = body.forwardNormal()
         val currentSpeed = body.forwardVelocity().dot(forwardNormal)
         var force = 0f
         if(!MathUtils.isZero(desiredSpeed)) {
-            if (desiredSpeed > currentSpeed)
-                force = car.maxDriveForce
+            if (desiredSpeed > currentSpeed) {
+                force = car.currentDriveForce
+            }
             else if (desiredSpeed < currentSpeed)
-                force = -car.maxDriveForce
+                force = car.currentDriveForce
         }
 
         body.applyForce(forwardNormal.scl(force), body.worldCenter, true)

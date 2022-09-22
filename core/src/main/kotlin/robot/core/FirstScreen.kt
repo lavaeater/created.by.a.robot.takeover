@@ -33,18 +33,10 @@ fun Int.with(flag: Int) = this or flag
 fun Int.without(flag: Int) = this and flag.inv()
 
 object Assets: DisposableRegistry by DisposableContainer() {
-    private val blueCarTexture = Texture("cars/player-blue.png".toLocalFile(),true).apply {
-//        setFilter(
-//            Texture.TextureFilter.Linear,
-//            Texture.TextureFilter.Linear
-//        )
-    }.alsoRegister()
+    private val blueCarTexture = Texture("cars/player-blue.png".toLocalFile(),true).alsoRegister()
     val blueCarRegion by lazy {
-        Array(8) {
-            TextureRegion(blueCarTexture, it * 16, 0, 16, 16)
-        }
+            TextureRegion(blueCarTexture, 0, 0, 16, 16)
     }
-
 }
 
 class FirstScreen(val mainGame: KtxGame<KtxScreen>) : KtxScreen, KtxInputAdapter {

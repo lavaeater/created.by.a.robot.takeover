@@ -10,6 +10,9 @@ class Car : Component, Poolable {
     var maxForwardSpeed = 10000f
     var maxBackwardSpeed = 2000f
     var maxDriveForce = 10000f
+    var currentDriveForce = 0f
+    var acceleration = 100f
+    var decceleration = 500f
     var controlState = 0
     override fun reset() {
         maxForwardSpeed = 10000f
@@ -17,6 +20,8 @@ class Car : Component, Poolable {
         maxDriveForce = 10000f
         maxTorque = 100f
         controlState = 0
+        currentDriveForce = 0f
+        acceleration = 10f
     }
 
     companion object {
