@@ -19,16 +19,16 @@ class TrackSection(val points: Array<Vector2>, val widths: Array<Float>) {
     private fun fixEdges() {
         left = Array(points.size) { vec2()}
         right = Array(points.size) { vec2()}
-        for (i in 0 until points.lastIndex) {
-            val current = points[i]
-            val next = points[i + 1]
+        for (i in 1..points.lastIndex) {
+            val current = points[i - 1]
+            val next = points[i]
             val direction = (next - current).nor()
             val dirLeft = direction.cpy().rotate90(1)
-            dirLeft.scl(widths[i] / 2f)
+            dirLeft.scl(widths[i - 1] / 2f)
             val dirRight = direction.cpy().rotate90(-1)
-            dirRight.scl(widths[i] / 2f)
-            left[i + 1].set(current + dirLeft)
-            right[i + 1].set(current + dirRight)
+            dirRight.scl(widths[i - 1] / 2f)
+            left[i - 1].set(current + dirLeft)
+            right[i - 1].set(current + dirRight)
         }
     }
 }
@@ -66,7 +66,7 @@ class TrackMania {
     }
 
     fun setWidths(noOfPoints: Int, widthRange: ClosedFloatingPointRange<Float>, changeRange: ClosedFloatingPointRange<Float>): Array<Float> {
-        var previousWidth = 250f
+        var previousWidth = (widthRange.start + widthRange.endInclusive) / 2f
         return Array(noOfPoints) {
             if (it == 0)
                 previousWidth
@@ -77,12 +77,13 @@ class TrackMania {
         }
     }
 
-    fun buildTrack(sectionCount: Int, fidelity: Int): Array<Vector2> {
+    fun buildTrack(startPoint: Vector2, sectionCount: Int, fidelity: Int): Array<Vector2> {
         val totalPoints = sectionCount * fidelity
         val sampleSection = getSection(vec2(), sectionCount)
         val track = CatmullRomSpline(sampleSection, false)
         val points = Array(totalPoints) { vec2() }
         //Cache the points
+        points.first().set(startPoint)
         for (i in 1 until totalPoints) {
             track.valueAt(points[i], (i.toFloat() / (totalPoints.toFloat() - 1f)))
         }
@@ -95,11 +96,10 @@ class TrackMania {
     }
 
     fun getTrack(): TrackSection {
-
         val sectionCount = 10
         val fidelity = 10
         val totalPoints = sectionCount * fidelity
-        val points = buildTrack(sectionCount, fidelity)
+        val points = buildTrack(vec2(), sectionCount, fidelity)
         val widths = setWidths(totalPoints, 10f..50f, 5f..15f)
         return TrackSection(points, widths)
     }

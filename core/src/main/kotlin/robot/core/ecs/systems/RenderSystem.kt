@@ -19,7 +19,7 @@ import robot.core.ecs.components.SpriteComponent
 import robot.core.track.TrackMania
 import space.earlygrey.shapedrawer.ShapeDrawer
 
-fun TextureRegion.draw(batch: PolygonSpriteBatch, position: Vector2, rotation:Float, scale: Float) {
+fun TextureRegion.draw(batch: PolygonSpriteBatch, position: Vector2, rotation: Float, scale: Float) {
     batch.draw(
         this,
         position.x - this.regionWidth / 2f,
@@ -44,19 +44,17 @@ class RenderSystem(private val batch: PolygonSpriteBatch) :
     override fun update(deltaTime: Float) {
         batch.use {
 
-        renderTrack()
+            renderTrack()
             super.update(deltaTime)
         }
     }
 
     private fun renderTrack() {
         shapeDrawer.setColor(Color.DARK_GRAY)
-        for(i in 0..track.points.lastIndex) {
-            if(i > 0) {
-                shapeDrawer.line(track.left[i-1], track.left[i], .25f)
-                shapeDrawer.line(track.points[i-1], track.points[i], .25f)
-                shapeDrawer.line(track.right[i-1], track.right[i], .25f)
-            }
+        for (i in 1..track.points.lastIndex) {
+            shapeDrawer.line(track.left[i - 1], track.left[i], .25f)
+            shapeDrawer.line(track.points[i - 1 ], track.points[i], .25f)
+            shapeDrawer.line(track.right[i - 1], track.right[i], .25f)
         }
     }
 
@@ -66,7 +64,12 @@ class RenderSystem(private val batch: PolygonSpriteBatch) :
         val shadow = sprite.shadow
         val body = Box2d.get(entity).body
         val position = body.worldCenter
-        shadow.draw(batch, position + vec2(1f * MetersPerPixel,-1f * MetersPerPixel), body.angle * radiansToDegrees, MetersPerPixel)
+        shadow.draw(
+            batch,
+            position + vec2(1f * MetersPerPixel, -1f * MetersPerPixel),
+            body.angle * radiansToDegrees,
+            MetersPerPixel
+        )
         region.draw(batch, position, body.angle * radiansToDegrees, MetersPerPixel)
     }
 }
