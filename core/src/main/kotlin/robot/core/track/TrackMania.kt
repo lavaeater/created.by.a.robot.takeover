@@ -4,26 +4,31 @@ import com.badlogic.gdx.math.CatmullRomSpline
 import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.math.Vector2
 import ktx.math.minus
+import ktx.math.plus
 import ktx.math.random
 import ktx.math.vec2
 
-class TrackSection(val points: Array<Vector2>) {
+class TrackSection(val points: Array<Vector2>, val widths: Array<Float>) {
     init {
         fixEdges()
     }
 
+    lateinit var left: Array<Vector2>
+    lateinit var right: Array<Vector2>
+
     private fun fixEdges() {
-        val left = Array(points.size) {
-            vec2()
-        }
-        val right = Array(points.size) {
-            vec2()
-        }
-        for(i in 0 until points.lastIndex) {
+        left = Array(points.size) { vec2()}
+        right = Array(points.size) { vec2()}
+        for (i in 0 until points.lastIndex) {
             val current = points[i]
             val next = points[i + 1]
             val direction = (next - current).nor()
-            left[i].set()
+            val dirLeft = direction.cpy().rotate90(1)
+            dirLeft.scl(widths[i] / 2f)
+            val dirRight = direction.cpy().rotate90(-1)
+            dirRight.scl(widths[i] / 2f)
+            left[i + 1].set(current + dirLeft)
+            right[i + 1].set(current + dirRight)
         }
     }
 }
@@ -42,25 +47,28 @@ class TrackMania {
      * These points will then be beziered into a smooth path, from which we shall build the actual track. Very cool indeed
      */
 
-    fun getSection(startPoint: Vector2, noOfPoints: Int, yDistance: Float = 250f, xRange: ClosedFloatingPointRange<Float> = -250f..250f) : Array<Vector2> {
+    fun getSection(
+        startPoint: Vector2,
+        noOfPoints: Int,
+        yDistance: Float = 250f,
+        xRange: ClosedFloatingPointRange<Float> = -250f..250f
+    ): Array<Vector2> {
         val tmp = startPoint.cpy()
         return Array(noOfPoints) {
             /**
              * We always go up, so we add something to tmp
              */
-            if(it == 0)
+            if (it == 0)
                 startPoint.cpy()
             else
                 tmp.set(tmp.x + xRange.random(), tmp.y + yDistance).cpy()
         }
     }
 
-    fun setWidths(noOfPoints: Int): Array<Float> {
-        val widthRange = 50f..500f
-        val changeRange = -25f..25f
+    fun setWidths(noOfPoints: Int, widthRange: ClosedFloatingPointRange<Float>, changeRange: ClosedFloatingPointRange<Float>): Array<Float> {
         var previousWidth = 250f
         return Array(noOfPoints) {
-            if(it == 0)
+            if (it == 0)
                 previousWidth
             else {
                 previousWidth += changeRange.random()
@@ -69,16 +77,14 @@ class TrackMania {
         }
     }
 
-    fun buildTrack() : Array<Vector2> {
-        val sectionCount = 10
-        val fidelity = 10
+    fun buildTrack(sectionCount: Int, fidelity: Int): Array<Vector2> {
         val totalPoints = sectionCount * fidelity
         val sampleSection = getSection(vec2(), sectionCount)
         val track = CatmullRomSpline(sampleSection, false)
-        val points = Array(totalPoints){ vec2() }
+        val points = Array(totalPoints) { vec2() }
         //Cache the points
-        for(i in 1 until totalPoints) {
-            track.valueAt(points[i], (i.toFloat() / (totalPoints.toFloat() - 1f)) )
+        for (i in 1 until totalPoints) {
+            track.valueAt(points[i], (i.toFloat() / (totalPoints.toFloat() - 1f)))
         }
         /**
          * Do we calculate this on the fly?
@@ -86,6 +92,16 @@ class TrackMania {
          * lets say we do a thousand points on the track... no, ten times the number of points
          */
         return points
+    }
+
+    fun getTrack(): TrackSection {
+
+        val sectionCount = 10
+        val fidelity = 10
+        val totalPoints = sectionCount * fidelity
+        val points = buildTrack(sectionCount, fidelity)
+        val widths = setWidths(totalPoints, 10f..50f, 5f..15f)
+        return TrackSection(points, widths)
     }
 
 }
