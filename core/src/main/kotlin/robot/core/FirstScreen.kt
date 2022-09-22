@@ -19,7 +19,8 @@ import ktx.app.KtxGame
 import ktx.app.KtxInputAdapter
 import ktx.app.KtxScreen
 import ktx.app.clearScreen
-import ktx.assets.*
+import ktx.assets.disposeSafely
+import ktx.assets.toInternalFile
 import ktx.graphics.use
 import ktx.math.random
 import ktx.math.vec2
@@ -31,13 +32,6 @@ import space.earlygrey.shapedrawer.ShapeDrawer
 fun Int.has(flag: Int) = flag and this == flag
 fun Int.with(flag: Int) = this or flag
 fun Int.without(flag: Int) = this and flag.inv()
-
-object Assets: DisposableRegistry by DisposableContainer() {
-    private val blueCarTexture = Texture("cars/player-blue.png".toLocalFile(),true).alsoRegister()
-    val blueCarRegion by lazy {
-            TextureRegion(blueCarTexture, 0, 0, 16, 16)
-    }
-}
 
 class FirstScreen(val mainGame: KtxGame<KtxScreen>) : KtxScreen, KtxInputAdapter {
     init {

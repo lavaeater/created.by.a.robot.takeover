@@ -7,9 +7,11 @@ import com.badlogic.gdx.utils.Pool
 import ktx.ashley.mapperFor
 
 class SpriteComponent: Component, Pool.Poolable {
+    var shadow = TextureRegion()
     var texture = TextureRegion()
     override fun reset() {
         texture = TextureRegion()
+        shadow = TextureRegion()
     }
     companion object {
         val mapper = mapperFor<SpriteComponent>()

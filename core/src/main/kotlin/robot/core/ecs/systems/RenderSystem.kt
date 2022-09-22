@@ -10,6 +10,8 @@ import com.badlogic.gdx.math.Vector2
 import eater.ecs.components.Box2d
 import ktx.ashley.allOf
 import ktx.graphics.use
+import ktx.math.plus
+import ktx.math.vec2
 import robot.core.GameConstants.MetersPerPixel
 import robot.core.ecs.components.SpriteComponent
 
@@ -35,10 +37,12 @@ class RenderSystem(private val batch: PolygonSpriteBatch) :
     }
 
     override fun processEntity(entity: Entity, deltaTime: Float) {
-        val region = SpriteComponent.get(entity).texture
+        val sprite = SpriteComponent.get(entity)
+        val region = sprite.texture
+        val shadow = sprite.shadow
         val body = Box2d.get(entity).body
         val position = body.worldCenter
+        shadow.draw(batch, position + vec2(1f * MetersPerPixel,-1f * MetersPerPixel), body.angle * radiansToDegrees, MetersPerPixel)
         region.draw(batch, position, body.angle * radiansToDegrees, MetersPerPixel)
-
     }
 }

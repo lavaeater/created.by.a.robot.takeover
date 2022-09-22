@@ -77,6 +77,7 @@ fun carEntity(entity: EngineEntity, worldPos: Vector2, width: Float, height: Flo
         with<Car>()
         with<SpriteComponent> {
             texture = robot.core.Assets.blueCarRegion
+            shadow = robot.core.Assets.carShadowRegion
         }
     }
 }
