@@ -3,8 +3,30 @@ package robot.core.track
 import com.badlogic.gdx.math.CatmullRomSpline
 import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.math.Vector2
+import ktx.math.minus
 import ktx.math.random
 import ktx.math.vec2
+
+class TrackSection(val points: Array<Vector2>) {
+    init {
+        fixEdges()
+    }
+
+    private fun fixEdges() {
+        val left = Array(points.size) {
+            vec2()
+        }
+        val right = Array(points.size) {
+            vec2()
+        }
+        for(i in 0 until points.lastIndex) {
+            val current = points[i]
+            val next = points[i + 1]
+            val direction = (next - current).nor()
+            left[i].set()
+        }
+    }
+}
 
 class TrackMania {
     /**
