@@ -24,6 +24,9 @@ import ktx.assets.toInternalFile
 import ktx.graphics.use
 import ktx.math.random
 import ktx.math.vec2
+import robot.core.GameConstants.PosIters
+import robot.core.GameConstants.TimeStep
+import robot.core.GameConstants.VelIters
 import robot.core.ecs.components.Car
 import robot.core.ecs.createPlayerEntity
 import robot.core.injection.Context
@@ -70,23 +73,8 @@ class FirstScreen(val mainGame: KtxGame<KtxScreen>) : KtxScreen, KtxInputAdapter
             Texture.TextureFilter.Linear
         )
     }
-    private val timeStep = 1 / 60f
+    private val shapeDrawer: ShapeDrawer by lazy { inject() }
     private var accumulator = 0f
-    private val velIters = 16
-    private val posIters = 6
-
-    private val shapeDrawerRegion: TextureRegion by lazy {
-        val pixmap = Pixmap(1, 1, Pixmap.Format.RGBA8888)
-        pixmap.setColor(Color.WHITE)
-        pixmap.drawPixel(0, 0)
-        val texture = Texture(pixmap) //remember to dispose of later
-        pixmap.disposeSafely()
-        TextureRegion(texture, 0, 0, 1, 1)
-    }
-
-    val shapeDrawer by lazy {
-        ShapeDrawer(inject<PolygonSpriteBatch>() as Batch, shapeDrawerRegion)
-    }
 
     override fun show() {
         Gdx.input.inputProcessor = this
@@ -127,10 +115,10 @@ class FirstScreen(val mainGame: KtxGame<KtxScreen>) : KtxScreen, KtxInputAdapter
     }
 
     private fun updatePhysics(delta: Float) {
-        val ourTime = delta.coerceAtMost(timeStep * 2)
+        val ourTime = delta.coerceAtMost(TimeStep * 2)
         accumulator += ourTime
-        while (accumulator > timeStep) {
-            world().step(timeStep, velIters, posIters)
+        while (accumulator > TimeStep) {
+            world().step(TimeStep, VelIters, PosIters)
             accumulator -= ourTime
         }
     }

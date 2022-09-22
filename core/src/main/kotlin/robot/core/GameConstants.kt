@@ -7,6 +7,11 @@ object GameConstants {
     const val MetersPerPixel = 1f / PixelsPerMeter
     const val DragForceMagnitudeFactor = -0.1f
     const val MaxLateralImpulse = 5f
+
+    const val TimeStep = 1 / 60f
+    const val VelIters = 16
+    const val PosIters = 6
+
 }
 
 object Box2dCategories {
