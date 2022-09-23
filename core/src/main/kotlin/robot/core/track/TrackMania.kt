@@ -3,6 +3,10 @@ package robot.core.track
 import com.badlogic.gdx.math.CatmullRomSpline
 import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.math.Vector2
+import eater.core.world
+import ktx.box2d.body
+import ktx.box2d.chain
+import ktx.math.plus
 import ktx.math.random
 import ktx.math.vec2
 
@@ -54,38 +58,40 @@ class TrackMania {
         }
     }
 
-    fun setWidths(noOfPoints: Int, widthRange: ClosedFloatingPointRange<Float>, changeRange: IntRange): Array<Float> {
-        var previousWidth = (widthRange.start + widthRange.endInclusive) / 2f
-        return Array(noOfPoints) {
-            if (it == 0)
-                previousWidth
-            else {
-                previousWidth += changeRange.random() * 10f
-                MathUtils.clamp(previousWidth, widthRange.start, widthRange.endInclusive)
-            }
+    fun fixBodies(numberOfSections: Int, track: List<SnakeTrackSection>) {
+        val startIndex = track.indexOfFirst { !it.hasBody }
+        var endIndex = startIndex + numberOfSections - 1
+        if(endIndex > track.lastIndex)
+            endIndex = track.lastIndex
+
+        val points = track.subList(startIndex, endIndex)
+        world().body {
+            chain(*points.map { it.left }.toTypedArray())
+        }
+        world().body {
+            chain(*points.map { it.right }.toTypedArray())
         }
     }
 
-    fun buildTrackSnake(
+    fun buildSnakeTrack(
         startPoint: Vector2,
         sectionCount: Int,
         fidelity: Int,
         widthRange: ClosedFloatingPointRange<Float>,
-        changeRange: IntRange): Array<TrackSnakeSection> {
-        val points = buildTrack(startPoint, sectionCount, fidelity)
+        changeRange: IntRange): List<SnakeTrackSection> {
+        val points = generateTrackPoints(startPoint, sectionCount, fidelity)
         var previousWidth = (widthRange.start + widthRange.endInclusive) / 2f
-        val t = points.mapIndexed { i, p ->
+        return points.mapIndexed { i, p ->
+            previousWidth = MathUtils.clamp(previousWidth + changeRange.random() * 10f, widthRange.start, widthRange.endInclusive)
             if (i < points.lastIndex) {
-                MathUtils.clamp(previousWidth, widthRange.start, widthRange.endInclusive)
-                previousWidth += changeRange.random() * 10f
-                TrackSnakeSection(p).apply { fixSides(points[i + 1],) }
+                SnakeTrackSection(p).apply { fixSides(points[i + 1], previousWidth) }
             } else {
-                TrackSnakeSection()
+                SnakeTrackSection(p).apply { fixSides(p + vec2(0f,10f), previousWidth) }
             }
         }
     }
 
-    fun buildTrack(startPoint: Vector2, sectionCount: Int, fidelity: Int): Array<Vector2> {
+    fun generateTrackPoints(startPoint: Vector2, sectionCount: Int, fidelity: Int): Array<Vector2> {
         val totalPoints = sectionCount * fidelity
         val sampleSection = getSection(vec2(), sectionCount)
         val track = CatmullRomSpline(sampleSection, false)
@@ -108,12 +114,11 @@ class TrackMania {
         fidelity: Int,
         widthRange: ClosedFloatingPointRange<Float>,
         changeRange: IntRange
-    ): TrackSection {
+    ): List<SnakeTrackSection> {
         val totalPoints = sectionCount * fidelity
-        val points = buildTrack(vec2(), sectionCount, fidelity)
-        val track = buildTrack(vec2(), sectionCount, fidelity)
-        val widths = setWidths(totalPoints, widthRange, changeRange)
-        return TrackSection(points, widths)
+        val snakeTrack = buildSnakeTrack(vec2(), sectionCount, fidelity, widthRange, changeRange)
+        fixBodies(1000, snakeTrack)
+        return snakeTrack
     }
 
 }

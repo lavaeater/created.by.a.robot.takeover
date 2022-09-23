@@ -37,7 +37,7 @@ class RenderSystem(private val batch: PolygonSpriteBatch) :
     IteratingSystem(allOf(Box2d::class, SpriteComponent::class).get()) {
 
     val trackMania = TrackMania()
-    val track = trackMania.getTrack(1000,10, 50f..200f, -5..5)
+    val track = trackMania.getTrack(1000,10, 50f..150f, -5..5)
     val shapeDrawer by lazy { inject<ShapeDrawer>() }
 
     override fun update(deltaTime: Float) {
@@ -50,10 +50,12 @@ class RenderSystem(private val batch: PolygonSpriteBatch) :
 
     private fun renderTrack() {
         shapeDrawer.setColor(Color.DARK_GRAY)
-        for (i in 1..track.points.lastIndex) {
-            shapeDrawer.line(track.left[i - 1], track.left[i], .25f)
-            shapeDrawer.line(track.points[i - 1 ], track.points[i], .25f)
-            shapeDrawer.line(track.right[i - 1], track.right[i], .25f)
+        for((index, section) in track.withIndex()) {
+            if(index < track.lastIndex) {
+                shapeDrawer.line(section.left, track[index + 1].left, .25f)
+                shapeDrawer.line(section.center, track[index + 1].center, .25f)
+                shapeDrawer.line(section.right, track[index + 1].right, .25f)
+            }
         }
     }
 
