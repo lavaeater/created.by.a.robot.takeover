@@ -42,9 +42,6 @@ class FirstScreen(val mainGame: KtxGame<KtxScreen>) : KtxScreen, KtxInputAdapter
     }
 
     val randomRange = (-500f..500f)
-    val cloudOfDots = Array(1000) {
-        vec2(randomRange.random(), randomRange.random())
-    }
     val playerEntity by lazy { createPlayerEntity(vec2(),2f, 4f) }
     val playerCar by lazy { Car.get(playerEntity) }
     val commandMap = CommandMap("Car Controls").apply {
@@ -104,10 +101,6 @@ class FirstScreen(val mainGame: KtxGame<KtxScreen>) : KtxScreen, KtxInputAdapter
         batch.projectionMatrix = camera.combined
         updatePhysics(delta)
         updateEngine(delta)
-        batch.use {
-            for(v in cloudOfDots)
-                shapeDrawer.filledCircle(v, 2.5f, Color.GREEN)
-        }
     }
 
     private fun updateEngine(delta: Float) {

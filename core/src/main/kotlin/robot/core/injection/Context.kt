@@ -16,6 +16,7 @@ import robot.core.GameConstants.GameHeight
 import robot.core.GameConstants.GameWidth
 import robot.core.ecs.systems.CarPhysicsSystem
 import robot.core.ecs.systems.RenderSystem
+import robot.core.track.TrackMania
 import space.earlygrey.shapedrawer.ShapeDrawer
 
 
@@ -28,6 +29,7 @@ object Context : InjectionContext() {
         pixmap.disposeSafely()
         TextureRegion(texture, 0, 0, 1, 1)
     }
+
     fun initialize() {
         buildContext {
             bindSingleton(PolygonSpriteBatch())
@@ -42,6 +44,9 @@ object Context : InjectionContext() {
             bindSingleton(createWorld())
             bindSingleton(getEngine())
             bindSingleton(ShapeDrawer(inject<PolygonSpriteBatch>() as Batch, shapeDrawerRegion))
+            bindSingleton(TrackMania().apply {
+                this.track.addAll(this.getTrack(1000, 10, 150f..350f, -5..5))
+            })
 //            bindSingleton(Hud(inject()))
         }
     }

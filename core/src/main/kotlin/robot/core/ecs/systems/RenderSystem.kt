@@ -36,8 +36,8 @@ fun TextureRegion.draw(batch: PolygonSpriteBatch, position: Vector2, rotation: F
 class RenderSystem(private val batch: PolygonSpriteBatch) :
     IteratingSystem(allOf(Box2d::class, SpriteComponent::class).get()) {
 
-    val trackMania = TrackMania()
-    val track = trackMania.getTrack(1000,10, 50f..150f, -5..5)
+    val trackMania = inject<TrackMania>()
+    val track get() = trackMania.track
     val shapeDrawer by lazy { inject<ShapeDrawer>() }
 
     override fun update(deltaTime: Float) {

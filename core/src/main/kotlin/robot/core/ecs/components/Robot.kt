@@ -4,9 +4,13 @@ import com.badlogic.ashley.core.Component
 import com.badlogic.ashley.core.Entity
 import com.badlogic.gdx.utils.Pool
 import ktx.ashley.mapperFor
+import ktx.math.vec2
 
 class Robot : Component, Pool.Poolable {
+    val target = vec2()
+    var targetIndex = 0
     override fun reset() {
+        target.setZero()
     }
 
     companion object {

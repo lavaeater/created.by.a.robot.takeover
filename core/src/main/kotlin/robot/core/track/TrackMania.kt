@@ -40,6 +40,8 @@ class TrackMania {
      * I would be good to have the track be in some kind of section form, instead of being in three different arrays.
      */
 
+    val track = mutableListOf<SnakeTrackSection>()
+
     fun getSection(
         startPoint: Vector2,
         noOfPoints: Int,
@@ -61,7 +63,7 @@ class TrackMania {
     fun fixBodies(numberOfSections: Int, track: List<SnakeTrackSection>) {
         val startIndex = track.indexOfFirst { !it.hasBody }
         var endIndex = startIndex + numberOfSections - 1
-        if(endIndex > track.lastIndex)
+        if (endIndex > track.lastIndex)
             endIndex = track.lastIndex
 
         val points = track.subList(startIndex, endIndex)
@@ -78,15 +80,17 @@ class TrackMania {
         sectionCount: Int,
         fidelity: Int,
         widthRange: ClosedFloatingPointRange<Float>,
-        changeRange: IntRange): List<SnakeTrackSection> {
+        changeRange: IntRange
+    ): List<SnakeTrackSection> {
         val points = generateTrackPoints(startPoint, sectionCount, fidelity)
         var previousWidth = (widthRange.start + widthRange.endInclusive) / 2f
         return points.mapIndexed { i, p ->
-            previousWidth = MathUtils.clamp(previousWidth + changeRange.random() * 10f, widthRange.start, widthRange.endInclusive)
+            previousWidth =
+                MathUtils.clamp(previousWidth + changeRange.random() * 10f, widthRange.start, widthRange.endInclusive)
             if (i < points.lastIndex) {
                 SnakeTrackSection(p).apply { fixSides(points[i + 1], previousWidth) }
             } else {
-                SnakeTrackSection(p).apply { fixSides(p + vec2(0f,10f), previousWidth) }
+                SnakeTrackSection(p).apply { fixSides(p + vec2(0f, 10f), previousWidth) }
             }
         }
     }
@@ -119,6 +123,19 @@ class TrackMania {
         val snakeTrack = buildSnakeTrack(vec2(), sectionCount, fidelity, widthRange, changeRange)
         fixBodies(1000, snakeTrack)
         return snakeTrack
+    }
+
+    fun getNextTarget(targetIndex: Int, minY: Float, targetVector: Vector2): Int {
+        var currentIndex = targetIndex
+        var notFound = true
+        while (currentIndex < track.lastIndex && notFound) {
+            currentIndex++
+            targetVector.set(track[currentIndex].center)
+            if(targetVector.y > minY) {
+                notFound = false
+            }
+        }
+        return currentIndex
     }
 
 }
