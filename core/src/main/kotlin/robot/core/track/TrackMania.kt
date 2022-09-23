@@ -9,6 +9,7 @@ import ktx.box2d.chain
 import ktx.math.plus
 import ktx.math.random
 import ktx.math.vec2
+import robot.core.ecs.UserData
 
 class TrackMania {
     /**
@@ -68,9 +69,11 @@ class TrackMania {
 
         val points = track.subList(startIndex, endIndex)
         world().body {
+            userData = UserData.Wall
             chain(*points.map { it.left }.toTypedArray())
         }
         world().body {
+            userData = UserData.Wall
             chain(*points.map { it.right }.toTypedArray())
         }
     }

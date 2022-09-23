@@ -15,12 +15,13 @@ import ktx.box2d.box
 import ktx.box2d.circle
 import ktx.math.vec2
 import robot.core.ecs.components.Car
+import robot.core.ecs.components.Player
 import robot.core.ecs.components.Robot
 import robot.core.ecs.components.SpriteComponent
 
 fun createRobotCar(position: Vector2, width: Float, height: Float): Entity {
     return engine().entity {
-        carEntity(this, position, width, height)
+        carEntity(this, position, width, height, UserData.Robot(this.entity))
         with<Robot>()
         with<AiComponent> {
             actions.add(RobotActions.chaseMiddle)
@@ -35,22 +36,18 @@ fun createPlayerEntity(position: Vector2, width: Float, height: Float): Entity {
      * perhaps some wheels?
      */
     return engine().entity {
-        carEntity(this, position, width, height)
-//        with<Player>()
+        carEntity(this, position, width, height, UserData.Robot(this.entity))
+        with<Player>()
         with<CameraFollow>()
-        with<Robot>()
-        with<AiComponent> {
-            actions.add(RobotActions.chaseMiddle)
-        }
     }
 }
 
-fun carEntity(entity: EngineEntity, worldPos: Vector2, width: Float, height: Float) {
+fun carEntity(entity: EngineEntity, worldPos: Vector2, width: Float, height: Float, ud:UserData) {
 
     entity.apply {
         with<Box2d> {
             body = world().body {
-                userData = this@apply
+                userData = ud
                 type = com.badlogic.gdx.physics.box2d.BodyDef.BodyType.DynamicBody
                 position.set(worldPos)
                 box(width, height) {
@@ -67,4 +64,10 @@ fun carEntity(entity: EngineEntity, worldPos: Vector2, width: Float, height: Flo
             shadow = robot.core.Assets.carShadowRegion
         }
     }
+}
+
+sealed class UserData {
+    object Wall: UserData()
+    class Player(val entity: Entity):UserData()
+    class Robot(val entity: Entity):UserData()
 }
