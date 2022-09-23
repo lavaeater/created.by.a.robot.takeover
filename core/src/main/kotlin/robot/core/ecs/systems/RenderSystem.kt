@@ -5,7 +5,6 @@ import com.badlogic.ashley.systems.IteratingSystem
 import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.g2d.PolygonSpriteBatch
 import com.badlogic.gdx.graphics.g2d.TextureRegion
-import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.math.MathUtils.radiansToDegrees
 import com.badlogic.gdx.math.Vector2
 import eater.ecs.components.Box2d
@@ -38,7 +37,7 @@ class RenderSystem(private val batch: PolygonSpriteBatch) :
     IteratingSystem(allOf(Box2d::class, SpriteComponent::class).get()) {
 
     val trackMania = TrackMania()
-    val track = trackMania.getTrack()
+    val track = trackMania.getTrack(1000,10, 50f..200f, -5..5)
     val shapeDrawer by lazy { inject<ShapeDrawer>() }
 
     override fun update(deltaTime: Float) {

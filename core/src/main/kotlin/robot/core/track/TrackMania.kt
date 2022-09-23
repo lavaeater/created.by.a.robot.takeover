@@ -65,13 +65,13 @@ class TrackMania {
         }
     }
 
-    fun setWidths(noOfPoints: Int, widthRange: ClosedFloatingPointRange<Float>, changeRange: ClosedFloatingPointRange<Float>): Array<Float> {
+    fun setWidths(noOfPoints: Int, widthRange: ClosedFloatingPointRange<Float>, changeRange: IntRange): Array<Float> {
         var previousWidth = (widthRange.start + widthRange.endInclusive) / 2f
         return Array(noOfPoints) {
             if (it == 0)
                 previousWidth
             else {
-                previousWidth += changeRange.random()
+                previousWidth += changeRange.random() * 10f
                 MathUtils.clamp(previousWidth, widthRange.start, widthRange.endInclusive)
             }
         }
@@ -95,12 +95,10 @@ class TrackMania {
         return points
     }
 
-    fun getTrack(): TrackSection {
-        val sectionCount = 10
-        val fidelity = 10
+    fun getTrack(sectionCount: Int, fidelity: Int, widthRange: ClosedFloatingPointRange<Float>, changeRange: IntRange): TrackSection {
         val totalPoints = sectionCount * fidelity
         val points = buildTrack(vec2(), sectionCount, fidelity)
-        val widths = setWidths(totalPoints, 10f..50f, 5f..15f)
+        val widths = setWidths(totalPoints, widthRange, changeRange)
         return TrackSection(points, widths)
     }
 
