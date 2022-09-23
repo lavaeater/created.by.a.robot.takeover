@@ -3,35 +3,8 @@ package robot.core.track
 import com.badlogic.gdx.math.CatmullRomSpline
 import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.math.Vector2
-import ktx.math.minus
-import ktx.math.plus
 import ktx.math.random
 import ktx.math.vec2
-
-class TrackSection(val points: Array<Vector2>, val widths: Array<Float>) {
-    init {
-        fixEdges()
-    }
-
-    lateinit var left: Array<Vector2>
-    lateinit var right: Array<Vector2>
-
-    private fun fixEdges() {
-        left = Array(points.size) { vec2()}
-        right = Array(points.size) { vec2()}
-        for (i in 1..points.lastIndex) {
-            val current = points[i - 1]
-            val next = points[i]
-            val direction = (next - current).nor()
-            val dirLeft = direction.cpy().rotate90(1)
-            dirLeft.scl(widths[i - 1] / 2f)
-            val dirRight = direction.cpy().rotate90(-1)
-            dirRight.scl(widths[i - 1] / 2f)
-            left[i - 1].set(current + dirLeft)
-            right[i - 1].set(current + dirRight)
-        }
-    }
-}
 
 class TrackMania {
     /**
@@ -45,6 +18,22 @@ class TrackMania {
      * The track will be a series of randomized points along a path
      *
      * These points will then be beziered into a smooth path, from which we shall build the actual track. Very cool indeed
+     *
+     *
+     * We shall add and remove box2d bodies on the fly in this case...
+     *
+     * How, though?
+     *
+     * We shall add bodies for all sections within some typ of Y-region
+     * Yes, if a left or right point is within say -100..500 of the cars y-coordinate, it should have a body added
+     *
+     * The track is right now 10000 meters long or something like that, in absolute y-units.
+     *
+     * So, if we create bodies for all of them, what happens then?
+     *
+     * And what happens if we simply create sections that are about 100 units in height?
+     *
+     * I would be good to have the track be in some kind of section form, instead of being in three different arrays.
      */
 
     fun getSection(
@@ -77,6 +66,25 @@ class TrackMania {
         }
     }
 
+    fun buildTrackSnake(
+        startPoint: Vector2,
+        sectionCount: Int,
+        fidelity: Int,
+        widthRange: ClosedFloatingPointRange<Float>,
+        changeRange: IntRange): Array<TrackSnakeSection> {
+        val points = buildTrack(startPoint, sectionCount, fidelity)
+        var previousWidth = (widthRange.start + widthRange.endInclusive) / 2f
+        val t = points.mapIndexed { i, p ->
+            if (i < points.lastIndex) {
+                MathUtils.clamp(previousWidth, widthRange.start, widthRange.endInclusive)
+                previousWidth += changeRange.random() * 10f
+                TrackSnakeSection(p).apply { fixSides(points[i + 1],) }
+            } else {
+                TrackSnakeSection()
+            }
+        }
+    }
+
     fun buildTrack(startPoint: Vector2, sectionCount: Int, fidelity: Int): Array<Vector2> {
         val totalPoints = sectionCount * fidelity
         val sampleSection = getSection(vec2(), sectionCount)
@@ -95,9 +103,15 @@ class TrackMania {
         return points
     }
 
-    fun getTrack(sectionCount: Int, fidelity: Int, widthRange: ClosedFloatingPointRange<Float>, changeRange: IntRange): TrackSection {
+    fun getTrack(
+        sectionCount: Int,
+        fidelity: Int,
+        widthRange: ClosedFloatingPointRange<Float>,
+        changeRange: IntRange
+    ): TrackSection {
         val totalPoints = sectionCount * fidelity
         val points = buildTrack(vec2(), sectionCount, fidelity)
+        val track = buildTrack(vec2(), sectionCount, fidelity)
         val widths = setWidths(totalPoints, widthRange, changeRange)
         return TrackSection(points, widths)
     }
