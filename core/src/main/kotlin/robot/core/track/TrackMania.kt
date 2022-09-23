@@ -126,7 +126,7 @@ class TrackMania {
     }
 
     fun getNextTarget(targetIndex: Int, minY: Float, targetVector: Vector2): Int {
-        var currentIndex = targetIndex
+        var currentIndex = targetIndex + 5
         var notFound = true
         while (currentIndex < track.lastIndex && notFound) {
             currentIndex++

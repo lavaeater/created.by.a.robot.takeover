@@ -29,6 +29,7 @@ import robot.core.GameConstants.TimeStep
 import robot.core.GameConstants.VelIters
 import robot.core.ecs.components.Car
 import robot.core.ecs.createPlayerEntity
+import robot.core.ecs.createRobotCar
 import robot.core.injection.Context
 import space.earlygrey.shapedrawer.ShapeDrawer
 
@@ -43,6 +44,12 @@ class FirstScreen(val mainGame: KtxGame<KtxScreen>) : KtxScreen, KtxInputAdapter
 
     val randomRange = (-500f..500f)
     val playerEntity by lazy { createPlayerEntity(vec2(),2f, 4f) }
+    val robots by lazy {
+        Array(50) {
+            val x = -50f + it * 2
+            createRobotCar(vec2(x,-10f),2f,4f)
+        }
+    }
     val playerCar by lazy { Car.get(playerEntity) }
     val commandMap = CommandMap("Car Controls").apply {
         setBoth(Keys.W, "THROTTLE UP", { removeFlag(Car.forward) }, { addFlag(Car.forward) })
@@ -75,6 +82,7 @@ class FirstScreen(val mainGame: KtxGame<KtxScreen>) : KtxScreen, KtxInputAdapter
 
     override fun show() {
         Gdx.input.inputProcessor = this
+        val count = robots.size
     }
 
     override fun hide() {

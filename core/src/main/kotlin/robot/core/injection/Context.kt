@@ -9,6 +9,7 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion
 import com.badlogic.gdx.utils.viewport.ExtendViewport
 import eater.ecs.systems.CameraUpdateSystem
 import eater.ecs.systems.PhysicsDebugRendererSystem
+import eater.ecs.systems.UtilityAiSystem
 import eater.injection.InjectionContext
 import ktx.assets.disposeSafely
 import ktx.box2d.createWorld
@@ -57,7 +58,7 @@ object Context : InjectionContext() {
             addSystem(RenderSystem(inject()))
             addSystem(PhysicsDebugRendererSystem(inject(), inject()))
             addSystem(CarPhysicsSystem())
-//            addSystem(UtilityAiSystem())
+            addSystem(UtilityAiSystem())
 //            addSystem(UpdateActionsSystem())
         }
     }
