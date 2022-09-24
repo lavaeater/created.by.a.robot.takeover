@@ -28,11 +28,11 @@ fun createRobotCar(position: Vector2, width: Float, height: Float): Entity {
             actions.add(RobotActions.chaseMiddle)
         }
         with<Car> {
-            health = (100f..200f).random()
-            maxTorque = (100f..2000f).random()
-            maxDriveForce = (8000f..200000f).random()
-            acceleration = (10f..2000f).random()
-            maxForwardSpeed = (5000f..20000f).random()
+            health = (10..20).random() * 10f
+            maxTorque = (1..20).random() * 100f
+            maxDriveForce = (8..200).random() * 1000f
+            acceleration = (1..200).random() * 10f
+            maxForwardSpeed = (5..20).random() * 1000f
         }
         with<CameraFollow>()
     }
