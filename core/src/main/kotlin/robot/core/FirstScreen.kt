@@ -45,9 +45,9 @@ class FirstScreen(val mainGame: KtxGame<KtxScreen>) : KtxScreen, KtxInputAdapter
     val randomRange = (-500f..500f)
     val playerEntity by lazy { createPlayerEntity(vec2(),2f, 4f) }
     val robots by lazy {
-        Array(50) {
-            val x = -50f + it * 2
-            createRobotCar(vec2(x,-10f),2f,4f)
+        Array(10) {
+            val x = -50f + it * 10
+            createRobotCar(vec2(x,-100f),2f,4f)
         }
     }
     val playerCar by lazy { Car.get(playerEntity) }
