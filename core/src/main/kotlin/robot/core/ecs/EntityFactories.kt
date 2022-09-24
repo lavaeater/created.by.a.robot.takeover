@@ -68,6 +68,6 @@ fun carEntity(entity: EngineEntity, worldPos: Vector2, width: Float, height: Flo
 
 sealed class UserData {
     object Wall: UserData()
-    class Player(val entity: Entity):UserData()
-    class Robot(val entity: Entity):UserData()
+    class Player(val player: Entity):UserData()
+    class Robot(val robot: Entity):UserData()
 }

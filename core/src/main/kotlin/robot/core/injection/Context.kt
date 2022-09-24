@@ -15,10 +15,14 @@ import eater.ecs.systems.UtilityAiSystem
 import eater.injection.InjectionContext
 import ktx.assets.disposeSafely
 import ktx.box2d.createWorld
+import ktx.math.random
 import robot.core.GameConstants.GameHeight
 import robot.core.GameConstants.GameWidth
 import robot.core.ecs.UserData
+import robot.core.ecs.components.Car
+import robot.core.ecs.systems.CarDeathSystem
 import robot.core.ecs.systems.CarPhysicsSystem
+import robot.core.ecs.systems.RemoveEntitySystem
 import robot.core.ecs.systems.RenderSystem
 import robot.core.track.TrackMania
 import space.earlygrey.shapedrawer.ShapeDrawer
@@ -46,15 +50,32 @@ object Context : InjectionContext() {
                 )
             )
             bindSingleton(createWorld().apply {
-                this.setContactListener(object: ContactListener {
+                this.setContactListener(object : ContactListener {
                     override fun beginContact(contact: Contact) {
-                        val bodyA = contact.fixtureA.body
-                        val bodyB = contact.fixtureB.body
+                        when (val contactType = ContactType.getContactType(contact)) {
+                            is ContactType.PlayerAndWall -> {
+                                //Take some damage
+                                val car = Car.get(contactType.player)
+                                car.health -= (5f..15f).random()
+                            }
 
+                            is ContactType.RobotAndWall -> {
+                                val car = Car.get(contactType.robot)
+                                car.health -= (15f..35f).random()
+                            }
+                            is ContactType.RobotAndRobot -> {
+                                Car.get(contactType.robotA).health -= (15f..50f).random()
+                                Car.get(contactType.robotB).health -= (15f..50f).random()
+                            }
+                            is ContactType.PlayerAndRobot -> {
+                                Car.get(contactType.player).health -= (15f..50f).random()
+                                Car.get(contactType.robot).health -= (15f..50f).random()
+                            }
+                            else -> {}
+                        }
                     }
 
                     override fun endContact(contact: Contact) {
-                        TODO("Not yet implemented")
                     }
 
                     override fun preSolve(contact: Contact?, oldManifold: Manifold?) {
@@ -79,37 +100,53 @@ object Context : InjectionContext() {
             addSystem(RenderSystem(inject()))
             addSystem(PhysicsDebugRendererSystem(inject(), inject()))
             addSystem(CarPhysicsSystem())
+            addSystem(CarDeathSystem())
+            addSystem(RemoveEntitySystem())
             addSystem(UtilityAiSystem())
 //            addSystem(UpdateActionsSystem())
         }
     }
 }
 
-fun Body.getUd() : UserData {
+fun Body.getUd(): UserData {
     return this.userData as UserData
 }
 
 sealed class ContactType {
-    class PlayerAndRobot(val player: Entity, val robot: Entity): ContactType()
-    class RobotAndRobot(val robotA: Entity, val robotB: Entity): ContactType()
-    class PlayerAndWall(val player:Entity):ContactType()
-    class RobotAndWall(val robot: Entity):ContactType()
+    class PlayerAndRobot(val player: Entity, val robot: Entity) : ContactType()
+    class RobotAndRobot(val robotA: Entity, val robotB: Entity) : ContactType()
+    class PlayerAndWall(val player: Entity) : ContactType()
+    class RobotAndWall(val robot: Entity) : ContactType()
+    object NotRelevant : ContactType()
 
     companion object {
-        fun getContactType(contact: Contact):ContactType {
+        fun getContactType(contact: Contact): ContactType {
             val bodyAuserData = contact.fixtureA.body.getUd()
             val bodyBuserData = contact.fixtureB.body.getUd()
-            when(bodyAuserData) {
+            return when (bodyAuserData) {
                 is UserData.Player -> {
-                    when(bodyBuserData) {
-                        is UserData.Robot -> return PlayerAndRobot(bodyAuserData.)
+                    when (bodyBuserData) {
+                        is UserData.Robot -> PlayerAndRobot(bodyAuserData.player, bodyBuserData.robot)
+                        is UserData.Wall -> PlayerAndWall(bodyAuserData.player)
+                        else -> NotRelevant
                     }
                 }
-                is UserData.Robot -> {}
-                UserData.Wall -> {}
-            }
-            if(bodyAuserData is UserData.Wall || bodyBuserData is UserData.Wall) {
 
+                is UserData.Robot -> {
+                    when (bodyBuserData) {
+                        is UserData.Player -> PlayerAndRobot(bodyBuserData.player, bodyAuserData.robot)
+                        UserData.Wall -> RobotAndWall(bodyAuserData.robot)
+                        is UserData.Robot -> RobotAndRobot(bodyAuserData.robot, bodyBuserData.robot)
+                    }
+                }
+
+                UserData.Wall -> {
+                    when (bodyBuserData) {
+                        is UserData.Player -> PlayerAndWall(bodyBuserData.player)
+                        is UserData.Robot -> RobotAndWall(bodyBuserData.robot)
+                        else -> NotRelevant
+                    }
+                }
             }
         }
     }
