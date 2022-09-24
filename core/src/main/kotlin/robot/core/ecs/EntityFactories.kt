@@ -25,7 +25,8 @@ fun createRobotCar(position: Vector2, width: Float, height: Float): Entity {
         carEntity(this, position, width, height, UserData.Robot(this.entity))
         with<Robot>()
         with<AiComponent> {
-            actions.add(RobotActions.chaseMiddle)
+//            actions.add(RobotActions.chaseMiddle)
+            actions.add(RobotActions.chasePlayer)
         }
         with<Car> {
             health = (10..20).random() * 10f

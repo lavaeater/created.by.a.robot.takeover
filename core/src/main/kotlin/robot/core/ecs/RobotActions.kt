@@ -8,6 +8,7 @@ import eater.physics.forwardNormal
 import ktx.ashley.allOf
 import ktx.math.minus
 import robot.core.ecs.components.Car
+import robot.core.ecs.components.Player
 import robot.core.ecs.components.Robot
 import robot.core.track.TrackMania
 import robot.core.with
@@ -30,8 +31,32 @@ object RobotActions {
      *
      */
     val trackMania = InjectionContext.inject<TrackMania>()
-    val chaseMiddle = GenericActionWithState("Chase Player", {
-        1f
+    val playerFam = allOf(Player::class).get()
+    val aPlayer by lazy { engine().getEntitiesFor(playerFam).first() }
+    val chasePlayer = GenericActionWithState("Chase The Player", {
+        val robotPos = Box2d.get(it).body.worldCenter
+        val playerPos = Box2d.get(aPlayer).body.worldCenter
+        if(robotPos.dst(playerPos) < 500f)
+            0.6f
+        else 0f
+    }, {}, { entity, robot, deltaTime ->
+        val body = Box2d.get(entity).body
+        val car = Car.get(entity)
+        val player = Box2d.get(aPlayer).body
+
+        val targetDirection = (player.worldCenter - body.worldCenter)
+        val bodyForward = body.forwardNormal()
+        val angleDiff = bodyForward.angleDeg() - targetDirection.angleDeg()
+        car.controlState = 0
+        if (angleDiff > 0f && angleDiff.absoluteValue > 20f)
+            car.controlState = car.controlState.with(Car.right)
+        else if (angleDiff < 0f && angleDiff.absoluteValue > 20f)
+            car.controlState = car.controlState.with(Car.left)
+
+        car.controlState = car.controlState.with(Car.forward)
+    }, Robot::class)
+    val chaseMiddle = GenericActionWithState("Chase The Track", {
+        0.5f
     }, {
 
     }, { entity, robot, deltaTime ->
@@ -57,9 +82,9 @@ object RobotActions {
         val bodyForward = body.forwardNormal()
         val angleDiff = bodyForward.angleDeg() - targetDirection.angleDeg()
         car.controlState = 0
-        if (angleDiff > 0f && angleDiff.absoluteValue > 10f)
+        if (angleDiff > 0f && angleDiff.absoluteValue > 20f)
             car.controlState = car.controlState.with(Car.right)
-        else if (angleDiff < 0f && angleDiff.absoluteValue > 10f)
+        else if (angleDiff < 0f && angleDiff.absoluteValue > 20f)
             car.controlState = car.controlState.with(Car.left)
 
         car.controlState = car.controlState.with(Car.forward)
