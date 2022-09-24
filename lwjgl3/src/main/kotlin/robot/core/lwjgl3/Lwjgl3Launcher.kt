@@ -2,18 +2,16 @@
 
 package robot.core.lwjgl3
 
-import com.badlogic.gdx.Gdx
-import com.badlogic.gdx.Graphics.DisplayMode
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Application
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3ApplicationConfiguration
-import robot.core.MainGame
+import robot.core.RoboGame
 
 /** Launches the desktop (LWJGL3) application. */
 fun main() {
-    Lwjgl3Application(MainGame(), Lwjgl3ApplicationConfiguration().apply {
+    Lwjgl3Application(RoboGame(), Lwjgl3ApplicationConfiguration().apply {
         setTitle("CreatedByARobotTakeover")
-        setFullscreenMode(Lwjgl3ApplicationConfiguration.getDisplayModes().first { it.width == 1024 })
-//        setWindowedMode(640, 480)
+//        setFullscreenMode(Lwjgl3ApplicationConfiguration.getDisplayModes().first { it.width == 1024 })
+        setWindowedMode(640, 480)
         setWindowIcon(*(arrayOf(128, 64, 32, 16).map { "libgdx$it.png" }.toTypedArray()))
     })
 }

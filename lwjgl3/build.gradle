@@ -31,6 +31,7 @@ dependencies {
 	implementation "com.github.Hangman:TuningFork:$tuningForkVersion"
 	implementation "games.rednblack.miniaudio:miniaudio:$miniaudioVersion:natives-desktop"
 	implementation project(':core')
+	implementation project(':gdx-lava')
 }
 
 def os = System.properties['os.name'].toLowerCase()

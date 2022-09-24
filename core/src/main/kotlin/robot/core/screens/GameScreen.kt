@@ -1,14 +1,10 @@
-package robot.core
+package robot.core.screens
 
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.Input.Keys
-import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.OrthographicCamera
-import com.badlogic.gdx.graphics.Pixmap
 import com.badlogic.gdx.graphics.Texture
-import com.badlogic.gdx.graphics.g2d.Batch
 import com.badlogic.gdx.graphics.g2d.PolygonSpriteBatch
-import com.badlogic.gdx.graphics.g2d.TextureRegion
 import com.badlogic.gdx.utils.viewport.ExtendViewport
 import eater.core.engine
 import eater.core.world
@@ -21,27 +17,21 @@ import ktx.app.KtxScreen
 import ktx.app.clearScreen
 import ktx.assets.disposeSafely
 import ktx.assets.toInternalFile
-import ktx.graphics.use
-import ktx.math.random
 import ktx.math.vec2
+import robot.core.Assets
 import robot.core.GameConstants.PosIters
 import robot.core.GameConstants.TimeStep
 import robot.core.GameConstants.VelIters
+import robot.core.RoboGame
 import robot.core.ecs.components.Car
 import robot.core.ecs.createPlayerEntity
 import robot.core.ecs.createRobotCar
 import robot.core.injection.Context
+import robot.core.with
+import robot.core.without
 import space.earlygrey.shapedrawer.ShapeDrawer
 
-fun Int.has(flag: Int) = flag and this == flag
-fun Int.with(flag: Int) = this or flag
-fun Int.without(flag: Int) = this and flag.inv()
-
-class FirstScreen(val mainGame: KtxGame<KtxScreen>) : KtxScreen, KtxInputAdapter {
-    init {
-        Context.initialize()
-    }
-
+class GameScreen(private val game: RoboGame) : KtxScreen, KtxInputAdapter {
     val randomRange = (-500f..500f)
     val playerEntity by lazy { createPlayerEntity(vec2(),2f, 4f) }
     val robots by lazy {
