@@ -106,7 +106,8 @@ object Context : InjectionContext() {
             addSystem(CarDeathSystem())
             addSystem(RemoveEntitySystem())
             addSystem(UtilityAiSystem())
-            addSystem(CarFollowSystem())
+            addSystem(EnemyNumbersControlSystem())
+//            addSystem(CarFollowSystem())
 //            addSystem(UpdateActionsSystem())
         }
     }

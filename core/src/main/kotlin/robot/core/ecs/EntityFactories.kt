@@ -34,7 +34,6 @@ fun createRobotCar(position: Vector2, width: Float, height: Float): Entity {
             acceleration = (1..200).random() * 10f
             maxForwardSpeed = (5..20).random() * 1000f
         }
-        with<CameraFollow>()
     }
 }
 
@@ -50,6 +49,7 @@ fun createPlayerEntity(position: Vector2, width: Float, height: Float): Entity {
         with<Car> {
             health = 100f
         }
+        with<CameraFollow>()
     }
 }
 

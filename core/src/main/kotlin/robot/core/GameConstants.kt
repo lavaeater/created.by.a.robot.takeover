@@ -1,8 +1,8 @@
 package robot.core
 
 object GameConstants {
-    const val GameHeight = 256f
-    const val GameWidth = 172f
+    const val GameWidth = 64f
+    const val GameHeight = (16f/9f) * GameWidth
     const val PixelsPerMeter = 4f
     const val MetersPerPixel = 1f / PixelsPerMeter
     const val DragForceMagnitudeFactor = -0.1f
@@ -11,6 +11,8 @@ object GameConstants {
     const val TimeStep = 1 / 60f
     const val VelIters = 16
     const val PosIters = 6
+
+    const val MinRobots = 15
 
 }
 

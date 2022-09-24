@@ -3,6 +3,8 @@ package robot.core.screens
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.Input
 import com.badlogic.gdx.scenes.scene2d.ui.Skin
+import com.badlogic.gdx.utils.viewport.ExtendViewport
+import com.badlogic.gdx.utils.viewport.Viewport
 import eater.core.BasicScreen
 import eater.injection.InjectionContext.Companion.inject
 import eater.input.CommandMap
@@ -23,6 +25,8 @@ class StartScreen(private val roboGame: RoboGame) : BasicScreen(
     }
 ) {
 
+
+    override val viewport: Viewport = ExtendViewport(512f, 512f)
     override fun keyDown(keycode: Int): Boolean {
         roboGame.startGame()
         return true
@@ -38,7 +42,7 @@ class StartScreen(private val roboGame: RoboGame) : BasicScreen(
                 }
                 val currentPos = vec2(this@apply.width / 2f - 150f, this@apply.height / 2f + 100f)
                 label("Created by a Robot Takeover") {
-                    setFontScale(1.5f)
+                    setFontScale(2.5f)
                     setPosition(currentPos.x, currentPos.y)
                     currentPos.y -= this.height * 2
                 }
@@ -53,7 +57,7 @@ Lose - and there is no future
                     .split("\n")
                     .forEach {
                         label(it) {
-                            setFontScale(0.75f)
+                            setFontScale(1f)
                             setPosition(currentPos.x, currentPos.y)
                             currentPos.y -= this.height * 2
                         }
@@ -68,7 +72,7 @@ Any Key - Start Game
                     .split("\n")
                     .forEach {
                         label(it) {
-                            setFontScale(0.5f)
+                            setFontScale(1f)
                             setPosition(currentPos.x, currentPos.y)
                             currentPos.y -= this.height * 2
                         }

@@ -34,12 +34,12 @@ import space.earlygrey.shapedrawer.ShapeDrawer
 class GameScreen(private val game: RoboGame) : KtxScreen, KtxInputAdapter {
     val randomRange = (-500f..500f)
     val playerEntity by lazy { createPlayerEntity(vec2(),2f, 4f) }
-    val robots by lazy {
-        Array(100) {
-            val x = -50f + it
-            createRobotCar(vec2(x,-100f),2f,4f)
-        }
-    }
+//    val robots by lazy {
+//        Array(100) {
+//            val x = -50f + it
+//            createRobotCar(vec2(x,-100f),2f,4f)
+//        }
+//    }
     val playerCar by lazy { Car.get(playerEntity) }
     val commandMap = CommandMap("Car Controls").apply {
         setBoth(Keys.W, "THROTTLE UP", { removeFlag(Car.forward) }, { addFlag(Car.forward) })
@@ -72,7 +72,6 @@ class GameScreen(private val game: RoboGame) : KtxScreen, KtxInputAdapter {
 
     override fun show() {
         Gdx.input.inputProcessor = this
-        val count = robots.size
     }
 
     override fun hide() {

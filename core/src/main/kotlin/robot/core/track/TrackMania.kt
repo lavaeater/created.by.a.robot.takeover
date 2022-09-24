@@ -9,6 +9,7 @@ import ktx.box2d.chain
 import ktx.math.plus
 import ktx.math.random
 import ktx.math.vec2
+import robot.core.GameConstants
 import robot.core.ecs.UserData
 
 class TrackMania {
@@ -126,6 +127,11 @@ class TrackMania {
         val snakeTrack = buildSnakeTrack(vec2(), sectionCount, fidelity, widthRange, changeRange)
         fixBodies(1000, snakeTrack)
         return snakeTrack
+    }
+
+    fun getRobotStartPosition(maxY: Float): Int {
+        val targetIndex = track.indexOfLast { it.center.y < maxY }
+        return targetIndex
     }
 
     fun getNextTarget(targetIndex: Int, minY: Float, targetVector: Vector2): Int {
