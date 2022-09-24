@@ -20,10 +20,7 @@ import robot.core.GameConstants.GameHeight
 import robot.core.GameConstants.GameWidth
 import robot.core.ecs.UserData
 import robot.core.ecs.components.Car
-import robot.core.ecs.systems.CarDeathSystem
-import robot.core.ecs.systems.CarPhysicsSystem
-import robot.core.ecs.systems.RemoveEntitySystem
-import robot.core.ecs.systems.RenderSystem
+import robot.core.ecs.systems.*
 import robot.core.track.TrackMania
 import space.earlygrey.shapedrawer.ShapeDrawer
 
@@ -103,6 +100,7 @@ object Context : InjectionContext() {
             addSystem(CarDeathSystem())
             addSystem(RemoveEntitySystem())
             addSystem(UtilityAiSystem())
+            addSystem(CarFollowSystem())
 //            addSystem(UpdateActionsSystem())
         }
     }

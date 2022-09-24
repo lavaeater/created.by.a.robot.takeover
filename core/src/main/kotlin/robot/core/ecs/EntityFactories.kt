@@ -13,6 +13,7 @@ import ktx.ashley.with
 import ktx.box2d.body
 import ktx.box2d.box
 import ktx.box2d.circle
+import ktx.math.random
 import ktx.math.vec2
 import robot.core.ecs.components.Car
 import robot.core.ecs.components.Player
@@ -26,6 +27,14 @@ fun createRobotCar(position: Vector2, width: Float, height: Float): Entity {
         with<AiComponent> {
             actions.add(RobotActions.chaseMiddle)
         }
+        with<Car> {
+            health = (100f..200f).random()
+            maxTorque = (100f..2000f).random()
+            maxDriveForce = (8000f..200000f).random()
+            acceleration = (10f..2000f).random()
+            maxForwardSpeed = (5000f..20000f).random()
+        }
+        with<CameraFollow>()
     }
 }
 
@@ -38,11 +47,13 @@ fun createPlayerEntity(position: Vector2, width: Float, height: Float): Entity {
     return engine().entity {
         carEntity(this, position, width, height, UserData.Robot(this.entity))
         with<Player>()
-        with<CameraFollow>()
+        with<Car> {
+            health = 100f
+        }
     }
 }
 
-fun carEntity(entity: EngineEntity, worldPos: Vector2, width: Float, height: Float, ud:UserData) {
+fun carEntity(entity: EngineEntity, worldPos: Vector2, width: Float, height: Float, ud: UserData) {
 
     entity.apply {
         with<Box2d> {
@@ -58,7 +69,6 @@ fun carEntity(entity: EngineEntity, worldPos: Vector2, width: Float, height: Flo
                 }
             }
         }
-        with<Car>()
         with<SpriteComponent> {
             texture = robot.core.Assets.blueCarRegion
             shadow = robot.core.Assets.carShadowRegion
@@ -67,7 +77,7 @@ fun carEntity(entity: EngineEntity, worldPos: Vector2, width: Float, height: Flo
 }
 
 sealed class UserData {
-    object Wall: UserData()
-    class Player(val player: Entity):UserData()
-    class Robot(val robot: Entity):UserData()
+    object Wall : UserData()
+    class Player(val player: Entity) : UserData()
+    class Robot(val robot: Entity) : UserData()
 }
