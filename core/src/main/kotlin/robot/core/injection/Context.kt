@@ -26,6 +26,12 @@ import space.earlygrey.shapedrawer.ShapeDrawer
 
 
 object Context : InjectionContext() {
+    val playerWallDamageRange = 2.5f..7.5f
+    val robotAndRobotDamageRange = 5f..10f
+    val playerAndRobotDamageRange = 5f..10f
+    val robotAndPlayerDamageRange = 10f..20f
+    val robotAndWallDamageRange = 10f..20f
+
     private val shapeDrawerRegion: TextureRegion by lazy {
         val pixmap = Pixmap(1, 1, Pixmap.Format.RGBA8888)
         pixmap.setColor(Color.WHITE)
@@ -53,20 +59,20 @@ object Context : InjectionContext() {
                             is ContactType.PlayerAndWall -> {
                                 //Take some damage
                                 val car = Car.get(contactType.player)
-                                car.health -= (2.5f..7.5f).random()
+                                car.health -= playerWallDamageRange.random()
                             }
 
                             is ContactType.RobotAndWall -> {
                                 val car = Car.get(contactType.robot)
-                                car.health -= (15f..35f).random()
+                                car.health -= robotAndWallDamageRange.random()
                             }
                             is ContactType.RobotAndRobot -> {
-                                Car.get(contactType.robotA).health -= (15f..50f).random()
-                                Car.get(contactType.robotB).health -= (15f..50f).random()
+                                Car.get(contactType.robotA).health -= robotAndRobotDamageRange.random()
+                                Car.get(contactType.robotB).health -= robotAndRobotDamageRange.random()
                             }
                             is ContactType.PlayerAndRobot -> {
-                                Car.get(contactType.player).health -= (5f..15f).random()
-                                Car.get(contactType.robot).health -= (15f..50f).random()
+                                Car.get(contactType.player).health -= playerAndRobotDamageRange.random()
+                                Car.get(contactType.robot).health -= robotAndPlayerDamageRange.random()
                             }
                             else -> {}
                         }

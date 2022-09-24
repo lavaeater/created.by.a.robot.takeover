@@ -4,7 +4,9 @@ import com.badlogic.ashley.core.Entity
 import com.badlogic.ashley.systems.IteratingSystem
 import eater.core.world
 import eater.ecs.components.Box2d
+import eater.ecs.components.CameraFollow
 import ktx.ashley.allOf
+import ktx.ashley.remove
 import robot.core.ecs.components.Death
 
 class RemoveEntitySystem: IteratingSystem(allOf(Death::class).get()) {
@@ -13,8 +15,12 @@ class RemoveEntitySystem: IteratingSystem(allOf(Death::class).get()) {
     override fun update(deltaTime: Float) {
         super.update(deltaTime)
         for(entity in toRemove) {
-
-            world.destroyBody(Box2d.get(entity).body)
+            if(CameraFollow.has(entity)) {
+                entity.remove<CameraFollow>()
+            }
+            val body = Box2d.get(entity).body
+            entity.remove<Box2d>()
+            world.destroyBody(body)
             engine.removeEntity(entity)
         }
         toRemove.clear()

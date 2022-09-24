@@ -10,12 +10,12 @@ import ktx.ashley.remove
 import robot.core.ecs.components.Car
 
 class CarFollowSystem: IteratingSystem(allOf(Car::class).get()) {
-    private lateinit var highestCar: Entity
+    private var highestCar: Entity? = null
     override fun processEntity(entity: Entity, deltaTime: Float) {
-        if(::highestCar.isInitialized) {
+        if(highestCar != null && Box2d.has(highestCar!!)) {
             if(entity != highestCar) {
-                if(Box2d.has(entity) && Box2d.get(entity).body.worldCenter.y > Box2d.get(highestCar).body.worldCenter.y) {
-                    highestCar.remove<CameraFollow>()
+                if(Box2d.has(entity) && Box2d.get(entity).body.worldCenter.y > Box2d.get(highestCar!!).body.worldCenter.y) {
+                    highestCar?.remove<CameraFollow>()
                     entity.addComponent<CameraFollow>()
                     highestCar = entity
                 }
