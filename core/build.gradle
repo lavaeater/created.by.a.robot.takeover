@@ -15,7 +15,6 @@ dependencies {
 	api "com.github.raeleus.TenPatch:tenpatch:$tenPatchVersion"
 	api "com.github.tommyettinger:colorful:$colorfulVersion"
 	api "com.github.tommyettinger:digital:$digitalVersion"
-	api "com.github.tommyettinger:jbump:$jbumpVersion"
 	api "com.github.tommyettinger:juniper:$juniperVersion"
 	api "com.github.tommyettinger:make_some_noise:$makeSomeNoiseVersion"
 	api "com.strongjoshua:libgdx-inGameConsole:$inGameConsoleVersion"

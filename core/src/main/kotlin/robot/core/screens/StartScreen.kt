@@ -6,39 +6,87 @@ import com.badlogic.gdx.scenes.scene2d.ui.Skin
 import eater.core.BasicScreen
 import eater.injection.InjectionContext.Companion.inject
 import eater.input.CommandMap
+import ktx.actors.alpha
 import ktx.actors.stage
 import ktx.graphics.use
 import ktx.math.vec2
-import ktx.scene2d.Scene2DSkin
-import ktx.scene2d.actors
-import ktx.scene2d.label
+import ktx.scene2d.*
 import robot.core.Assets
+import robot.core.GameState
 import robot.core.RoboGame
 import space.earlygrey.shapedrawer.ShapeDrawer
 
-class StartScreen(mainGame: RoboGame) : BasicScreen(
-    mainGame,
+class StartScreen(private val roboGame: RoboGame) : BasicScreen(
+    roboGame,
     CommandMap("StartScreen").apply {
-        setDown(Input.Keys.ENTER, "Start Game") { mainGame.startGame() }
+        setDown(Input.Keys.ENTER, "Start Game") { roboGame.startGame() }
     }
 ) {
 
+    override fun keyDown(keycode: Int): Boolean {
+        roboGame.startGame()
+        return true
+    }
 
     private val stage by lazy {
         stage(batch, viewport).apply {
             actors {
-                val currentPos = vec2(this@apply.width / 2f - 50f, this@apply.height / 2f - 50f)
+                image(splashBackground) {
+                    width = stage.width
+                    height = stage.height
+
+                }
+                val currentPos = vec2(this@apply.width / 2f - 150f, this@apply.height / 2f + 100f)
                 label("Created by a Robot Takeover") {
-                    setFontScale(1f)
+                    setFontScale(1.5f)
                     setPosition(currentPos.x, currentPos.y)
                     currentPos.y -= this.height * 2
-                    currentPos.x -= 100f
-//                }
-//                label("GAME OVER") {
-//                    setFontScale(2f)
-//                    setPosition(currentPos.x, currentPos.y)
-//                    currentPos.y -= this.height * 2
-//                }
+                }
+                """
+Race
+
+Win - and humanity is allowed to live
+
+Lose - and there is no future
+
+                   """.trimIndent()
+                    .split("\n")
+                    .forEach {
+                        label(it) {
+                            setFontScale(0.75f)
+                            setPosition(currentPos.x, currentPos.y)
+                            currentPos.y -= this.height * 2
+                        }
+                    }
+                currentPos.x = currentPos.x + 50f
+                """
+Controls
+WASD - control your car
+Space - fire current weapon
+Any Key - Start Game
+                   """.trimIndent()
+                    .split("\n")
+                    .forEach {
+                        label(it) {
+                            setFontScale(0.5f)
+                            setPosition(currentPos.x, currentPos.y)
+                            currentPos.y -= this.height * 2
+                        }
+                    }
+                if (GameState.timesPlayed > 0) {
+                    label("Score: ${GameState.score}") {
+                        setFontScale(1f)
+                        setPosition(currentPos.x, currentPos.y)
+                        currentPos.y -= this.height * 2
+                    }
+                    label("Hi-Score: ${GameState.highScore}") {
+                        setFontScale(1f)
+                        setPosition(currentPos.x, currentPos.y)
+                        currentPos.y -= this.height * 2
+                    }
+                }
+
+
 //                label("Fish the fish with your floating city's nets (theme, you know)") {
 //                    setFontScale(0.6f)
 //                    setPosition(currentPos.x, currentPos.y)
@@ -66,10 +114,10 @@ class StartScreen(mainGame: RoboGame) : BasicScreen(
 //                }
 
 
-                }
             }
         }
     }
+
 
     override fun show() {
         Scene2DSkin.defaultSkin = Skin(Gdx.files.internal("ui/uiskin.json"))
@@ -80,9 +128,9 @@ class StartScreen(mainGame: RoboGame) : BasicScreen(
     val shapeDrawer by lazy { inject<ShapeDrawer>() }
     override fun render(delta: Float) {
         super.render(delta)
-        batch.use {
-            batch.draw(splashBackground,  0f, 0f, viewport.worldWidth, viewport.worldHeight)
-        }
+//        batch.use {
+//            batch.draw(splashBackground, 0f, 0f, viewport.worldWidth, viewport.worldHeight)
+//        }
         stage.act(delta)
         stage.draw()
     }

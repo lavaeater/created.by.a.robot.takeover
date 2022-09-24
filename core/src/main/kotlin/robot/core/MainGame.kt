@@ -9,6 +9,16 @@ import robot.core.screens.StartScreen
 
 object GameState {
     var score = 0
+    var highScore = 0
+        get() {
+            if(score > field)
+                field = score
+            return field
+        }
+    var timesPlayed = 1
+    var gameStarted = false
+    var playerDied = false
+    var playerWon = false
 }
 
 class RoboGame : MainGame() {
