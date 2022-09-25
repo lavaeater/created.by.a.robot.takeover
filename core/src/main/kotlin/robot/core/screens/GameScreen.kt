@@ -27,6 +27,7 @@ import robot.core.ecs.components.Car
 import robot.core.ecs.createPlayerEntity
 import robot.core.ecs.createRobotCar
 import robot.core.injection.Context
+import robot.core.ui.Hud
 import robot.core.with
 import robot.core.without
 import space.earlygrey.shapedrawer.ShapeDrawer
@@ -47,6 +48,8 @@ class GameScreen(private val game: RoboGame) : KtxScreen, KtxInputAdapter {
         setBoth(Keys.A, "STEER LEFT", { removeFlag(Car.left) }, { addFlag(Car.left) })
         setBoth(Keys.D, "STEER RIGHT", { removeFlag(Car.right) }, { addFlag(Car.right) })
     }
+
+    private val hud by lazy { inject<Hud>() }
 
     private fun addFlag(flag: Int) {
         playerCar.controlState = playerCar.controlState.with(flag)
@@ -98,6 +101,7 @@ class GameScreen(private val game: RoboGame) : KtxScreen, KtxInputAdapter {
         batch.projectionMatrix = camera.combined
         updatePhysics(delta)
         updateEngine(delta)
+        hud.render(delta)
     }
 
     private fun updateEngine(delta: Float) {

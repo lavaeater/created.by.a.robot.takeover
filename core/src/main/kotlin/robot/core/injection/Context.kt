@@ -11,6 +11,7 @@ import com.badlogic.gdx.physics.box2d.*
 import com.badlogic.gdx.utils.viewport.ExtendViewport
 import eater.ecs.systems.CameraUpdateSystem
 import eater.ecs.systems.PhysicsDebugRendererSystem
+import eater.ecs.systems.UpdateActionsSystem
 import eater.ecs.systems.UtilityAiSystem
 import eater.injection.InjectionContext
 import ktx.assets.disposeSafely
@@ -22,6 +23,7 @@ import robot.core.ecs.UserData
 import robot.core.ecs.components.Car
 import robot.core.ecs.systems.*
 import robot.core.track.TrackMania
+import robot.core.ui.Hud
 import space.earlygrey.shapedrawer.ShapeDrawer
 
 
@@ -93,7 +95,7 @@ object Context : InjectionContext() {
             bindSingleton(TrackMania().apply {
                 this.track.addAll(this.getTrack(1000, 10, 150f..350f, -5..5))
             })
-//            bindSingleton(Hud(inject()))
+            bindSingleton(Hud(inject()))
         }
     }
 
@@ -108,7 +110,7 @@ object Context : InjectionContext() {
             addSystem(UtilityAiSystem())
             addSystem(EnemyNumbersControlSystem())
 //            addSystem(CarFollowSystem())
-//            addSystem(UpdateActionsSystem())
+            addSystem(UpdateActionsSystem())
         }
     }
 }

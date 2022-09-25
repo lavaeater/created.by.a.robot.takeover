@@ -7,9 +7,11 @@ import eater.injection.InjectionContext
 import eater.physics.forwardNormal
 import ktx.ashley.allOf
 import ktx.math.minus
+import robot.core.Assets
 import robot.core.ecs.components.Car
 import robot.core.ecs.components.Player
 import robot.core.ecs.components.Robot
+import robot.core.ecs.components.SpriteComponent
 import robot.core.track.TrackMania
 import robot.core.with
 import kotlin.math.absoluteValue
@@ -36,10 +38,14 @@ object RobotActions {
     val chasePlayer = GenericActionWithState("Chase The Player", {
         val robotPos = Box2d.get(it).body.worldCenter
         val playerPos = Box2d.get(aPlayer).body.worldCenter
-        if(robotPos.dst(playerPos) < 500f)
+        if(robotPos.dst(playerPos) < 50f)
             0.6f
         else 0f
     }, {}, { entity, robot, deltaTime ->
+
+        val sc = SpriteComponent.get(entity)
+        sc.texture = Assets.greenCar
+
         val body = Box2d.get(entity).body
         val car = Car.get(entity)
         val player = Box2d.get(aPlayer).body
@@ -60,7 +66,8 @@ object RobotActions {
     }, {
 
     }, { entity, robot, deltaTime ->
-
+        val sc = SpriteComponent.get(entity)
+        sc.texture = Assets.redCar
         /**
          * get the next point to move towards. It should simply be some point with a higher y than the current
          * cars position

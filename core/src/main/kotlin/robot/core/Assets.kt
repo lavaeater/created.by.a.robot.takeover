@@ -16,6 +16,10 @@ object Assets: DisposableRegistry by DisposableContainer() {
         TextureRegion(carShadowTexture, 0, 0, 16, 16)
     }
 
+    private val greenCarTexture = Texture("cars/player-green-single.png".toLocalFile(), true).alsoRegister()
+    val greenCar by lazy {
+        TextureRegion(greenCarTexture, 0, 0, 16, 16)
+    }
     private val redCarTexture = Texture("cars/player-red-single.png".toLocalFile(), true).alsoRegister()
     val redCar by lazy {
         TextureRegion(redCarTexture, 0, 0, 16, 16)
