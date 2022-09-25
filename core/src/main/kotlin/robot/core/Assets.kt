@@ -29,5 +29,14 @@ object Assets: DisposableRegistry by DisposableContainer() {
         TextureRegion(carShadowTexture, 0, 0, 16, 16)
     }
 
+    private val boxTexture = Texture("props/box.png".toLocalFile(), true).alsoRegister()
+    val box by lazy {
+        TextureRegion(boxTexture, 0, 0, 16, 16)
+    }
+    private val boxShadowTexture = Texture("props/box-shadow.png".toLocalFile(), true).alsoRegister()
+    val boxShadow by lazy {
+        TextureRegion(boxTexture, 0, 0, 16, 16)
+    }
+
     val splashBackground = Texture("splash/splash.png".toLocalFile(), true).alsoRegister()
 }

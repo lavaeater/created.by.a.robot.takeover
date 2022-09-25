@@ -7,9 +7,9 @@ import eater.ecs.components.Box2d
 import eater.ecs.components.CameraFollow
 import ktx.ashley.allOf
 import ktx.ashley.remove
-import robot.core.ecs.components.Death
+import robot.core.ecs.components.Remove
 
-class RemoveEntitySystem: IteratingSystem(allOf(Death::class).get()) {
+class RemoveEntitySystem: IteratingSystem(allOf(Remove::class).get()) {
     val toRemove = mutableListOf<Entity>()
     val world by lazy { world() }
     override fun update(deltaTime: Float) {

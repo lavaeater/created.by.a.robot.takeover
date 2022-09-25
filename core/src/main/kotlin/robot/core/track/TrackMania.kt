@@ -9,7 +9,9 @@ import ktx.box2d.chain
 import ktx.math.plus
 import ktx.math.random
 import ktx.math.vec2
+import robot.core.ecs.PickupType
 import robot.core.ecs.UserData
+import robot.core.ecs.createPickup
 
 sealed class Pickup {
     object GuidedMissile: Pickup()
@@ -56,7 +58,11 @@ class TrackMania {
             if(range.random() < odds) {
                 /**
                  * We need a pickup here
+                 *
+                 * ever pickup is an entity creation function that
+                 * takes a position
                  */
+                createPickup(s.center, PickupType.allPickupTypes.random())
             }
         }
 

@@ -3,9 +3,12 @@ package robot.core.ecs.components
 import com.badlogic.ashley.core.Component
 import com.badlogic.ashley.core.Entity
 import com.badlogic.gdx.utils.Pool.Poolable
+import com.badlogic.gdx.utils.Queue
 import ktx.ashley.mapperFor
+import robot.core.ecs.PickupType
 
 class Car : Component, Poolable {
+    val weapons = Queue<PickupType>()
     var health = 100f
     var maxTorque = 300f
     var maxForwardSpeed = 10000f
@@ -16,6 +19,7 @@ class Car : Component, Poolable {
     var decceleration = 500f
     var controlState = 0
     override fun reset() {
+        weapons.clear()
         health = 100f
         maxForwardSpeed = 10000f
         maxBackwardSpeed = 2000f

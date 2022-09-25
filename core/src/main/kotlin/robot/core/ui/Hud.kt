@@ -7,6 +7,7 @@ import com.badlogic.gdx.graphics.g2d.PolygonSpriteBatch
 import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.scenes.scene2d.ui.Label
+import com.badlogic.gdx.scenes.scene2d.ui.ProgressBar
 import com.badlogic.gdx.scenes.scene2d.ui.Skin
 import com.badlogic.gdx.utils.viewport.ExtendViewport
 import eater.core.engine
@@ -62,6 +63,7 @@ class Hud(private val batch: PolygonSpriteBatch, debugAll: Boolean = false) {
             }) {
                 setPosition(20f, 20f)
             }
+
         }
         aStage
     }
@@ -94,3 +96,37 @@ open class BoundLabel(private val textFunction: () -> String, skin: Skin = Scene
         super.act(delta)
     }
 }
+
+open class BoundProgressBar(private val valueFunction: () -> Float, min: Float, max: Float, stepSize: Float, skin: Skin = Scene2DSkin.defaultSkin): ProgressBar(min, max, stepSize, false, skin) {
+    override fun act(delta: Float) {
+        value = valueFunction()
+        super.act(delta)
+    }
+}
+
+@Scene2dDsl
+@OptIn(ExperimentalContracts::class)
+inline fun <S> KWidget<S>.boundProgressBar(
+    noinline valueFunction: () -> Float,
+    min: Float = 0f,
+    max: Float = 1f,
+    step: Float = 0.01f,
+    skin: Skin = Scene2DSkin.defaultSkin,
+    init: (@Scene2dDsl BoundProgressBar).(S) -> Unit = {}
+): BoundProgressBar {
+    contract { callsInPlace(init, InvocationKind.EXACTLY_ONCE) }
+    return actor(BoundProgressBar(valueFunction, min, max, step, skin), init)
+}
+
+
+//@Scene2dDsl
+//@OptIn(ExperimentalContracts::class)
+//inline fun <S> KWidget<S>.typingLabel(
+//    text: CharSequence,
+//    style: String = defaultStyle,
+//    skin: Skin = Scene2DSkin.defaultSkin,
+//    init: (@Scene2dDsl TypingLabel).(S) -> Unit = {}
+//): TypingLabel {
+//    contract { callsInPlace(init, InvocationKind.EXACTLY_ONCE) }
+//    return actor(TypingLabel(text, skin, style), init)
+//}

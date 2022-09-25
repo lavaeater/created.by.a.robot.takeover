@@ -5,11 +5,11 @@ package robot.core.desktop
 import com.badlogic.gdx.Files
 import com.badlogic.gdx.backends.lwjgl.LwjglApplication
 import com.badlogic.gdx.backends.lwjgl.LwjglApplicationConfiguration
-import robot.core.MainGame
+import robot.core.RoboGame
 
 /** Launches the desktop (LWJGL) application. */
 fun main() {
-    LwjglApplication(MainGame(), LwjglApplicationConfiguration().apply {
+    LwjglApplication(RoboGame(), LwjglApplicationConfiguration().apply {
         title = "CreatedByARobotTakeover"
         width = 640
         height = 480
