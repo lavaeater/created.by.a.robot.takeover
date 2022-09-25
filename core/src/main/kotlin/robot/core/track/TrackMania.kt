@@ -9,8 +9,14 @@ import ktx.box2d.chain
 import ktx.math.plus
 import ktx.math.random
 import ktx.math.vec2
-import robot.core.GameConstants
 import robot.core.ecs.UserData
+
+sealed class Pickup {
+    object GuidedMissile: Pickup()
+    object BarrelBomb: Pickup()
+    object Shotgun: Pickup()
+    object MachingeGun: Pickup()
+}
 
 class TrackMania {
     /**
@@ -43,6 +49,18 @@ class TrackMania {
      */
 
     val track = mutableListOf<SnakeTrackSection>()
+
+    fun fixPickups(odds: Int) {
+        val range = 0..99
+        for(s in track) {
+            if(range.random() < odds) {
+                /**
+                 * We need a pickup here
+                 */
+            }
+        }
+
+    }
 
     fun getSection(
         startPoint: Vector2,
