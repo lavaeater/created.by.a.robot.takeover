@@ -13,7 +13,6 @@ import ktx.ashley.with
 import ktx.box2d.body
 import ktx.box2d.box
 import ktx.box2d.circle
-import ktx.math.random
 import ktx.math.vec2
 import robot.core.ecs.components.Car
 import robot.core.ecs.components.Player
@@ -23,9 +22,13 @@ import robot.core.ecs.components.SpriteComponent
 fun createRobotCar(position: Vector2, width: Float, height: Float): Entity {
     return engine().entity {
         carEntity(this, position, width, height, UserData.Robot(this.entity))
+        with<SpriteComponent> {
+            texture = robot.core.Assets.redCar
+            shadow = robot.core.Assets.redShadow
+        }
         with<Robot>()
         with<AiComponent> {
-//            actions.add(RobotActions.chaseMiddle)
+            actions.add(RobotActions.chaseMiddle)
             actions.add(RobotActions.chasePlayer)
         }
         with<Car> {
@@ -46,6 +49,10 @@ fun createPlayerEntity(position: Vector2, width: Float, height: Float): Entity {
      */
     return engine().entity {
         carEntity(this, position, width, height, UserData.Robot(this.entity))
+        with<SpriteComponent> {
+            texture = robot.core.Assets.blueCar
+            shadow = robot.core.Assets.blueShadow
+        }
         with<Player>()
         with<Car> {
             health = 100f
@@ -69,10 +76,6 @@ fun carEntity(entity: EngineEntity, worldPos: Vector2, width: Float, height: Flo
                     isSensor = true
                 }
             }
-        }
-        with<SpriteComponent> {
-            texture = robot.core.Assets.blueCarRegion
-            shadow = robot.core.Assets.carShadowRegion
         }
     }
 }

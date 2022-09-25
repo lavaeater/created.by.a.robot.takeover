@@ -8,11 +8,20 @@ import ktx.assets.toLocalFile
 
 object Assets: DisposableRegistry by DisposableContainer() {
     private val blueCarTexture = Texture("cars/player-blue-single.png".toLocalFile(), true).alsoRegister()
-    val blueCarRegion by lazy {
+    val blueCar by lazy {
         TextureRegion(blueCarTexture, 0, 0, 16, 16)
     }
     private val carShadowTexture = Texture("cars/car-shadow.png".toLocalFile(), true).alsoRegister()
-    val carShadowRegion by lazy {
+    val blueShadow by lazy {
+        TextureRegion(carShadowTexture, 0, 0, 16, 16)
+    }
+
+    private val redCarTexture = Texture("cars/player-red-single.png".toLocalFile(), true).alsoRegister()
+    val redCar by lazy {
+        TextureRegion(redCarTexture, 0, 0, 16, 16)
+    }
+    private val redCarShadowTexture = Texture("cars/player-red-single-shadow.png".toLocalFile(), true).alsoRegister()
+    val redShadow by lazy {
         TextureRegion(carShadowTexture, 0, 0, 16, 16)
     }
 
