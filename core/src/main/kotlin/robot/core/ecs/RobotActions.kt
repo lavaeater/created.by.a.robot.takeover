@@ -35,10 +35,14 @@ object RobotActions {
     val trackMania = InjectionContext.inject<TrackMania>()
     val playerFam = allOf(Player::class).get()
     val aPlayer by lazy { engine().getEntitiesFor(playerFam).first() }
+
+    val attackPlayer =
+        GenericActionWithState("Attack the Player", { 1f }, { entity -> }, { entity, robot, delta -> }, Robot::class)
+
     val chasePlayer = GenericActionWithState("Chase The Player", {
         val robotPos = Box2d.get(it).body.worldCenter
         val playerPos = Box2d.get(aPlayer).body.worldCenter
-        if(robotPos.dst(playerPos) < 50f)
+        if (robotPos.dst(playerPos) < 50f)
             0.6f
         else 0f
     }, {}, { entity, robot, deltaTime ->
@@ -60,6 +64,8 @@ object RobotActions {
             car.controlState = car.controlState.with(Car.left)
 
         car.controlState = car.controlState.with(Car.forward)
+
+
     }, Robot::class)
     val chaseMiddle = GenericActionWithState("Chase The Track", {
         0.5f
