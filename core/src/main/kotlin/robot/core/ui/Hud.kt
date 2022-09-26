@@ -56,16 +56,24 @@ class Hud(private val batch: PolygonSpriteBatch, debugAll: Boolean = false) {
         val aStage = stage(batch, hudViewPort)
         aStage.isDebugAll = debugAll
         aStage.actors {
-            boundLabel({
-                """
+            horizontalGroup {
+                boundLabel({
+                    """
                 Robots: $robotCount
                 Score: ${GameState.score}
                 """.trimIndent()
-            }) {
-                setPosition(20f, 20f)
+                }) {
+                    setPosition(20f, 20f)
+                }
+                boundProgressBar(
+                    { if (playerEntities.any()) Car.get(playerEntities.first()).health else 0f },
+                    0f,
+                    100f,
+                    1f
+                ) {
+                    setPosition(100f, 20f)
+                }
             }
-            boundProgressBar({ if(playerEntities.any()) Car.get(playerEntities.first()).health else 0f }, 0f, 100f, 1f)
-
         }
         aStage
     }

@@ -14,6 +14,7 @@ import ktx.graphics.use
 import ktx.math.plus
 import ktx.math.vec2
 import robot.core.GameConstants.MetersPerPixel
+import robot.core.ecs.components.HeightComponent
 import robot.core.ecs.components.SpriteComponent
 import robot.core.track.TrackMania
 import space.earlygrey.shapedrawer.ShapeDrawer
@@ -42,7 +43,6 @@ class RenderSystem(private val batch: PolygonSpriteBatch) :
 
     override fun update(deltaTime: Float) {
         batch.use {
-
             renderTrack()
             super.update(deltaTime)
         }
@@ -65,12 +65,25 @@ class RenderSystem(private val batch: PolygonSpriteBatch) :
         val shadow = sprite.shadow
         val body = Box2d.get(entity).body
         val position = body.worldCenter
-        shadow.draw(
-            batch,
-            position + vec2(1f * MetersPerPixel, -1f * MetersPerPixel),
-            body.angle * radiansToDegrees,
-            MetersPerPixel
-        )
-        region.draw(batch, position, body.angle * radiansToDegrees, MetersPerPixel)
+        if(HeightComponent.has(entity)) {
+            val height = HeightComponent.get(entity)
+            val scale = 1f + height.height / height.maxHeight
+            val sPos = vec2(position.x + height.height, position.y)
+            shadow.draw(
+                batch,
+                sPos + vec2(1f * MetersPerPixel, -1f * MetersPerPixel),
+                body.angle * radiansToDegrees,
+                MetersPerPixel * scale
+            )
+            region.draw(batch, position, body.angle * radiansToDegrees, MetersPerPixel)
+        } else {
+            shadow.draw(
+                batch,
+                position + vec2(1f * MetersPerPixel, -1f * MetersPerPixel),
+                body.angle * radiansToDegrees,
+                MetersPerPixel
+            )
+            region.draw(batch, position, body.angle * radiansToDegrees, MetersPerPixel)
+        }
     }
 }

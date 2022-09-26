@@ -35,7 +35,16 @@ object Assets: DisposableRegistry by DisposableContainer() {
     }
     private val boxShadowTexture = Texture("props/box-shadow.png".toLocalFile(), true).alsoRegister()
     val boxShadow by lazy {
-        TextureRegion(boxTexture, 0, 0, 16, 16)
+        TextureRegion(boxShadowTexture, 0, 0, 16, 16)
+    }
+
+    private val barrelTexture = Texture("weapons/barrel.png".toLocalFile(), true).alsoRegister()
+    val barrel by lazy {
+        TextureRegion(barrelTexture, 0, 0, 16, 16)
+    }
+    private val barrelShadowTexture = Texture("weapons/barrel-shadow.png".toLocalFile(), true).alsoRegister()
+    val barrelShadow by lazy {
+        TextureRegion(barrelShadowTexture, 0, 0, 16, 16)
     }
 
     val splashBackground = Texture("splash/splash.png".toLocalFile(), true).alsoRegister()

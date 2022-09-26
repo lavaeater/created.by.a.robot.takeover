@@ -8,15 +8,19 @@ import com.badlogic.gdx.graphics.g2d.PolygonSpriteBatch
 import com.badlogic.gdx.utils.viewport.ExtendViewport
 import eater.core.engine
 import eater.core.world
+import eater.ecs.components.Box2d
 import eater.injection.InjectionContext.Companion.inject
 import eater.input.CommandMap
 import eater.input.KeyPress
+import eater.physics.forwardNormal
+import eater.physics.forwardVelocity
 import ktx.app.KtxGame
 import ktx.app.KtxInputAdapter
 import ktx.app.KtxScreen
 import ktx.app.clearScreen
 import ktx.assets.disposeSafely
 import ktx.assets.toInternalFile
+import ktx.math.plus
 import ktx.math.vec2
 import robot.core.Assets
 import robot.core.GameConstants.PosIters
@@ -26,6 +30,7 @@ import robot.core.RoboGame
 import robot.core.ecs.components.Car
 import robot.core.ecs.createPlayerEntity
 import robot.core.ecs.createRobotCar
+import robot.core.ecs.fireProjectile
 import robot.core.injection.Context
 import robot.core.ui.Hud
 import robot.core.with
@@ -47,6 +52,18 @@ class GameScreen(private val game: RoboGame) : KtxScreen, KtxInputAdapter {
         setBoth(Keys.S, "HMM, REVERSE?", { removeFlag(Car.backwards) }, { addFlag(Car.backwards) })
         setBoth(Keys.A, "STEER LEFT", { removeFlag(Car.left) }, { addFlag(Car.left) })
         setBoth(Keys.D, "STEER RIGHT", { removeFlag(Car.right) }, { addFlag(Car.right) })
+        setDown(Keys.SPACE, "FIRE") { fire() }
+    }
+
+    private fun fire() {
+        if(playerCar.weapons.any()) {
+            val weaponToFire = playerCar.weapons.removeFirst()
+            val playerBody = Box2d.get(playerEntity).body
+            val forwardNormal = playerBody.forwardNormal()
+
+            val forwardSpeed = playerBody.forwardVelocity().dot(forwardNormal)
+            fireProjectile(playerBody.worldCenter + forwardNormal.cpy().scl(2f), forwardNormal, forwardSpeed, weaponToFire)
+        }
     }
 
     private val hud by lazy { inject<Hud>() }

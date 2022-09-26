@@ -2,11 +2,14 @@ package robot.core.ecs
 
 import com.badlogic.ashley.core.Entity
 import com.badlogic.gdx.math.Vector2
+import com.badlogic.gdx.physics.box2d.BodyDef
+import eater.ai.AiAction
 import eater.ai.AiComponent
 import eater.core.engine
 import eater.core.world
 import eater.ecs.components.Box2d
 import eater.ecs.components.CameraFollow
+import eater.physics.addComponent
 import ktx.ashley.EngineEntity
 import ktx.ashley.entity
 import ktx.ashley.with
@@ -15,10 +18,7 @@ import ktx.box2d.box
 import ktx.box2d.circle
 import ktx.math.vec2
 import robot.core.Assets
-import robot.core.ecs.components.Car
-import robot.core.ecs.components.Player
-import robot.core.ecs.components.Robot
-import robot.core.ecs.components.SpriteComponent
+import robot.core.ecs.components.*
 
 fun createPickup(position: Vector2, pickupType: PickupType) {
     engine().entity {
@@ -33,6 +33,104 @@ fun createPickup(position: Vector2, pickupType: PickupType) {
     }
 }
 
+fun explosionAt(position: Vector2) {
+    /**
+     * Simply add a sensor body at position
+     *
+     * And everything in that sensor body for the shooort timeperiod it exists
+     * will be hit with damage and forces, I guess
+     */
+    sensorCirlce(position, 50f, UserData.Explosion(100f))
+}
+
+fun PickupType.getBehavior() : AiAction {
+    return when(this) {
+        PickupType.BarrelBomb -> object: AiAction("Barrel Bomb") {
+            override fun abort(entity: Entity) {
+            }
+
+            override fun act(entity: Entity, deltaTime: Float) {
+                /**
+                 * A barrel bomb must have a height component as well!
+                 */
+                val h = HeightComponent.get(entity)
+                h.height += h.flightSpeed * deltaTime
+                if(h.height > h.maxHeight)
+                    h.flightSpeed = -h.flightSpeed
+                else if(h.height < 0f) {
+                    explosionAt(Box2d.get(entity).body.worldCenter)
+                    entity.addComponent<Remove>()
+                }
+            }
+        }
+        PickupType.GuidedMissile -> object: AiAction("No Op") {
+            override fun abort(entity: Entity) {
+
+            }
+
+            override fun act(entity: Entity, deltaTime: Float) {
+            }
+        }
+        PickupType.Health -> object: AiAction("No Op") {
+            override fun abort(entity: Entity) {
+
+            }
+
+            override fun act(entity: Entity, deltaTime: Float) {
+            }
+        }
+        PickupType.MachineGun -> object: AiAction("No Op") {
+            override fun abort(entity: Entity) {
+
+            }
+
+            override fun act(entity: Entity, deltaTime: Float) {
+            }
+        }
+        PickupType.Shotgun -> object: AiAction("No Op") {
+            override fun abort(entity: Entity) {
+
+            }
+
+            override fun act(entity: Entity, deltaTime: Float) {
+            }
+        }
+    }
+}
+
+fun fireProjectile(position: Vector2, direction: Vector2, shooterSpeed: Float, weaponType: PickupType) {
+    engine().entity {
+        withProjectile(position, .2f, UserData.Projectile(this.entity, weaponType))
+        with<AiComponent> {
+            actions.add(weaponType.getBehavior())
+        }
+        when (weaponType) {
+            PickupType.BarrelBomb -> {
+                with<HeightComponent>()
+                with<SpriteComponent> {
+                    texture = Assets.barrel
+                    shadow = Assets.barrelShadow
+                }
+            }
+            PickupType.GuidedMissile -> {}
+            PickupType.MachineGun -> {}
+            PickupType.Shotgun -> {}
+            else -> {}
+        }
+    }
+}
+
+private fun sensorCirlce(position: Vector2, radius: Float, ud: UserData) {
+    world().body {
+        userData = ud
+        type = BodyDef.BodyType.DynamicBody
+        position.set(position)
+        circle(radius) {
+            isSensor = true
+        }
+    }
+}
+
 private fun EngineEntity.withBox2dBox(
     worldPos: Vector2,
     width: Float,
@@ -43,7 +141,7 @@ private fun EngineEntity.withBox2dBox(
     this.with<Box2d> {
         body = world().body {
             userData = ud
-            type = com.badlogic.gdx.physics.box2d.BodyDef.BodyType.DynamicBody
+            type = BodyDef.BodyType.DynamicBody
             position.set(worldPos)
             box(width, height) {
                 density = 0.5f
@@ -65,7 +163,7 @@ fun EngineEntity.withBox() {
 
 fun createRobotCar(position: Vector2, width: Float, height: Float): Entity {
     return engine().entity {
-        carEntity(this, position, width, height, UserData.Robot(this.entity))
+        boxBody(this, position, width, height, UserData.Robot(this.entity))
         with<SpriteComponent> {
             texture = Assets.redCar
             shadow = Assets.redShadow
@@ -92,7 +190,7 @@ fun createPlayerEntity(position: Vector2, width: Float, height: Float): Entity {
      * perhaps some wheels?
      */
     return engine().entity {
-        carEntity(this, position, width, height, UserData.Robot(this.entity))
+        boxBody(this, position, width, height, UserData.Robot(this.entity))
         with<SpriteComponent> {
             texture = Assets.blueCar
             shadow = Assets.blueShadow
@@ -105,13 +203,27 @@ fun createPlayerEntity(position: Vector2, width: Float, height: Float): Entity {
     }
 }
 
-fun carEntity(entity: EngineEntity, worldPos: Vector2, width: Float, height: Float, ud: UserData) {
+fun EngineEntity.withProjectile(worldPos: Vector2, radius: Float, ud: UserData) {
+    with<Box2d> {
+        body = world().body {
+            userData = ud
+            type = BodyDef.BodyType.DynamicBody
+            position.set(worldPos)
+            circle(radius) {
+                density = 0.5f
+            }
+        }
+    }
+}
+
+
+fun boxBody(entity: EngineEntity, worldPos: Vector2, width: Float, height: Float, ud: UserData) {
 
     entity.apply {
         with<Box2d> {
             body = world().body {
                 userData = ud
-                type = com.badlogic.gdx.physics.box2d.BodyDef.BodyType.DynamicBody
+                type = BodyDef.BodyType.DynamicBody
                 position.set(worldPos)
                 box(width, height) {
                     density = 0.5f
@@ -124,20 +236,3 @@ fun carEntity(entity: EngineEntity, worldPos: Vector2, width: Float, height: Flo
     }
 }
 
-sealed class PickupType {
-    object GuidedMissile : PickupType()
-    object MachineGun : PickupType()
-    object Shotgun : PickupType()
-    object Health : PickupType()
-    object BarrelBomb : PickupType()
-    companion object {
-        val allPickupTypes = listOf(GuidedMissile, MachineGun, Shotgun, Health, BarrelBomb)
-    }
-}
-
-sealed class UserData {
-    object Wall : UserData()
-    class Player(val player: Entity) : UserData()
-    class Robot(val robot: Entity) : UserData()
-    class Pickup(val pickup: Entity, val pickupType: PickupType) : UserData()
-}
