@@ -4,7 +4,7 @@ import kotlin.experimental.and
 import kotlin.experimental.or
 
 object GameConstants {
-    const val GameWidth = 48f
+    const val GameWidth =480f
     const val GameHeight = (16f/9f) * GameWidth
     const val PixelsPerMeter = 4f
     const val MetersPerPixel = 1f / PixelsPerMeter

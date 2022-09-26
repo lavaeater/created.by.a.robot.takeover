@@ -12,24 +12,24 @@ class GuidedMissile:Component, Pool.Poolable {
     var startDirection = vec2()
     var damage = 100f
     var radius = 25f
-    var flightTime = 5f
-    var armTime = 4.75f
+    var flightTime = 2.5f
+    var armTime = flightTime * 0.9f
     val armed get() = flightTime < armTime
-    var maxSpeed = 100f
-    var force = 10f
+    var maxSpeed = 10000f
+    var force = 1000f
     var hasTarget = false
     var target: Body? = null
-    var torque = 50f
+    var torque = 5f
     override fun reset() {
         baseSpeed = 0f
         startDirection = vec2()
-        armTime = 4.5f
-        force = 10f
+        flightTime = 2.5f
+        armTime = flightTime * 0.9f
+        force = 1000f
         hasTarget = false
         target = null
-        flightTime = 5f
-        maxSpeed = 100f
-        torque = 50f
+        maxSpeed = 10000f
+        torque = 500f
     }
 
     companion object {

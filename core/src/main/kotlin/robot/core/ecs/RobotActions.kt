@@ -48,14 +48,19 @@ object RobotActions {
         }, { entity -> },
             { entity, robot, delta ->
                 val car = Car.get(entity)
+                if(car.weapons.any()) {
+                    val weaponToFire = car.weapons.removeFirst()
+                    val robotBody = Box2d.get(entity).body
+                    val forwardNormal = robotBody.forwardNormal()
 
-                val weaponToFire = car.weapons.removeFirst()
-                val robotBody = Box2d.get(entity).body
-                val forwardNormal = robotBody.forwardNormal()
-
-                val forwardSpeed = robotBody.forwardVelocity().dot(forwardNormal)
-                fireProjectile(robotBody.worldCenter + forwardNormal.cpy().scl(2f), forwardNormal, forwardSpeed, weaponToFire)
-
+                    val forwardSpeed = robotBody.forwardVelocity().dot(forwardNormal)
+                    fireProjectile(
+                        robotBody.worldCenter + forwardNormal.cpy().scl(2f),
+                        forwardNormal,
+                        forwardSpeed,
+                        weaponToFire
+                    )
+                }
             }, Robot::class
         )
 
@@ -63,7 +68,7 @@ object RobotActions {
         val robotPos = Box2d.get(it).body.worldCenter
         if (Box2d.has(aPlayer)) {
             val playerPos = Box2d.get(aPlayer).body.worldCenter
-            if (robotPos.dst(playerPos) < 50f)
+            if (robotPos.dst(playerPos) < 25f)
                 0.6f
             else 0f
         } else

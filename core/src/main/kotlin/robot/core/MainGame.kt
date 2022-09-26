@@ -1,6 +1,8 @@
 package robot.core
 
+import com.badlogic.gdx.utils.Queue
 import eater.core.MainGame
+import robot.core.ecs.ExplosionData
 import robot.core.injection.Context
 import robot.core.screens.GameScreen
 import robot.core.screens.StartScreen
@@ -28,6 +30,7 @@ object GameState {
         gameStarted = true
         timesPlayed++
         startCountDown = 3f
+        explosionQueue.clear()
     }
 
     fun playerDied() {
@@ -36,6 +39,8 @@ object GameState {
     fun playerWon() {
         playerWon = true
     }
+
+    val explosionQueue = Queue<ExplosionData>()
 
 }
 

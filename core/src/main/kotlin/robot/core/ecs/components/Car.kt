@@ -22,7 +22,7 @@ class Car : Component, Poolable {
     var decceleration = 500f
     var controlState = 0
     override fun reset() {
-        canRace = false
+        canRace = true
         weapons.clear()
         health = 100f
         maxForwardSpeed = 10000f

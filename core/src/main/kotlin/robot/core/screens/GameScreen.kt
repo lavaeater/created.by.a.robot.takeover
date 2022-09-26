@@ -32,6 +32,7 @@ import robot.core.GameConstants.VelIters
 import robot.core.ecs.components.Car
 import robot.core.ecs.createPlayerEntity
 import robot.core.ecs.createRobotCar
+import robot.core.ecs.explosionAt
 import robot.core.ecs.fireProjectile
 import robot.core.track.TrackMania
 import robot.core.ui.Hud
@@ -92,7 +93,7 @@ class GameScreen(private val game: RoboGame) : KtxScreen, KtxInputAdapter {
     override fun show() {
         Gdx.input.inputProcessor = this
         playerEntity = createPlayerEntity(vec2(),2f, 4f)
-        createStartRobots(MinRobots / 2)
+//        createStartRobots(MinRobots / 3)
         for (carEntity in engine().getEntitiesFor(allOf(Car::class).get())) {
             Car.get(carEntity).canRace = false
         }
@@ -173,6 +174,10 @@ class GameScreen(private val game: RoboGame) : KtxScreen, KtxInputAdapter {
         while (accumulator > TimeStep) {
             world().step(TimeStep, VelIters, PosIters)
             accumulator -= ourTime
+        }
+        if(GameState.explosionQueue.any()) {
+            val ed = GameState.explosionQueue.removeFirst()
+            explosionAt(ed.position, ed.damage, ed.radius)
         }
     }
 

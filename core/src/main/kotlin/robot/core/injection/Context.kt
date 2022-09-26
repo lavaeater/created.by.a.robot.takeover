@@ -29,6 +29,7 @@ import robot.core.ecs.components.Car
 import robot.core.ecs.components.GuidedMissile
 import robot.core.ecs.components.Remove
 import robot.core.ecs.explosionAt
+import robot.core.ecs.explosionLater
 import robot.core.ecs.systems.*
 import robot.core.track.TrackMania
 import robot.core.ui.Hud
@@ -114,8 +115,8 @@ object Context : InjectionContext() {
                                 if(GuidedMissile.has(contactType.projectile)) {
                                     val gm = GuidedMissile.get(contactType.projectile)
                                     if(gm.armed) {
+                                        explosionLater(Box2d.get(contactType.projectile).body.worldCenter.cpy(), gm.damage, gm.radius)
                                         contactType.projectile.addComponent<Remove>()
-                                        explosionAt(Box2d.get(contactType.projectile).body.worldCenter, gm.damage, gm.radius)
                                     }
                                 } else {
                                     contactType.projectile.addComponent<Remove>()
@@ -124,7 +125,7 @@ object Context : InjectionContext() {
                             is ContactType.ProjectileAndAnything -> {
                                 if(GuidedMissile.has(contactType.projectile)) {
                                     val gm = GuidedMissile.get(contactType.projectile)
-                                    explosionAt(Box2d.get(contactType.projectile).body.worldCenter, gm.damage, gm.radius)
+                                    explosionLater(Box2d.get(contactType.projectile).body.worldCenter.cpy(), gm.damage, gm.radius)
                                 }
                                 contactType.projectile.addComponent<Remove>()
                             }
@@ -180,7 +181,7 @@ object Context : InjectionContext() {
             addSystem(PlayerScoreSystem())
             addSystem(RemoveEntitySystem())
             addSystem(UtilityAiSystem())
-            addSystem(EnemyNumbersControlSystem())
+//            addSystem(EnemyNumbersControlSystem())
             addSystem(RemoveAfterSystem())
             addSystem(UpdateActionsSystem())
             //addSystem(RobotCarSpeedAndStuffSystem())

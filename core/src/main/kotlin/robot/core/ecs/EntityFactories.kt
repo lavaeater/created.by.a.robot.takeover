@@ -2,6 +2,7 @@ package robot.core.ecs
 
 import com.badlogic.ashley.core.Entity
 import com.badlogic.gdx.math.Circle
+import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.physics.box2d.Body
 import com.badlogic.gdx.physics.box2d.BodyDef
@@ -29,6 +30,7 @@ import ktx.math.vec2
 import robot.core.Assets
 import robot.core.Box2dCategories
 import robot.core.GameConstants
+import robot.core.GameState
 import robot.core.ecs.components.*
 import kotlin.experimental.or
 
@@ -43,6 +45,7 @@ fun createPickup(position: Vector2, pickupType: PickupType) {
             Box2dCategories.pickups,
             Box2dCategories.pickupsCollideWith
         )
+        with<Pickup>()
     }
 }
 
@@ -72,8 +75,20 @@ fun explosionAt(position: Vector2, damage: Float, radius: Float) {
     }
 }
 
+data class ExplosionData(val position: Vector2, val damage: Float, val radius: Float)
+
+fun explosionLater(position: Vector2, damage: Float, radius: Float) {
+    /**
+     * Simply add a sensor body at position
+     *
+     * And everything in that sensor body for the shooort timeperiod it exists
+     * will be hit with damage and forces, I guess
+     */
+    GameState.explosionQueue.addLast(ExplosionData(position, damage, radius))
+}
+
 fun PickupType.getBehavior(): AiAction {
-    val carsAndBodies = allOf(Box2d::class, Car::class).get()
+    val carsAndBodies = allOf(Box2d::class, Pickup::class).get()
     return when (this) {
         PickupType.BarrelBomb -> object : AiAction("Barrel Bomb") {
             override fun abort(entity: Entity) {
@@ -107,19 +122,11 @@ fun PickupType.getBehavior(): AiAction {
                 val body = Box2d.get(entity).body
                 if(state.armed) {
                     if (state.hasTarget) {
-                        val forwardNormal = body.forwardNormal()
-                        val currentSpeed = body.forwardVelocity().dot(forwardNormal)
-                        if (currentSpeed < state.maxSpeed)
-                            body.applyForce(forwardNormal.scl(state.force), body.worldCenter, true)
-
                         val directionToTarget = (state.target!!.worldCenter - body.worldCenter).nor()
-                        val dirDiff = directionToTarget.angleDeg() - forwardNormal.angleDeg()
-                        if (dirDiff > 2.5f) {
-                            body.applyTorque(state.torque, true)
-                        } else if (dirDiff < -2.5f) {
-                            body.applyTorque(-state.torque, true)
-                        }
+                        val currentDirection = body.linearVelocity.nor()
+                        currentDirection.lerp(directionToTarget, 0.25f)
 
+                        body.applyForce(currentDirection.scl(state.force), body.worldCenter, true)
                     } else {
                         val potentialTargets = engine().getEntitiesFor(carsAndBodies)
                         val target = (potentialTargets - entity).map { Box2d.get(it).body }
@@ -140,12 +147,12 @@ fun PickupType.getBehavior(): AiAction {
                         body.applyForce(forwardNormal.scl(state.force), body.worldCenter, true)
                 }
 
-                val impulse = body.lateralVelocity().scl(-body.mass)
+               // val impulse = body.lateralVelocity().scl(-body.mass)
 //                if (impulse.len() > GameConstants.MaxLateralImpulse)
 //                    impulse.scl(GameConstants.MaxLateralImpulse / impulse.len())
-                body.applyLinearImpulse(impulse, body.worldCenter, true)
+               // body.applyLinearImpulse(impulse, body.worldCenter, true)
 
-                body.applyAngularImpulse(body.inertia * 0.5f * -body.angularVelocity, true)
+                //body.applyAngularImpulse(body.inertia * 0.5f * -body.angularVelocity, true)
 
             } else {
                 val body = Box2d.get(entity).body
@@ -305,13 +312,14 @@ fun createRobotCar(position: Vector2, width: Float, height: Float): Entity {
         with<AiComponent> {
             actions.add(RobotActions.chaseMiddle)
             actions.add(RobotActions.chasePlayer)
+            actions.add(RobotActions.fireWeapon)
         }
         with<Car> {
             health = 100f
             maxTorque = CarBase.maxTorque
-            maxDriveForce = CarBase.maxDriveForce / 2f
-            acceleration = CarBase.acceleration / 2f
-            maxForwardSpeed = CarBase.maxForwardSpeed / 2f
+            maxDriveForce = CarBase.maxDriveForce * 0.7f
+            acceleration = CarBase.acceleration * 0.75f
+            maxForwardSpeed = CarBase.maxForwardSpeed * 0.75f
         }
 //        with<Car> {
 //            health = EnemyCarBase.health.random() * EnemyCarBase.healthFactor
