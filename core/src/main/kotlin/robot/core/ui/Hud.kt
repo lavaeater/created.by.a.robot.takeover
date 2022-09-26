@@ -21,6 +21,7 @@ import ktx.math.*
 import ktx.scene2d.*
 import robot.core.Assets
 import robot.core.GameState
+import robot.core.ecs.components.Car
 import robot.core.ecs.components.Player
 import robot.core.ecs.components.Robot
 import space.earlygrey.shapedrawer.ShapeDrawer
@@ -49,7 +50,7 @@ class Hud(private val batch: PolygonSpriteBatch, debugAll: Boolean = false) {
     private val robotCount get() = robots.size()
 
     private val playerFamily = allOf(Player::class).get()
-    private val playerEntity by lazy { engine().getEntitiesFor(playerFamily).first() }
+    private val playerEntities get() = engine().getEntitiesFor(playerFamily)
 
     val stage by lazy {
         val aStage = stage(batch, hudViewPort)
@@ -63,6 +64,7 @@ class Hud(private val batch: PolygonSpriteBatch, debugAll: Boolean = false) {
             }) {
                 setPosition(20f, 20f)
             }
+            boundProgressBar({ if(playerEntities.any()) Car.get(playerEntities.first()).health else 0f }, 0f, 100f, 1f)
 
         }
         aStage
