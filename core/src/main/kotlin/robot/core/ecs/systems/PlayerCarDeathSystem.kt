@@ -1,7 +1,6 @@
 package robot.core.ecs.systems
 
 import com.badlogic.ashley.core.Entity
-import com.badlogic.ashley.systems.IntervalSystem
 import com.badlogic.ashley.systems.IteratingSystem
 import eater.physics.addComponent
 import ktx.ashley.allOf
@@ -19,9 +18,3 @@ class PlayerCarDeathSystem: IteratingSystem(allOf(Car::class, Player::class).get
     }
 }
 
-class PlayerScoreSystem:IntervalSystem(1f) {
-    override fun updateInterval() {
-        GameState.score++
-    }
-
-}

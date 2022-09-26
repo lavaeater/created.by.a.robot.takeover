@@ -36,6 +36,7 @@ import robot.core.ecs.fireProjectile
 import robot.core.track.TrackMania
 import robot.core.ui.Hud
 import space.earlygrey.shapedrawer.ShapeDrawer
+import java.util.*
 import java.util.EnumSet.allOf
 
 class GameScreen(private val game: RoboGame) : KtxScreen, KtxInputAdapter {
@@ -92,6 +93,9 @@ class GameScreen(private val game: RoboGame) : KtxScreen, KtxInputAdapter {
         Gdx.input.inputProcessor = this
         playerEntity = createPlayerEntity(vec2(),2f, 4f)
         createStartRobots(MinRobots)
+        for (carEntity in engine().getEntitiesFor(allOf(Car::class).get())) {
+            Car.get(carEntity).canRace = false
+        }
     }
 
     private fun createStartRobots(numberOfRobots: Int) {
@@ -135,6 +139,18 @@ class GameScreen(private val game: RoboGame) : KtxScreen, KtxInputAdapter {
         updateEngine(delta)
         hud.render(delta)
         checkGameOver()
+        checkRaceStart(delta)
+    }
+
+    private fun checkRaceStart(delta: Float) {
+        if(GameState.startCountDown > 0f) {
+            GameState.startCountDown -= delta
+            if (GameState.startCountDown < 0f) {
+                for (carEntity in engine().getEntitiesFor(allOf(Car::class).get())) {
+                    Car.get(carEntity).canRace = true
+                }
+            }
+        }
     }
 
     private fun checkGameOver() {

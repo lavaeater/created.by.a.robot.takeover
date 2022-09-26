@@ -22,8 +22,10 @@ class CarPhysicsSystem : IteratingSystem(allOf(Car::class, Box2d::class).get()) 
          * https://www.iforce2d.net/b2dtut/top-down-car
          */
         val body = Box2d.get(entity).body
-        updateDrive(body, Car.get(entity))
-        updateFriction(body)
+        val car = Car.get(entity)
+        if(car.canRace)
+            updateDrive(body, car)
+            updateFriction(body)
     }
 
     private fun updateDrive(body: Body, car: Car) {
