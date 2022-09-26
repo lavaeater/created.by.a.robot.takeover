@@ -7,19 +7,24 @@ import com.badlogic.gdx.physics.box2d.Body
 import com.badlogic.gdx.physics.box2d.BodyDef
 import eater.ai.AiAction
 import eater.ai.AiComponent
+import eater.ai.GenericActionWithState
 import eater.core.engine
 import eater.core.world
 import eater.ecs.components.Box2d
 import eater.ecs.components.CameraFollow
 import eater.physics.addComponent
+import eater.physics.forwardNormal
 import eater.physics.forwardVelocity
+import eater.physics.lateralVelocity
 import ktx.ashley.EngineEntity
+import ktx.ashley.allOf
 import ktx.ashley.entity
 import ktx.ashley.with
 import ktx.box2d.body
 import ktx.box2d.box
 import ktx.box2d.circle
 import ktx.box2d.filter
+import ktx.math.minus
 import ktx.math.vec2
 import robot.core.Assets
 import robot.core.Box2dCategories
@@ -68,6 +73,7 @@ fun explosionAt(position: Vector2, damage: Float, radius: Float) {
 }
 
 fun PickupType.getBehavior(): AiAction {
+    val carsAndBodies = allOf(Box2d::class, Car::class).get()
     return when (this) {
         PickupType.BarrelBomb -> object : AiAction("Barrel Bomb") {
             override fun abort(entity: Entity) {
@@ -95,14 +101,60 @@ fun PickupType.getBehavior(): AiAction {
             }
         }
 
-        PickupType.GuidedMissile -> object : AiAction("No Op") {
-            override fun abort(entity: Entity) {
+        PickupType.GuidedMissile -> GenericActionWithState("Guided Missile", { 1f }, {}, { entity, state, delta ->
+            state.flightTime -= delta
+            if(state.flightTime > 0f) {
+                val body = Box2d.get(entity).body
+                if(state.armed) {
+                    if (state.hasTarget) {
+                        val forwardNormal = body.forwardNormal()
+                        val currentSpeed = body.forwardVelocity().dot(forwardNormal)
+                        if (currentSpeed < state.maxSpeed)
+                            body.applyForce(forwardNormal.scl(state.force), body.worldCenter, true)
 
+                        val directionToTarget = (state.target!!.worldCenter - body.worldCenter).nor()
+                        val dirDiff = directionToTarget.angleDeg() - forwardNormal.angleDeg()
+                        if (dirDiff > 2.5f) {
+                            body.applyTorque(state.torque, true)
+                        } else if (dirDiff < -2.5f) {
+                            body.applyTorque(-state.torque, true)
+                        }
+
+                    } else {
+                        val potentialTargets = engine().getEntitiesFor(carsAndBodies)
+                        val target = (potentialTargets - entity).map { Box2d.get(it).body }
+                            .sortedBy { it.worldCenter.dst(body.worldCenter) }.firstOrNull()
+                        if (target != null) {
+                            state.hasTarget = true
+                            state.target = target
+                        }
+                        val forwardNormal = state.startDirection.cpy()
+                        val currentSpeed = body.forwardVelocity().dot(forwardNormal)
+                        if (currentSpeed < state.maxSpeed)
+                            body.applyForce(forwardNormal.scl(state.force), body.worldCenter, true)
+                    }
+                } else {
+                    val forwardNormal = state.startDirection.cpy()
+                    val currentSpeed = body.forwardVelocity().dot(forwardNormal)
+                    if (currentSpeed < state.maxSpeed)
+                        body.applyForce(forwardNormal.scl(state.force), body.worldCenter, true)
+                }
+
+                val impulse = body.lateralVelocity().scl(-body.mass)
+//                if (impulse.len() > GameConstants.MaxLateralImpulse)
+//                    impulse.scl(GameConstants.MaxLateralImpulse / impulse.len())
+                body.applyLinearImpulse(impulse, body.worldCenter, true)
+
+                body.applyAngularImpulse(body.inertia * 0.5f * -body.angularVelocity, true)
+
+            } else {
+                val body = Box2d.get(entity).body
+                explosionAt(body.position, state.damage, state.radius)
+                entity.addComponent<Remove>()
             }
 
-            override fun act(entity: Entity, deltaTime: Float) {
-            }
-        }
+
+        }, GuidedMissile::class)
 
         PickupType.Health -> object : AiAction("No Op") {
             override fun abort(entity: Entity) {
@@ -148,7 +200,17 @@ fun fireProjectile(position: Vector2, direction: Vector2, shooterSpeed: Float, w
                 }
             }
 
-            PickupType.GuidedMissile -> {}
+            PickupType.GuidedMissile -> {
+                with<GuidedMissile> {
+                    startDirection = direction
+                    baseSpeed = shooterSpeed
+                }
+                with<SpriteComponent> {
+                    texture = Assets.missile
+                    shadow = Assets.missileShadow
+                    shadowOffset = vec2(3f, -3f)
+                }
+            }
             PickupType.MachineGun -> {}
             PickupType.Shotgun -> {}
             else -> {}
@@ -247,9 +309,9 @@ fun createRobotCar(position: Vector2, width: Float, height: Float): Entity {
         with<Car> {
             health = 100f
             maxTorque = CarBase.maxTorque
-            maxDriveForce = CarBase.maxDriveForce
-            acceleration = CarBase.acceleration
-            maxForwardSpeed = CarBase.maxForwardSpeed
+            maxDriveForce = CarBase.maxDriveForce / 2f
+            acceleration = CarBase.acceleration / 2f
+            maxForwardSpeed = CarBase.maxForwardSpeed / 2f
         }
 //        with<Car> {
 //            health = EnemyCarBase.health.random() * EnemyCarBase.healthFactor
@@ -259,30 +321,6 @@ fun createRobotCar(position: Vector2, width: Float, height: Float): Entity {
 //            maxForwardSpeed = EnemyCarBase.maxForwardSpeed.random() * EnemyCarBase.speedFactor
 //        }
     }
-}
-
-object EnemyCarBase {
-    val health = 10..20
-    val maxTorque = 1..20
-    val maxDriveForce = 8..200
-    val acceleration = 1..200
-    val maxForwardSpeed = 5..20
-
-    val healthFactor = 10f
-    val torqueFactor = 100f
-    val forceFactor = 1000f
-    val speedFactor = 1000f
-    val accelerationFactor = 10f
-}
-
-object CarBase {
-    val maxTorque = 300f
-    val maxForwardSpeed = 5000f
-    val maxBackwardSpeed = 200f
-    val maxDriveForce = 1000f
-    val currentDriveForce = 0f
-    val acceleration = 200f
-    val decceleration = 50f
 }
 
 fun createPlayerEntity(position: Vector2, width: Float, height: Float): Entity {
@@ -317,6 +355,7 @@ fun createPlayerEntity(position: Vector2, width: Float, height: Float): Entity {
 
 fun EngineEntity.withProjectile(worldPos: Vector2, radius: Float, ud: UserData) {
     val barrelBomb = (ud as UserData.Projectile).weaponType == PickupType.BarrelBomb
+
     with<Box2d> {
         body = world().body {
             userData = ud

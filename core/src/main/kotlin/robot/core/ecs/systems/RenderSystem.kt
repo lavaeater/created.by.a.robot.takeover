@@ -13,6 +13,7 @@ import eater.injection.InjectionContext.Companion.inject
 import ktx.ashley.allOf
 import ktx.graphics.use
 import ktx.math.plus
+import ktx.math.times
 import ktx.math.vec2
 import robot.core.GameConstants.MetersPerPixel
 import robot.core.ecs.components.HeightComponent
@@ -110,7 +111,7 @@ class RenderSystem(private val batch: PolygonSpriteBatch) :
         } else {
             shadow.draw(
                 batch,
-                position + vec2(1f * MetersPerPixel, -1f * MetersPerPixel),
+                position + sprite.shadowOffset * MetersPerPixel,
                 body.angle * radiansToDegrees,
                 MetersPerPixel
             )

@@ -26,7 +26,9 @@ import robot.core.GameConstants.GameHeight
 import robot.core.GameConstants.GameWidth
 import robot.core.ecs.PickupType
 import robot.core.ecs.components.Car
+import robot.core.ecs.components.GuidedMissile
 import robot.core.ecs.components.Remove
+import robot.core.ecs.explosionAt
 import robot.core.ecs.systems.*
 import robot.core.track.TrackMania
 import robot.core.ui.Hud
@@ -109,9 +111,21 @@ object Context : InjectionContext() {
 
                             }
                             is ContactType.CarAndProjectile -> {
-                                contactType.projectile.addComponent<Remove>()
+                                if(GuidedMissile.has(contactType.projectile)) {
+                                    val gm = GuidedMissile.get(contactType.projectile)
+                                    if(gm.armed) {
+                                        contactType.projectile.addComponent<Remove>()
+                                        explosionAt(Box2d.get(contactType.projectile).body.worldCenter, gm.damage, gm.radius)
+                                    }
+                                } else {
+                                    contactType.projectile.addComponent<Remove>()
+                                }
                             }
                             is ContactType.ProjectileAndAnything -> {
+                                if(GuidedMissile.has(contactType.projectile)) {
+                                    val gm = GuidedMissile.get(contactType.projectile)
+                                    explosionAt(Box2d.get(contactType.projectile).body.worldCenter, gm.damage, gm.radius)
+                                }
                                 contactType.projectile.addComponent<Remove>()
                             }
                         }
@@ -169,7 +183,7 @@ object Context : InjectionContext() {
             addSystem(EnemyNumbersControlSystem())
             addSystem(RemoveAfterSystem())
             addSystem(UpdateActionsSystem())
-            addSystem(RobotCarSpeedAndStuffSystem())
+            //addSystem(RobotCarSpeedAndStuffSystem())
             addSystem(RobotAnnihilationSystem())
         }
     }
