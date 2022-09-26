@@ -41,10 +41,13 @@ object RobotActions {
 
     val chasePlayer = GenericActionWithState("Chase The Player", {
         val robotPos = Box2d.get(it).body.worldCenter
-        val playerPos = Box2d.get(aPlayer).body.worldCenter
-        if (robotPos.dst(playerPos) < 50f)
-            0.6f
-        else 0f
+        if (Box2d.has(aPlayer)) {
+            val playerPos = Box2d.get(aPlayer).body.worldCenter
+            if (robotPos.dst(playerPos) < 50f)
+                0.6f
+            else 0f
+        } else
+            0f
     }, {}, { entity, robot, deltaTime ->
 
         val sc = SpriteComponent.get(entity)
@@ -52,19 +55,21 @@ object RobotActions {
 
         val body = Box2d.get(entity).body
         val car = Car.get(entity)
-        val player = Box2d.get(aPlayer).body
 
-        val targetDirection = (player.worldCenter - body.worldCenter)
-        val bodyForward = body.forwardNormal()
-        val angleDiff = bodyForward.angleDeg() - targetDirection.angleDeg()
-        car.controlState = 0
-        if (angleDiff > 0f && angleDiff.absoluteValue > 20f)
-            car.controlState = car.controlState.with(Car.right)
-        else if (angleDiff < 0f && angleDiff.absoluteValue > 20f)
-            car.controlState = car.controlState.with(Car.left)
+        if (Box2d.has(aPlayer)) {
+            val player = Box2d.get(aPlayer).body
 
-        car.controlState = car.controlState.with(Car.forward)
+            val targetDirection = (player.worldCenter - body.worldCenter)
+            val bodyForward = body.forwardNormal()
+            val angleDiff = bodyForward.angleDeg() - targetDirection.angleDeg()
+            car.controlState = 0
+            if (angleDiff > 0f && angleDiff.absoluteValue > 20f)
+                car.controlState = car.controlState.with(Car.right)
+            else if (angleDiff < 0f && angleDiff.absoluteValue > 20f)
+                car.controlState = car.controlState.with(Car.left)
 
+            car.controlState = car.controlState.with(Car.forward)
+        }
 
     }, Robot::class)
     val chaseMiddle = GenericActionWithState("Chase The Track", {

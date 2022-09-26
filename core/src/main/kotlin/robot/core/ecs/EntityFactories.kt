@@ -1,7 +1,9 @@
 package robot.core.ecs
 
 import com.badlogic.ashley.core.Entity
+import com.badlogic.gdx.math.Circle
 import com.badlogic.gdx.math.Vector2
+import com.badlogic.gdx.physics.box2d.Body
 import com.badlogic.gdx.physics.box2d.BodyDef
 import eater.ai.AiAction
 import eater.ai.AiComponent
@@ -10,6 +12,7 @@ import eater.core.world
 import eater.ecs.components.Box2d
 import eater.ecs.components.CameraFollow
 import eater.physics.addComponent
+import eater.physics.forwardVelocity
 import ktx.ashley.EngineEntity
 import ktx.ashley.entity
 import ktx.ashley.with
@@ -20,6 +23,7 @@ import ktx.box2d.filter
 import ktx.math.vec2
 import robot.core.Assets
 import robot.core.Box2dCategories
+import robot.core.GameConstants
 import robot.core.ecs.components.*
 import kotlin.experimental.or
 
@@ -28,8 +32,8 @@ fun createPickup(position: Vector2, pickupType: PickupType) {
         withBox()
         sensorBox(
             position,
-            2f,
-            2f,
+            8f,
+            8f,
             UserData.Pickup(this.entity, pickupType),
             Box2dCategories.pickups,
             Box2dCategories.pickupsCollideWith
@@ -37,14 +41,30 @@ fun createPickup(position: Vector2, pickupType: PickupType) {
     }
 }
 
-fun explosionAt(position: Vector2) {
+fun explosionAt(position: Vector2, damage: Float, radius: Float) {
     /**
      * Simply add a sensor body at position
      *
      * And everything in that sensor body for the shooort timeperiod it exists
      * will be hit with damage and forces, I guess
      */
-    sensorCirlce(position, 50f, UserData.Explosion(100f))
+    engine().entity {
+        with<Box2d> {
+            body = sensorCirlce(
+                position,
+                radius,
+                UserData.Explosion(this@entity.entity, damage, radius),
+                Box2dCategories.explosions,
+                Box2dCategories.explosionsCollideWith
+            )
+        }
+        with<RemoveAfter> {
+            time = 0.1f
+        }
+        with<Primitive> {
+            primitive = Circle(position, radius)
+        }
+    }
 }
 
 fun PickupType.getBehavior(): AiAction {
@@ -62,9 +82,16 @@ fun PickupType.getBehavior(): AiAction {
                 if (h.height > h.maxHeight)
                     h.flightSpeed = -h.flightSpeed
                 else if (h.height < 0f) {
-                    explosionAt(Box2d.get(entity).body.worldCenter)
+                    explosionAt(Box2d.get(entity).body.worldCenter, 100f, 25f)
                     entity.addComponent<Remove>()
                 }
+
+                //add some drag as well
+                val body = Box2d.get(entity).body
+                val forward = body.forwardVelocity()
+                val speed = forward.len()
+                val dragForceMagnitude = GameConstants.WindDragForceMagnitudeFactor * speed
+                body.applyForce(forward.scl(dragForceMagnitude), body.worldCenter, true)
             }
         }
 
@@ -154,13 +181,17 @@ fun EngineEntity.sensorBox(
     }
 }
 
-fun sensorCirlce(position: Vector2, radius: Float, ud: UserData) {
-    world().body {
+fun sensorCirlce(worldPosition: Vector2, radius: Float, ud: UserData, cb: Short, mb: Short): Body {
+    return world().body {
         userData = ud
         type = BodyDef.BodyType.DynamicBody
-        position.set(position)
+        position.set(worldPosition)
         circle(radius) {
             isSensor = true
+            filter {
+                categoryBits = cb
+                maskBits = mb
+            }
         }
     }
 }
@@ -197,11 +228,13 @@ fun EngineEntity.withBox() {
 
 fun createRobotCar(position: Vector2, width: Float, height: Float): Entity {
     return engine().entity {
-        carBody(this, position, width, height, UserData.Robot(this.entity),
+        carBody(
+            this, position, width, height, UserData.Robot(this.entity),
             Box2dCategories.cars,
             Box2dCategories.carsCollideWith,
             Box2dCategories.sensors,
-            Box2dCategories.cars or Box2dCategories.projectiles or Box2dCategories.pickups)
+            Box2dCategories.cars or Box2dCategories.projectiles or Box2dCategories.pickups
+        )
         with<SpriteComponent> {
             texture = Assets.redCar
             shadow = Assets.redShadow
@@ -212,13 +245,44 @@ fun createRobotCar(position: Vector2, width: Float, height: Float): Entity {
             actions.add(RobotActions.chasePlayer)
         }
         with<Car> {
-            health = (10..20).random() * 10f
-            maxTorque = (1..20).random() * 100f
-            maxDriveForce = (8..200).random() * 1000f
-            acceleration = (1..200).random() * 10f
-            maxForwardSpeed = (5..20).random() * 1000f
+            health = 100f
+            maxTorque = CarBase.maxTorque
+            maxDriveForce = CarBase.maxDriveForce
+            acceleration = CarBase.acceleration
+            maxForwardSpeed = CarBase.maxForwardSpeed
         }
+//        with<Car> {
+//            health = EnemyCarBase.health.random() * EnemyCarBase.healthFactor
+//            maxTorque = EnemyCarBase.maxTorque.random() * EnemyCarBase.torqueFactor
+//            maxDriveForce = EnemyCarBase.maxDriveForce.random() * EnemyCarBase.forceFactor
+//            acceleration = EnemyCarBase.acceleration.random() * EnemyCarBase.accelerationFactor
+//            maxForwardSpeed = EnemyCarBase.maxForwardSpeed.random() * EnemyCarBase.speedFactor
+//        }
     }
+}
+
+object EnemyCarBase {
+    val health = 10..20
+    val maxTorque = 1..20
+    val maxDriveForce = 8..200
+    val acceleration = 1..200
+    val maxForwardSpeed = 5..20
+
+    val healthFactor = 10f
+    val torqueFactor = 100f
+    val forceFactor = 1000f
+    val speedFactor = 1000f
+    val accelerationFactor = 10f
+}
+
+object CarBase {
+    val maxTorque = 300f
+    val maxForwardSpeed = 5000f
+    val maxBackwardSpeed = 200f
+    val maxDriveForce = 1000f
+    val currentDriveForce = 0f
+    val acceleration = 200f
+    val decceleration = 50f
 }
 
 fun createPlayerEntity(position: Vector2, width: Float, height: Float): Entity {
@@ -229,7 +293,7 @@ fun createPlayerEntity(position: Vector2, width: Float, height: Float): Entity {
      */
     return engine().entity {
         carBody(
-            this, position, width, height, UserData.Robot(this.entity),
+            this, position, width, height, UserData.Player(this.entity),
             Box2dCategories.cars,
             Box2dCategories.carsCollideWith,
             Box2dCategories.sensors,
@@ -242,18 +306,27 @@ fun createPlayerEntity(position: Vector2, width: Float, height: Float): Entity {
         with<Player>()
         with<Car> {
             health = 100f
+            maxTorque = CarBase.maxTorque
+            maxDriveForce = CarBase.maxDriveForce
+            acceleration = CarBase.acceleration
+            maxForwardSpeed = CarBase.maxForwardSpeed
         }
         with<CameraFollow>()
     }
 }
 
 fun EngineEntity.withProjectile(worldPos: Vector2, radius: Float, ud: UserData) {
+    val barrelBomb = (ud as UserData.Projectile).weaponType == PickupType.BarrelBomb
     with<Box2d> {
         body = world().body {
             userData = ud
             type = BodyDef.BodyType.DynamicBody
             position.set(worldPos)
             circle(radius) {
+                filter {
+                    categoryBits = if (barrelBomb) Box2dCategories.none else Box2dCategories.projectiles
+                    maskBits = if (barrelBomb) Box2dCategories.none else Box2dCategories.projectilesCollideWith
+                }
                 density = 0.5f
             }
         }

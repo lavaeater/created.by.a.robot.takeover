@@ -7,10 +7,10 @@ import ktx.ashley.mapperFor
 
 class HeightComponent: Component, Pool.Poolable {
     var height = 0f
-    var flightSpeed = 10f
+    var flightSpeed = 20f
     var maxHeight = 5f
     override fun reset() {
-        flightSpeed = 2.5f
+        flightSpeed = 20f
         height = 0f
         maxHeight = 5f
     }

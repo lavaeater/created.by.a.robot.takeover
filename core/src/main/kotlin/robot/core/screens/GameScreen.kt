@@ -14,7 +14,6 @@ import eater.input.CommandMap
 import eater.input.KeyPress
 import eater.physics.forwardNormal
 import eater.physics.forwardVelocity
-import ktx.app.KtxGame
 import ktx.app.KtxInputAdapter
 import ktx.app.KtxScreen
 import ktx.app.clearScreen
@@ -22,19 +21,14 @@ import ktx.assets.disposeSafely
 import ktx.assets.toInternalFile
 import ktx.math.plus
 import ktx.math.vec2
-import robot.core.Assets
+import robot.core.*
 import robot.core.GameConstants.PosIters
 import robot.core.GameConstants.TimeStep
 import robot.core.GameConstants.VelIters
-import robot.core.RoboGame
 import robot.core.ecs.components.Car
 import robot.core.ecs.createPlayerEntity
-import robot.core.ecs.createRobotCar
 import robot.core.ecs.fireProjectile
-import robot.core.injection.Context
 import robot.core.ui.Hud
-import robot.core.with
-import robot.core.without
 import space.earlygrey.shapedrawer.ShapeDrawer
 
 class GameScreen(private val game: RoboGame) : KtxScreen, KtxInputAdapter {
@@ -119,6 +113,16 @@ class GameScreen(private val game: RoboGame) : KtxScreen, KtxInputAdapter {
         updatePhysics(delta)
         updateEngine(delta)
         hud.render(delta)
+        checkGameOver()
+    }
+
+    private fun checkGameOver() {
+        if(GameState.gameStarted) {
+            if (GameState.playerDied)
+                game.playerDied()
+            else if (GameState.playerWon)
+                game.playerWon()
+        }
     }
 
     private fun updateEngine(delta: Float) {

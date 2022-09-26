@@ -1,8 +1,6 @@
 package robot.core
 
 import eater.core.MainGame
-import ktx.app.KtxGame
-import ktx.app.KtxScreen
 import robot.core.injection.Context
 import robot.core.screens.GameScreen
 import robot.core.screens.StartScreen
@@ -19,6 +17,20 @@ object GameState {
     var gameStarted = false
     var playerDied = false
     var playerWon = false
+
+    fun start() {
+        score = 0
+        gameStarted = true
+        timesPlayed++
+    }
+
+    fun playerDied() {
+        playerDied = true
+    }
+    fun playerWon() {
+        playerWon = true
+    }
+
 }
 
 class RoboGame : MainGame() {
@@ -30,7 +42,15 @@ class RoboGame : MainGame() {
     }
 
     fun startGame() {
+        GameState.start()
         setScreen<GameScreen>()
+    }
+
+    fun playerDied() {
+        setScreen<StartScreen>()
+    }
+    fun playerWon() {
+        setScreen<StartScreen>()
     }
 }
 

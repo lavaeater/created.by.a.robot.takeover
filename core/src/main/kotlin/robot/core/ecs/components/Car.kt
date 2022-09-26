@@ -7,6 +7,8 @@ import com.badlogic.gdx.utils.Queue
 import ktx.ashley.mapperFor
 import robot.core.ecs.PickupType
 
+
+
 class Car : Component, Poolable {
     val weapons = Queue<PickupType>()
     var health = 100f

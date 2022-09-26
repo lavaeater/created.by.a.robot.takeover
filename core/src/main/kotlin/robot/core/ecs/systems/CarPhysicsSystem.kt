@@ -23,7 +23,7 @@ class CarPhysicsSystem : IteratingSystem(allOf(Car::class, Box2d::class).get()) 
          */
         val body = Box2d.get(entity).body
         updateDrive(body, Car.get(entity))
-        this.updateFriction(body)
+        updateFriction(body)
     }
 
     private fun updateDrive(body: Body, car: Car) {
