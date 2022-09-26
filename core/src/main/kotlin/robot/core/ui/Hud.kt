@@ -9,6 +9,7 @@ import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.scenes.scene2d.ui.Label
 import com.badlogic.gdx.scenes.scene2d.ui.ProgressBar
 import com.badlogic.gdx.scenes.scene2d.ui.Skin
+import com.badlogic.gdx.utils.Align
 import com.badlogic.gdx.utils.viewport.ExtendViewport
 import eater.core.engine
 import eater.ecs.components.CameraFollow
@@ -31,8 +32,9 @@ import kotlin.contracts.contract
 
 class Hud(private val batch: PolygonSpriteBatch, debugAll: Boolean = false) {
     private val aspectRatio = 16f / 9f
-    private val hudWidth = 360f
+    private val hudWidth = 180f
     private val hudHeight = hudWidth * aspectRatio
+
     private val camera = OrthographicCamera()
     private val hudViewPort = ExtendViewport(hudWidth, hudHeight, camera)
     private val worldCamera by lazy { inject<OrthographicCamera>() }
@@ -54,26 +56,26 @@ class Hud(private val batch: PolygonSpriteBatch, debugAll: Boolean = false) {
 
     val stage by lazy {
         val aStage = stage(batch, hudViewPort)
-        aStage.isDebugAll = debugAll
+        aStage.isDebugAll = true
         aStage.actors {
-            horizontalGroup {
+            table {
+                row()
                 boundLabel({
                     """
                 Robots: $robotCount
                 Score: ${GameState.score}
                 """.trimIndent()
-                }) {
-                    setPosition(20f, 20f)
-                }
+                }).cell(growX = true, align = Align.bottomLeft)
+
                 boundProgressBar(
                     { if (playerEntities.any()) Car.get(playerEntities.first()).health else 0f },
                     0f,
                     100f,
                     1f
-                ) {
-                    setPosition(100f, 20f)
-                }
-            }
+                ).cell(growX = false, align = Align.bottomLeft)
+                row()
+                setFillParent(true)
+            }.align(Align.bottom)
         }
         aStage
     }
