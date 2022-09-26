@@ -143,7 +143,9 @@ class TrackMania {
         val points = Array(totalPoints) { vec2() }
         //Cache the points
         points.first().set(startPoint)
-        for (i in 1 until totalPoints) {
+        points[1].set(startPoint + vec2(0f, 50f))
+        points[2].set(startPoint + vec2(0f, 100f))
+        for (i in 3 until totalPoints) {
             track.valueAt(points[i], (i.toFloat() / (totalPoints.toFloat() - 1f)))
         }
         /**
@@ -168,7 +170,10 @@ class TrackMania {
 
     fun getRobotStartPosition(maxY: Float): Int {
         val targetIndex = track.indexOfLast { it.center.y < maxY }
-        return targetIndex
+        return if(targetIndex < 0)
+            0
+        else
+            targetIndex
     }
 
     fun getNextTarget(targetIndex: Int, minY: Float, targetVector: Vector2): Int {

@@ -8,7 +8,7 @@ import robot.core.ecs.components.Car
 import robot.core.ecs.components.Robot
 
 class RobotCarSpeedAndStuffSystem: IteratingSystem(allOf(Robot::class, Car::class, Box2d::class).get()) {
-    override fun processEntity(entity: Entity?, deltaTime: Float) {
+    override fun processEntity(entity: Entity, deltaTime: Float) {
         /*
 
         What do we do?
@@ -19,6 +19,7 @@ class RobotCarSpeedAndStuffSystem: IteratingSystem(allOf(Robot::class, Car::clas
 
         If it is behind the car, we lower top speed.
          */
+        
     }
 
 }

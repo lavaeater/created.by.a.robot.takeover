@@ -21,7 +21,7 @@ class EnemyNumbersControlSystem: IntervalSystem(1f) {
         if(engine.getEntitiesFor(players).any()) {
             if (allRobots.size() < MinRobots) {
                 //1. Find the player.
-                val playerPointIndex = trackMania.getRobotStartPosition(Box2d.get(aPlayer).body.worldCenter.y)
+                val playerPointIndex = trackMania.getRobotStartPosition(Box2d.get(aPlayer).body.worldCenter.y-150f)
                 createRobotCar(trackMania.track[playerPointIndex].center, 2f, 4f)
 
                 //2. Add a car some number of points after it. Yay

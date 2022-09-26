@@ -20,6 +20,8 @@ object GameState {
 
     fun start() {
         score = 0
+        playerDied = false
+        playerWon = false
         gameStarted = true
         timesPlayed++
     }

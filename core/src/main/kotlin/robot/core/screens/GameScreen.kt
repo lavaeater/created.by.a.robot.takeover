@@ -1,5 +1,6 @@
 package robot.core.screens
 
+import com.badlogic.ashley.core.Entity
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.Input.Keys
 import com.badlogic.gdx.graphics.OrthographicCamera
@@ -17,6 +18,8 @@ import eater.physics.forwardVelocity
 import ktx.app.KtxInputAdapter
 import ktx.app.KtxScreen
 import ktx.app.clearScreen
+import ktx.ashley.allOf
+import ktx.ashley.remove
 import ktx.assets.disposeSafely
 import ktx.assets.toInternalFile
 import ktx.math.plus
@@ -30,16 +33,12 @@ import robot.core.ecs.createPlayerEntity
 import robot.core.ecs.fireProjectile
 import robot.core.ui.Hud
 import space.earlygrey.shapedrawer.ShapeDrawer
+import java.util.EnumSet.allOf
 
 class GameScreen(private val game: RoboGame) : KtxScreen, KtxInputAdapter {
     val randomRange = (-500f..500f)
-    val playerEntity by lazy { createPlayerEntity(vec2(),2f, 4f) }
-//    val robots by lazy {
-//        Array(100) {
-//            val x = -50f + it
-//            createRobotCar(vec2(x,-100f),2f,4f)
-//        }
-//    }
+    lateinit var playerEntity: Entity
+
     val playerCar by lazy { Car.get(playerEntity) }
     val commandMap = CommandMap("Car Controls").apply {
         setBoth(Keys.W, "THROTTLE UP", { removeFlag(Car.forward) }, { addFlag(Car.forward) })
@@ -86,10 +85,17 @@ class GameScreen(private val game: RoboGame) : KtxScreen, KtxInputAdapter {
 
     override fun show() {
         Gdx.input.inputProcessor = this
+        playerEntity = createPlayerEntity(vec2(),2f, 4f)
     }
 
     override fun hide() {
         Gdx.input.inputProcessor = null
+        for(entity in engine().getEntitiesFor(allOf(Box2d::class).get())) {
+            val body = Box2d.get(entity).body
+            entity.remove<Box2d>()
+            world().destroyBody(body)
+        }
+        engine().removeAllEntities()
     }
 
     override fun resize(width: Int, height: Int) {

@@ -167,9 +167,8 @@ object Context : InjectionContext() {
             addSystem(PlayerScoreSystem())
             addSystem(RemoveEntitySystem())
             addSystem(UtilityAiSystem())
-//            addSystem(EnemyNumbersControlSystem())
+            addSystem(EnemyNumbersControlSystem())
             addSystem(RemoveAfterSystem())
-//            addSystem(CarFollowSystem())
             addSystem(UpdateActionsSystem())
         }
     }

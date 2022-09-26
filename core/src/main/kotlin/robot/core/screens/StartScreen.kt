@@ -17,6 +17,7 @@ import robot.core.Assets
 import robot.core.GameState
 import robot.core.RoboGame
 import robot.core.ui.boundLabel
+import robot.core.ui.boundProgressBar
 import space.earlygrey.shapedrawer.ShapeDrawer
 
 class StartScreen(private val roboGame: RoboGame) : BasicScreen(
@@ -84,7 +85,7 @@ Any Key - Start Game
                         setPosition(currentPos.x, currentPos.y)
                         currentPos.y -= this.height * 2
                     }
-                    label("Hi-Score: ${GameState.highScore}") {
+                    boundLabel({ "Hi-Score: ${GameState.highScore}" }) {
                         setFontScale(1f)
                         setPosition(currentPos.x, currentPos.y)
                         currentPos.y -= this.height * 2
