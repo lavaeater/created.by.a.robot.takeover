@@ -24,7 +24,7 @@ object GameState {
 
     fun start() {
         score = 0
-        var raceStarted = false
+        raceStarted = false
         playerDied = false
         playerWon = false
         gameStarted = true

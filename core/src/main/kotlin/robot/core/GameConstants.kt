@@ -1,10 +1,7 @@
 package robot.core
 
-import kotlin.experimental.and
-import kotlin.experimental.or
-
 object GameConstants {
-    const val GameWidth =480f
+    const val GameWidth =64f
     const val GameHeight = (16f/9f) * GameWidth
     const val PixelsPerMeter = 4f
     const val MetersPerPixel = 1f / PixelsPerMeter
@@ -18,22 +15,6 @@ object GameConstants {
 
     const val MinRobots = 15
     const val RobotMaxDistance = 500f
-    const val RobotMaxOfPlayerSpeed = 1.25f
-    const val RobotMinOfPlayerSpeed = 0.5f
-}
-
-object Box2dCategories {
-    const val none: Short = 0
-    const val cars: Short = 1
-    const val terrain: Short = 2
-    const val projectiles: Short = 4
-    const val pickups: Short = 8
-    const val explosions: Short = 16
-    const val sensors: Short = 32
-
-    val carsCollideWith = cars or terrain or projectiles or pickups or explosions or sensors
-    val terrainCollidesWith = cars or projectiles or sensors
-    val projectilesCollideWith = cars or terrain or sensors
-    val pickupsCollideWith = cars
-    val explosionsCollideWith = cars
+    const val RobotMaxOfPlayerSpeed = 1.15f
+    const val RobotMinOfPlayerSpeed = 0.85f
 }

@@ -93,7 +93,7 @@ class GameScreen(private val game: RoboGame) : KtxScreen, KtxInputAdapter {
     override fun show() {
         Gdx.input.inputProcessor = this
         playerEntity = createPlayerEntity(vec2(),2f, 4f)
-//        createStartRobots(MinRobots / 3)
+        createStartRobots(MinRobots / 3)
         for (carEntity in engine().getEntitiesFor(allOf(Car::class).get())) {
             Car.get(carEntity).canRace = false
         }
@@ -104,7 +104,7 @@ class GameScreen(private val game: RoboGame) : KtxScreen, KtxInputAdapter {
 
         for(i in 0 until numberOfRobots) {
             val factor = if(i % 2 == 0) 1f else -1f
-            createRobotCar(startSection.center + vec2(5f * (i + 1) * factor, 0f), 2f, 4f)
+            createRobotCar(startSection.center + vec2(10f * (i + 1) * factor, 0f), 2f, 4f)
         }
     }
 

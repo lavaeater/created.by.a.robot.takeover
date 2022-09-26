@@ -88,7 +88,7 @@ fun explosionLater(position: Vector2, damage: Float, radius: Float) {
 }
 
 fun PickupType.getBehavior(): AiAction {
-    val carsAndBodies = allOf(Box2d::class, Pickup::class).get()
+    val carsAndBodies = allOf(Box2d::class, Car::class).get()
     return when (this) {
         PickupType.BarrelBomb -> object : AiAction("Barrel Bomb") {
             override fun abort(entity: Entity) {
@@ -146,14 +146,6 @@ fun PickupType.getBehavior(): AiAction {
                     if (currentSpeed < state.maxSpeed)
                         body.applyForce(forwardNormal.scl(state.force), body.worldCenter, true)
                 }
-
-               // val impulse = body.lateralVelocity().scl(-body.mass)
-//                if (impulse.len() > GameConstants.MaxLateralImpulse)
-//                    impulse.scl(GameConstants.MaxLateralImpulse / impulse.len())
-               // body.applyLinearImpulse(impulse, body.worldCenter, true)
-
-                //body.applyAngularImpulse(body.inertia * 0.5f * -body.angularVelocity, true)
-
             } else {
                 val body = Box2d.get(entity).body
                 explosionAt(body.position, state.damage, state.radius)

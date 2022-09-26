@@ -7,6 +7,6 @@ sealed class PickupType {
     object Health : PickupType()
     object BarrelBomb : PickupType()
     companion object {
-        val allPickupTypes = listOf(GuidedMissile) //BarrelBomb, Health, MachineGun, Shotgun,
+        val allPickupTypes = listOf(GuidedMissile, BarrelBomb, Health)//, MachineGun, Shotgun,
     }
 }

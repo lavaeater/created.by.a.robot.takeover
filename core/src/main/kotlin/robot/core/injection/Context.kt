@@ -181,10 +181,10 @@ object Context : InjectionContext() {
             addSystem(PlayerScoreSystem())
             addSystem(RemoveEntitySystem())
             addSystem(UtilityAiSystem())
-//            addSystem(EnemyNumbersControlSystem())
+            addSystem(EnemyNumbersControlSystem())
             addSystem(RemoveAfterSystem())
             addSystem(UpdateActionsSystem())
-            //addSystem(RobotCarSpeedAndStuffSystem())
+            addSystem(RobotCarSpeedAndStuffSystem())
             addSystem(RobotAnnihilationSystem())
         }
     }
