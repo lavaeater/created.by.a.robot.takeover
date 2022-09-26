@@ -160,7 +160,6 @@ object Context : InjectionContext() {
             addSystem(CameraUpdateSystem(inject(), inject()))
             addSystem(RenderSystem(inject()))
             addSystem(RenderPrimitives(inject()))
-            addSystem(PhysicsDebugRendererSystem(inject(), inject()))
             addSystem(CarPhysicsSystem())
             addSystem(RobotCarDeathSystem())
             addSystem(PlayerCarDeathSystem())
@@ -171,6 +170,7 @@ object Context : InjectionContext() {
             addSystem(RemoveAfterSystem())
             addSystem(UpdateActionsSystem())
             addSystem(RobotCarSpeedAndStuffSystem())
+            addSystem(RobotAnnihilationSystem())
         }
     }
 }

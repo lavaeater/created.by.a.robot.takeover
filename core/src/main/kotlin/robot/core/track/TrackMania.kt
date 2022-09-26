@@ -16,10 +16,10 @@ import robot.core.ecs.UserData
 import robot.core.ecs.createPickup
 
 sealed class Pickup {
-    object GuidedMissile: Pickup()
-    object BarrelBomb: Pickup()
-    object Shotgun: Pickup()
-    object MachingeGun: Pickup()
+    object GuidedMissile : Pickup()
+    object BarrelBomb : Pickup()
+    object Shotgun : Pickup()
+    object MachingeGun : Pickup()
 }
 
 class TrackMania {
@@ -56,15 +56,16 @@ class TrackMania {
 
     fun fixPickups(odds: Int) {
         val range = 0..99
-        for(s in track) {
-            if(range.random() < odds) {
+        val r = -5..5
+        for (s in track) {
+            if (range.random() < odds) {
                 /**
                  * We need a pickup here
                  *
                  * ever pickup is an entity creation function that
                  * takes a position
                  */
-                createPickup(s.center, PickupType.allPickupTypes.random())
+                createPickup(s.center + vec2(r.random() * 5f, r.random() * 5f), PickupType.allPickupTypes.random())
             }
         }
 
@@ -170,7 +171,7 @@ class TrackMania {
 
     fun getIndexForPosition(maxY: Float): Int {
         val targetIndex = track.indexOfLast { it.center.y < maxY }
-        return if(targetIndex < 0)
+        return if (targetIndex < 0)
             0
         else
             targetIndex
@@ -182,7 +183,7 @@ class TrackMania {
         while (currentIndex < track.lastIndex && notFound) {
             currentIndex++
             targetVector.set(track[currentIndex].center)
-            if(targetVector.y > minY) {
+            if (targetVector.y > minY) {
                 notFound = false
             }
         }

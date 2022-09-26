@@ -17,7 +17,7 @@ object GameConstants {
     const val PosIters = 6
 
     const val MinRobots = 15
-
+    const val RobotMaxDistance = 500f
 }
 
 object Box2dCategories {

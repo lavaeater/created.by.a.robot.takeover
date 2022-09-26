@@ -10,7 +10,7 @@ import robot.core.ecs.PickupType
 
 
 class Car : Component, Poolable {
-    var canRace = false
+    var canRace = true
     val weapons = Queue<PickupType>()
     var health = 100f
     var maxTorque = 300f

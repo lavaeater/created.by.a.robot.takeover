@@ -103,7 +103,7 @@ class GameScreen(private val game: RoboGame) : KtxScreen, KtxInputAdapter {
 
         for(i in 0 until numberOfRobots) {
             val factor = if(i % 2 == 0) 1f else -1f
-            createRobotCar(startSection.center + vec2(5f * i * factor, 0f), 2f, 4f)
+            createRobotCar(startSection.center + vec2(5f * (i + 1) * factor, 0f), 2f, 4f)
         }
     }
 
@@ -132,7 +132,7 @@ class GameScreen(private val game: RoboGame) : KtxScreen, KtxInputAdapter {
     }
 
     override fun render(delta: Float) {
-        clearScreen(red = 0.7f, green = 0.7f, blue = 0.7f)
+        clearScreen(red = 0.15f, green = 0.15f, blue = 0.15f)
         camera.update(false) //True or false, what's the difference?
         batch.projectionMatrix = camera.combined
         updatePhysics(delta)

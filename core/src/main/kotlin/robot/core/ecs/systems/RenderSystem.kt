@@ -51,8 +51,8 @@ class RenderSystem(private val batch: PolygonSpriteBatch) :
 
     var firstRun = true
     lateinit var polygons: Array<Polygon>
-    val odd = Color(0x3f3f3fff)
-    val even = Color(0x4f4f4fff)
+    val odd = Color(0.21f, 0.21f, 0.21f, 1f)
+    val even = Color(0.2f, 0.2f,0.2f,1f)
     private fun renderTrack() {
         if (firstRun) {
             firstRun = false

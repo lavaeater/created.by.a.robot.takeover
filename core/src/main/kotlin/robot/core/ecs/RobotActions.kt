@@ -5,8 +5,10 @@ import eater.core.engine
 import eater.ecs.components.Box2d
 import eater.injection.InjectionContext
 import eater.physics.forwardNormal
+import eater.physics.forwardVelocity
 import ktx.ashley.allOf
 import ktx.math.minus
+import ktx.math.plus
 import robot.core.Assets
 import robot.core.ecs.components.Car
 import robot.core.ecs.components.Player
@@ -36,8 +38,26 @@ object RobotActions {
     val playerFam = allOf(Player::class).get()
     val aPlayer by lazy { engine().getEntitiesFor(playerFam).first() }
 
-    val attackPlayer =
-        GenericActionWithState("Attack the Player", { 1f }, { entity -> }, { entity, robot, delta -> }, Robot::class)
+    val fireWeapon =
+        GenericActionWithState("Fire Weapon", {
+            val car = Car.get(it)
+            if (car.weapons.any())
+                0.7f
+            else
+                0f
+        }, { entity -> },
+            { entity, robot, delta ->
+                val car = Car.get(entity)
+
+                val weaponToFire = car.weapons.removeFirst()
+                val robotBody = Box2d.get(entity).body
+                val forwardNormal = robotBody.forwardNormal()
+
+                val forwardSpeed = robotBody.forwardVelocity().dot(forwardNormal)
+                fireProjectile(robotBody.worldCenter + forwardNormal.cpy().scl(2f), forwardNormal, forwardSpeed, weaponToFire)
+
+            }, Robot::class
+        )
 
     val chasePlayer = GenericActionWithState("Chase The Player", {
         val robotPos = Box2d.get(it).body.worldCenter
