@@ -359,13 +359,13 @@ fun carBody(
                         maskBits = colliderMaskBits
                     }
                 }
-                circle(10f, vec2(0f, 0f)) {
-                    isSensor = true
-                    filter {
-                        categoryBits = sensorBits
-                        maskBits = sensorMaskBits
-                    }
-                }
+//                circle(10f, vec2(0f, 0f)) {
+//                    isSensor = true
+//                    filter {
+//                        categoryBits = sensorBits
+//                        maskBits = sensorMaskBits
+//                    }
+//                }
             }
         }
     }

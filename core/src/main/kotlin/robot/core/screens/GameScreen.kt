@@ -25,12 +25,15 @@ import ktx.assets.toInternalFile
 import ktx.math.plus
 import ktx.math.vec2
 import robot.core.*
+import robot.core.GameConstants.MinRobots
 import robot.core.GameConstants.PosIters
 import robot.core.GameConstants.TimeStep
 import robot.core.GameConstants.VelIters
 import robot.core.ecs.components.Car
 import robot.core.ecs.createPlayerEntity
+import robot.core.ecs.createRobotCar
 import robot.core.ecs.fireProjectile
+import robot.core.track.TrackMania
 import robot.core.ui.Hud
 import space.earlygrey.shapedrawer.ShapeDrawer
 import java.util.EnumSet.allOf
@@ -47,6 +50,8 @@ class GameScreen(private val game: RoboGame) : KtxScreen, KtxInputAdapter {
         setBoth(Keys.D, "STEER RIGHT", { removeFlag(Car.right) }, { addFlag(Car.right) })
         setDown(Keys.SPACE, "FIRE") { fire() }
     }
+
+    private val trackMania by lazy { inject<TrackMania>() }
 
     private fun fire() {
         if(playerCar.weapons.any()) {
@@ -86,6 +91,16 @@ class GameScreen(private val game: RoboGame) : KtxScreen, KtxInputAdapter {
     override fun show() {
         Gdx.input.inputProcessor = this
         playerEntity = createPlayerEntity(vec2(),2f, 4f)
+        createStartRobots(MinRobots)
+    }
+
+    private fun createStartRobots(numberOfRobots: Int) {
+        val startSection = trackMania.track.first()
+
+        for(i in 0 until numberOfRobots) {
+            val factor = if(i % 2 == 0) 1f else -1f
+            createRobotCar(startSection.center + vec2(5f * i * factor, 0f), 2f, 4f)
+        }
     }
 
     override fun hide() {

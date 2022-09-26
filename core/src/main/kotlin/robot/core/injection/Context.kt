@@ -170,6 +170,7 @@ object Context : InjectionContext() {
             addSystem(EnemyNumbersControlSystem())
             addSystem(RemoveAfterSystem())
             addSystem(UpdateActionsSystem())
+            addSystem(RobotCarSpeedAndStuffSystem())
         }
     }
 }

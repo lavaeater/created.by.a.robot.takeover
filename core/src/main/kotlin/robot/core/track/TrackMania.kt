@@ -168,7 +168,7 @@ class TrackMania {
         return snakeTrack
     }
 
-    fun getRobotStartPosition(maxY: Float): Int {
+    fun getIndexForPosition(maxY: Float): Int {
         val targetIndex = track.indexOfLast { it.center.y < maxY }
         return if(targetIndex < 0)
             0
