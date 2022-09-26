@@ -128,7 +128,7 @@ class TrackMania {
         return points.mapIndexed { i, p ->
             previousWidth =
                 MathUtils.clamp(previousWidth + changeRange.random() * 10f, widthRange.start, widthRange.endInclusive)
-            if (i < points.lastIndex) {
+            if (i < points.lastIndex && i > 2) {
                 SnakeTrackSection(p).apply { fixSides(points[i + 1], previousWidth) }
             } else {
                 SnakeTrackSection(p).apply { fixSides(p + vec2(0f, 10f), previousWidth) }

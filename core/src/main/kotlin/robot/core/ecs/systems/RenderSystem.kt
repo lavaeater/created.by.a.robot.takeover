@@ -6,6 +6,7 @@ import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.g2d.PolygonSpriteBatch
 import com.badlogic.gdx.graphics.g2d.TextureRegion
 import com.badlogic.gdx.math.MathUtils.radiansToDegrees
+import com.badlogic.gdx.math.Polygon
 import com.badlogic.gdx.math.Vector2
 import eater.ecs.components.Box2d
 import eater.injection.InjectionContext.Companion.inject
@@ -48,15 +49,45 @@ class RenderSystem(private val batch: PolygonSpriteBatch) :
         }
     }
 
+    var firstRun = true
+    lateinit var polygons: Array<Polygon>
+    val odd = Color(0x3f3f3fff)
+    val even = Color(0x4f4f4fff)
     private fun renderTrack() {
-        shapeDrawer.setColor(Color.DARK_GRAY)
-        for((index, section) in track.withIndex()) {
-            if(index < track.lastIndex) {
-                shapeDrawer.line(section.left, track[index + 1].left, .25f)
-                shapeDrawer.line(section.center, track[index + 1].center, .25f)
-                shapeDrawer.line(section.right, track[index + 1].right, .25f)
-            }
+        if (firstRun) {
+            firstRun = false
+            polygons = (track.minus(track.last())).mapIndexed { i, t ->
+                val o = track[i + 1]
+                val points = FloatArray(8)
+                points[0] = t.left.x
+                points[1] = t.left.y
+                points[2] = o.left.x
+                points[3] = o.left.y
+                points[4] = o.right.x
+                points[5] = o.right.y
+                points[6] = t.right.x
+                points[7] = t.right.y
+                Polygon(points)
+            }.toTypedArray()
         }
+
+        for((i,p) in polygons.withIndex()) {
+            if(i % 2 == 0)
+                shapeDrawer.setColor(even)
+            else
+                shapeDrawer.setColor(odd)
+
+            shapeDrawer.filledPolygon(p)
+        }
+
+//        shapeDrawer.setColor(Color.DARK_GRAY)
+//        for ((index, section) in track.withIndex()) {
+//            if (index < track.lastIndex) {
+//                shapeDrawer.line(section.left, track[index + 1].left, .25f)
+//                //shapeDrawer.line(section.center, track[index + 1].center, .25f)
+//                shapeDrawer.line(section.right, track[index + 1].right, .25f)
+//            }
+//        }
     }
 
     override fun processEntity(entity: Entity, deltaTime: Float) {
@@ -65,7 +96,7 @@ class RenderSystem(private val batch: PolygonSpriteBatch) :
         val shadow = sprite.shadow
         val body = Box2d.get(entity).body
         val position = body.worldCenter
-        if(HeightComponent.has(entity)) {
+        if (HeightComponent.has(entity)) {
             val height = HeightComponent.get(entity)
             val scale = 1f + height.height / height.maxHeight
             val sPos = vec2(position.x + height.height, position.y)

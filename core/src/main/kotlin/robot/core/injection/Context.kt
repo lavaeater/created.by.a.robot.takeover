@@ -130,7 +130,7 @@ object Context : InjectionContext() {
             bindSingleton(getEngine())
             bindSingleton(ShapeDrawer(inject<PolygonSpriteBatch>() as Batch, shapeDrawerRegion))
             bindSingleton(TrackMania().apply {
-                this.track.addAll(this.getTrack(1000, 10, 150f..350f, -5..5))
+                this.track.addAll(this.getTrack(1000, 10, 50f..150f, -5..5))
                 fixPickups(25)
             })
             bindSingleton(Hud(inject()))
