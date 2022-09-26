@@ -9,6 +9,8 @@ import eater.injection.InjectionContext.Companion.inject
 import eater.physics.addComponent
 import ktx.ashley.allOf
 import robot.core.GameConstants.RobotMaxDistance
+import robot.core.GameConstants.RobotMaxOfPlayerSpeed
+import robot.core.GameConstants.RobotMinOfPlayerSpeed
 import robot.core.ecs.components.Car
 import robot.core.ecs.components.Player
 import robot.core.ecs.components.Remove
@@ -70,7 +72,7 @@ class RobotCarSpeedAndStuffSystem : IteratingSystem(allOf(Robot::class, Car::cla
                 rCar.maxDriveForce -= rCar.maxDriveForce * 0.1f
             }
             rCar.maxForwardSpeed =
-                MathUtils.clamp(rCar.maxForwardSpeed, pCar.maxForwardSpeed / 2f, pCar.maxForwardSpeed * 2f)
+                MathUtils.clamp(rCar.maxForwardSpeed, pCar.maxForwardSpeed * RobotMinOfPlayerSpeed, pCar.maxForwardSpeed * RobotMaxOfPlayerSpeed)
         }
 
     }

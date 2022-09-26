@@ -126,13 +126,14 @@ class TrackMania {
     ): List<SnakeTrackSection> {
         val points = generateTrackPoints(startPoint, sectionCount, fidelity)
         var previousWidth = (widthRange.start + widthRange.endInclusive) / 2f
+        val startWidth = previousWidth
         return points.mapIndexed { i, p ->
             previousWidth =
                 MathUtils.clamp(previousWidth + changeRange.random() * 10f, widthRange.start, widthRange.endInclusive)
             if (i < points.lastIndex && i > 2) {
                 SnakeTrackSection(p).apply { fixSides(points[i + 1], previousWidth) }
             } else {
-                SnakeTrackSection(p).apply { fixSides(p + vec2(0f, 10f), previousWidth) }
+                SnakeTrackSection(p).apply { fixSides(p + vec2(0f, 10f), startWidth) }
             }
         }
     }

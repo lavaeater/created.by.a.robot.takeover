@@ -11,7 +11,7 @@ import robot.core.ecs.components.Robot
 import robot.core.ecs.createRobotCar
 import robot.core.track.TrackMania
 
-class EnemyNumbersControlSystem : IntervalSystem(0.5f) {
+class EnemyNumbersControlSystem : IntervalSystem(0.25f) {
     val robots = allOf(Robot::class).get()
     val players = allOf(Player::class).get()
     val allRobots get() = engine.getEntitiesFor(robots)
