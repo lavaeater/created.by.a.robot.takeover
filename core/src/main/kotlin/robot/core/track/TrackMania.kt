@@ -6,9 +6,11 @@ import com.badlogic.gdx.math.Vector2
 import eater.core.world
 import ktx.box2d.body
 import ktx.box2d.chain
+import ktx.box2d.filter
 import ktx.math.plus
 import ktx.math.random
 import ktx.math.vec2
+import robot.core.Box2dCategories
 import robot.core.ecs.PickupType
 import robot.core.ecs.UserData
 import robot.core.ecs.createPickup
@@ -95,11 +97,22 @@ class TrackMania {
         val points = track.subList(startIndex, endIndex)
         world().body {
             userData = UserData.Wall
-            chain(*points.map { it.left }.toTypedArray())
+            chain(*points.map { it.left }.toTypedArray()) {
+                filter {
+                    categoryBits = Box2dCategories.terrain
+                    maskBits = Box2dCategories.terrainCollidesWith
+                }
+            }
         }
         world().body {
             userData = UserData.Wall
-            chain(*points.map { it.right }.toTypedArray())
+            chain(*points.map { it.right }.toTypedArray()) {
+                filter {
+                    categoryBits = Box2dCategories.terrain
+                    maskBits = Box2dCategories.terrainCollidesWith
+                }
+
+            }
         }
     }
 

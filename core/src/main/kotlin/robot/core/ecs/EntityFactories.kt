@@ -16,19 +16,23 @@ import ktx.ashley.with
 import ktx.box2d.body
 import ktx.box2d.box
 import ktx.box2d.circle
+import ktx.box2d.filter
 import ktx.math.vec2
 import robot.core.Assets
+import robot.core.Box2dCategories
 import robot.core.ecs.components.*
+import kotlin.experimental.or
 
 fun createPickup(position: Vector2, pickupType: PickupType) {
     engine().entity {
         withBox()
-        withBox2dBox(
+        sensorBox(
             position,
             2f,
             2f,
-            false,
-            UserData.Pickup(this.entity, pickupType)
+            UserData.Pickup(this.entity, pickupType),
+            Box2dCategories.pickups,
+            Box2dCategories.pickupsCollideWith
         )
     }
 }
@@ -43,9 +47,9 @@ fun explosionAt(position: Vector2) {
     sensorCirlce(position, 50f, UserData.Explosion(100f))
 }
 
-fun PickupType.getBehavior() : AiAction {
-    return when(this) {
-        PickupType.BarrelBomb -> object: AiAction("Barrel Bomb") {
+fun PickupType.getBehavior(): AiAction {
+    return when (this) {
+        PickupType.BarrelBomb -> object : AiAction("Barrel Bomb") {
             override fun abort(entity: Entity) {
             }
 
@@ -55,15 +59,16 @@ fun PickupType.getBehavior() : AiAction {
                  */
                 val h = HeightComponent.get(entity)
                 h.height += h.flightSpeed * deltaTime
-                if(h.height > h.maxHeight)
+                if (h.height > h.maxHeight)
                     h.flightSpeed = -h.flightSpeed
-                else if(h.height < 0f) {
+                else if (h.height < 0f) {
                     explosionAt(Box2d.get(entity).body.worldCenter)
                     entity.addComponent<Remove>()
                 }
             }
         }
-        PickupType.GuidedMissile -> object: AiAction("No Op") {
+
+        PickupType.GuidedMissile -> object : AiAction("No Op") {
             override fun abort(entity: Entity) {
 
             }
@@ -71,7 +76,8 @@ fun PickupType.getBehavior() : AiAction {
             override fun act(entity: Entity, deltaTime: Float) {
             }
         }
-        PickupType.Health -> object: AiAction("No Op") {
+
+        PickupType.Health -> object : AiAction("No Op") {
             override fun abort(entity: Entity) {
 
             }
@@ -79,7 +85,8 @@ fun PickupType.getBehavior() : AiAction {
             override fun act(entity: Entity, deltaTime: Float) {
             }
         }
-        PickupType.MachineGun -> object: AiAction("No Op") {
+
+        PickupType.MachineGun -> object : AiAction("No Op") {
             override fun abort(entity: Entity) {
 
             }
@@ -87,7 +94,8 @@ fun PickupType.getBehavior() : AiAction {
             override fun act(entity: Entity, deltaTime: Float) {
             }
         }
-        PickupType.Shotgun -> object: AiAction("No Op") {
+
+        PickupType.Shotgun -> object : AiAction("No Op") {
             override fun abort(entity: Entity) {
 
             }
@@ -112,6 +120,7 @@ fun fireProjectile(position: Vector2, direction: Vector2, shooterSpeed: Float, w
                     shadow = Assets.barrelShadow
                 }
             }
+
             PickupType.GuidedMissile -> {}
             PickupType.MachineGun -> {}
             PickupType.Shotgun -> {}
@@ -120,7 +129,32 @@ fun fireProjectile(position: Vector2, direction: Vector2, shooterSpeed: Float, w
     }
 }
 
-private fun sensorCirlce(position: Vector2, radius: Float, ud: UserData) {
+
+fun EngineEntity.sensorBox(
+    worldPosition: Vector2,
+    width: Float,
+    height: Float, ud: UserData,
+    cb: Short,
+    mb: Short
+) {
+    with<Box2d> {
+        body = world().body {
+            userData = ud
+            type = BodyDef.BodyType.DynamicBody
+            position.set(worldPosition)
+            box(width, height) {
+                filter {
+                    categoryBits = cb
+                    maskBits = mb
+                }
+                isSensor = true
+                density = 0.5f
+            }
+        }
+    }
+}
+
+fun sensorCirlce(position: Vector2, radius: Float, ud: UserData) {
     world().body {
         userData = ud
         type = BodyDef.BodyType.DynamicBody
@@ -163,7 +197,11 @@ fun EngineEntity.withBox() {
 
 fun createRobotCar(position: Vector2, width: Float, height: Float): Entity {
     return engine().entity {
-        boxBody(this, position, width, height, UserData.Robot(this.entity))
+        carBody(this, position, width, height, UserData.Robot(this.entity),
+            Box2dCategories.cars,
+            Box2dCategories.carsCollideWith,
+            Box2dCategories.sensors,
+            Box2dCategories.cars or Box2dCategories.projectiles or Box2dCategories.pickups)
         with<SpriteComponent> {
             texture = Assets.redCar
             shadow = Assets.redShadow
@@ -190,7 +228,13 @@ fun createPlayerEntity(position: Vector2, width: Float, height: Float): Entity {
      * perhaps some wheels?
      */
     return engine().entity {
-        boxBody(this, position, width, height, UserData.Robot(this.entity))
+        carBody(
+            this, position, width, height, UserData.Robot(this.entity),
+            Box2dCategories.cars,
+            Box2dCategories.carsCollideWith,
+            Box2dCategories.sensors,
+            Box2dCategories.cars or Box2dCategories.projectiles or Box2dCategories.pickups
+        )
         with<SpriteComponent> {
             texture = Assets.blueCar
             shadow = Assets.blueShadow
@@ -217,7 +261,17 @@ fun EngineEntity.withProjectile(worldPos: Vector2, radius: Float, ud: UserData) 
 }
 
 
-fun boxBody(entity: EngineEntity, worldPos: Vector2, width: Float, height: Float, ud: UserData) {
+fun carBody(
+    entity: EngineEntity,
+    worldPos: Vector2,
+    width: Float,
+    height: Float,
+    ud: UserData,
+    colliderCategoryBits: Short,
+    colliderMaskBits: Short,
+    sensorBits: Short,
+    sensorMaskBits: Short
+) {
 
     entity.apply {
         with<Box2d> {
@@ -227,9 +281,17 @@ fun boxBody(entity: EngineEntity, worldPos: Vector2, width: Float, height: Float
                 position.set(worldPos)
                 box(width, height) {
                     density = 0.5f
+                    filter {
+                        categoryBits = colliderCategoryBits
+                        maskBits = colliderMaskBits
+                    }
                 }
                 circle(10f, vec2(0f, 0f)) {
                     isSensor = true
+                    filter {
+                        categoryBits = sensorBits
+                        maskBits = sensorMaskBits
+                    }
                 }
             }
         }

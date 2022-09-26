@@ -73,9 +73,9 @@ class RenderSystem(private val batch: PolygonSpriteBatch) :
                 batch,
                 sPos + vec2(1f * MetersPerPixel, -1f * MetersPerPixel),
                 body.angle * radiansToDegrees,
-                MetersPerPixel * scale
+                MetersPerPixel
             )
-            region.draw(batch, position, body.angle * radiansToDegrees, MetersPerPixel)
+            region.draw(batch, position, body.angle * radiansToDegrees, MetersPerPixel * scale)
         } else {
             shadow.draw(
                 batch,
