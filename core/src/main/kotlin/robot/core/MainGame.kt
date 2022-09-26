@@ -6,6 +6,7 @@ import robot.core.screens.GameScreen
 import robot.core.screens.StartScreen
 
 object GameState {
+    var raceStarted = false
     var startCountDown = 3f
     var score = 0
     var highScore = 0
@@ -21,6 +22,7 @@ object GameState {
 
     fun start() {
         score = 0
+        var raceStarted = false
         playerDied = false
         playerWon = false
         gameStarted = true
