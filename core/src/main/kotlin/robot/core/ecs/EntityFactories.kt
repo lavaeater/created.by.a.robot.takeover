@@ -210,34 +210,41 @@ fun PickupType.getBehavior(): AiAction {
 }
 
 fun fireProjectile(position: Vector2, direction: Vector2, shooterSpeed: Float, weaponType: PickupType) {
-    engine().entity {
-        withProjectile(position, .2f, UserData.Projectile(this.entity, weaponType))
-        with<AiComponent> {
-            actions.add(weaponType.getBehavior())
-        }
-        when (weaponType) {
-            PickupType.BarrelBomb -> {
+    when(weaponType) {
+        PickupType.BarrelBomb -> {
+            engine().entity {
+                withProjectile(position, .2f, UserData.Projectile(this.entity, weaponType))
+                with<AiComponent> {
+                    actions.add(weaponType.getBehavior())
+                }
                 with<HeightComponent>()
                 with<SpriteComponent> {
                     texture = Assets.barrel
                     shadow = Assets.barrelShadow
                 }
             }
-
-            PickupType.GuidedMissile -> {
-                with<GuidedMissile> {
-                    startDirection = direction
-                    baseSpeed = shooterSpeed
-                }
-                with<SpriteComponent> {
-                    texture = Assets.missile
-                    shadow = Assets.missileShadow
-                    shadowOffset = vec2(3f, -3f)
+        }
+        PickupType.GuidedMissile -> {
+                engine().entity {
+                    withProjectile(position, .2f, UserData.Projectile(this.entity, weaponType))
+                    with<AiComponent> {
+                        actions.add(weaponType.getBehavior())
+                    }
+                    with<GuidedMissile> {
+                        startDirection = direction
+                        baseSpeed = shooterSpeed
+                    }
+                    with<SpriteComponent> {
+                        texture = Assets.missile
+                        shadow = Assets.missileShadow
+                        shadowOffset = vec2(3f, -3f)
+                    }
                 }
             }
-            PickupType.MachineGun -> {}
-            PickupType.Shotgun -> {}
-            else -> {}
+        PickupType.MachineGun -> TODO()
+        PickupType.Shotgun -> TODO()
+        else -> {
+            //No-OP
         }
     }
 }

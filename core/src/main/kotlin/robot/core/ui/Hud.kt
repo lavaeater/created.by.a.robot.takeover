@@ -54,32 +54,50 @@ class Hud(private val batch: PolygonSpriteBatch, debugAll: Boolean = false) {
 
     private val playerFamily = allOf(Player::class).get()
     private val playerEntities get() = engine().getEntitiesFor(playerFamily)
-    private val speed get() = if(Box2d.has(GameState.playerEntity))
-                (Box2d.get(GameState.playerEntity).body.linearVelocity.len() * 2).toInt() else 0
+    private val speed
+        get() = if (Box2d.has(GameState.playerEntity))
+            (Box2d.get(GameState.playerEntity).body.linearVelocity.len() * 2).toInt() else 0
+
+    private val weapons: String get() {
+        return if(Car.has(GameState.playerEntity)) {
+            val car = Car.get(GameState.playerEntity)
+            if(car.weapons.any())
+                car.weapons.first().name
+                else
+                    "No weapons"
+        } else "No weapons"
+    }
 
     val stage by lazy {
         val aStage = stage(batch, hudViewPort)
         aStage.actors {
             table {
-                row()
-                boundLabel({
-                    """
+                verticalGroup {
+                    boundLabel({
+                        """
                 Score: ${GameState.score}
                 """.trimIndent()
-                }).cell(growX = true, align = Align.bottomLeft)
-
-                boundProgressBar(
-                    { if (playerEntities.any()) Car.get(playerEntities.first()).health else 0f },
-                    0f,
-                    100f,
-                    1f
-                ).cell(growX = false, align = Align.bottomLeft)
-                row()
-                boundLabel({
-                    """
+                    })
+                    boundLabel({
+                        """
                 Speed: ${speed} km/h
                 """.trimIndent()
-                }).cell(growX = true, align = Align.bottomLeft)
+                    })
+                }.cell(align = Align.left)
+
+                verticalGroup {
+                    label("Health")
+                    boundProgressBar(
+                        { if (playerEntities.any()) Car.get(playerEntities.first()).health else 0f },
+                        0f,
+                        100f,
+                        1f
+                    )
+                }
+                verticalGroup {
+                    label("Next Weapon")
+                    boundLabel({weapons})
+                }
                 setFillParent(true)
             }.align(Align.bottom)
         }
@@ -115,7 +133,13 @@ open class BoundLabel(private val textFunction: () -> String, skin: Skin = Scene
     }
 }
 
-open class BoundProgressBar(private val valueFunction: () -> Float, min: Float, max: Float, stepSize: Float, skin: Skin = Scene2DSkin.defaultSkin): ProgressBar(min, max, stepSize, false, skin) {
+open class BoundProgressBar(
+    private val valueFunction: () -> Float,
+    min: Float,
+    max: Float,
+    stepSize: Float,
+    skin: Skin = Scene2DSkin.defaultSkin
+) : ProgressBar(min, max, stepSize, false, skin) {
     override fun act(delta: Float) {
         value = valueFunction()
         super.act(delta)

@@ -67,7 +67,7 @@ object Context : InjectionContext() {
             bindSingleton(createWorld().apply {
                 this.setContactListener(object : ContactListener {
                     override fun beginContact(contact: Contact) {
-                        if(GameState.raceStarted) {
+                        if (GameState.raceStarted) {
                             when (val contactType = ContactType.getContactType(contact)) {
                                 is ContactType.PlayerAndWall -> {
                                     //Take some damage
@@ -76,14 +76,14 @@ object Context : InjectionContext() {
                                 }
 
                                 is ContactType.RobotAndWall -> {
-                                    if(Car.has(contactType.robot)) {
+                                    if (Car.has(contactType.robot)) {
                                         val car = Car.get(contactType.robot)
                                         car.health -= robotAndWallDamageRange.random()
                                     }
                                 }
 
                                 is ContactType.RobotAndRobot -> {
-                                    if(Car.has(contactType.robotA) && Car.has(contactType.robotB)) {
+                                    if (Car.has(contactType.robotA) && Car.has(contactType.robotB)) {
                                         Car.get(contactType.robotA).health -= robotAndRobotDamageRange.random()
                                         Car.get(contactType.robotB).health -= robotAndRobotDamageRange.random()
                                     }
@@ -102,7 +102,7 @@ object Context : InjectionContext() {
 
                                 ContactType.NotRelevant -> {}
                                 is ContactType.CarAndExplosion -> {
-                                    if(Car.has(contactType.car) && Box2d.has(contactType.car)) {
+                                    if (Car.has(contactType.car) && Box2d.has(contactType.car)) {
                                         val exp = contactType.explosion
                                         val explosionPosition = Box2d.get(exp).body.position
                                         val carBody = Box2d.get(contactType.car).body
@@ -182,8 +182,13 @@ object Context : InjectionContext() {
             PickupType.Health -> {
                 Car.get(picker).health = MathUtils.clamp(Car.get(picker).health + 25f, 0f, 100f)
             }
+
             PickupType.SpeedBoost -> {
-                Car.get(picker).maxForwardSpeed += Car.get(picker).maxForwardSpeed * 1.15f
+                if (Car.has(picker)) {
+                    val car = Car.get(picker)
+                    car.maxForwardSpeed *= 1.25f
+                    car.maxDriveForce *= 1.25f
+                }
             }
 
             else -> Car.get(picker).weapons.addLast(pickupType)

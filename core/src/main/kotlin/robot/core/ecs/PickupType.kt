@@ -1,13 +1,13 @@
 package robot.core.ecs
 
-sealed class PickupType {
-    object GuidedMissile : PickupType()
-    object MachineGun : PickupType()
-    object Shotgun : PickupType()
-    object Health : PickupType()
-    object BarrelBomb : PickupType()
-    object SpeedBoost : PickupType()
+sealed class PickupType(val name: String) {
+    object GuidedMissile : PickupType("Guided Missile")
+    object MachineGun : PickupType("Machine Gun")
+    object Shotgun : PickupType("Shotgun")
+    object Health : PickupType("Health")
+    object BarrelBomb : PickupType("Barrel Bomb")
+    object SpeedBoost : PickupType("Speed Boost")
     companion object {
-        val allPickupTypes = listOf(GuidedMissile, BarrelBomb, Health, SpeedBoost)//, MachineGun, Shotgun,
+        val allPickupTypes = listOf(SpeedBoost, GuidedMissile, BarrelBomb, Health)// , MachineGun, Shotgun,
     }
 }
