@@ -15,7 +15,7 @@ import robot.core.ecs.components.Player
 import robot.core.ecs.components.Robot
 import robot.core.track.TrackMania
 
-class RobotCarSpeedAndStuffSystem : IntervalIteratingSystem(allOf(Robot::class, Car::class, Box2d::class).get(), 0.5f) {
+class RobotCarSpeedAndStuffSystem : IntervalIteratingSystem(allOf(Robot::class, Car::class, Box2d::class).get(), 0.1f) {
 
     private val trackMania by lazy { inject<TrackMania>() }
 

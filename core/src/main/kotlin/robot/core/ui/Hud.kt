@@ -61,12 +61,11 @@ class Hud(private val batch: PolygonSpriteBatch, debugAll: Boolean = false) {
 
     private val trackMania by lazy { inject<TrackMania>() }
 
-    private val progress: String get() {
+    private val progress: Float get() {
         return if(Box2d.has(GameState.playerEntity)) {
             val index = trackMania.getIndexForPosition(Box2d.get(GameState.playerEntity).body.worldCenter.y)
-            val normIndex = (MathUtils.norm(0f, trackMania.track.size.toFloat(), index.toFloat()) * 100).toInt()
-            "$normIndex%"
-        } else "0%"
+            MathUtils.norm(0f, trackMania.track.size.toFloat(), index.toFloat())
+        } else 0f
     }
 
     private val weapons: String get() {
@@ -87,9 +86,9 @@ class Hud(private val batch: PolygonSpriteBatch, debugAll: Boolean = false) {
                     boundLabel({
                         """
                 Score: ${GameState.score}
-                Progress: ${progress}
                 """.trimIndent()
                     })
+                    boundProgressBar({progress}, 0f, 1f)
                     boundLabel({
                         """
                 Speed: ${speed} km/h
