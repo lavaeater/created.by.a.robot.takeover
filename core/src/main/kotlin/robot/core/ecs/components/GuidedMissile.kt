@@ -13,7 +13,7 @@ class GuidedMissile:Component, Pool.Poolable {
     var damage = 100f
     var radius = 25f
     var flightTime = 2.5f
-    var armTime = flightTime * 0.9f
+    var armTime = flightTime * 0.75f
     val armed get() = flightTime < armTime
     var maxSpeed = 10000f
     var force = 1000f
@@ -24,7 +24,7 @@ class GuidedMissile:Component, Pool.Poolable {
         baseSpeed = 0f
         startDirection = vec2()
         flightTime = 2.5f
-        armTime = flightTime * 0.9f
+        armTime = flightTime * 0.75f
         force = 1000f
         hasTarget = false
         target = null
