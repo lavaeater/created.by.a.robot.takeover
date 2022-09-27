@@ -59,13 +59,14 @@ class Hud(private val batch: PolygonSpriteBatch, debugAll: Boolean = false) {
     private val playerEntities get() = engine().getEntitiesFor(playerFamily)
     private val speed
         get() = if (Box2d.has(GameState.playerEntity))
-            (Box2d.get(GameState.playerEntity).body.forwardVelocity().dot(Box2d.get(GameState.playerEntity).body.forwardNormal())*2).toInt() else 0
+            (Box2d.get(GameState.playerEntity).body.forwardVelocity()
+                .dot(Box2d.get(GameState.playerEntity).body.forwardNormal()) * 2).toInt() else 0
 //            (Box2d.get(GameState.playerEntity).body.linearVelocity.len() * 2).toInt() else 0
 
     private var topSpeed = 0
         get() {
-            if(speed > field)
-                field = speed
+            if (speed > field)
+                field += 10
             return field
         }
 
@@ -81,6 +82,16 @@ class Hud(private val batch: PolygonSpriteBatch, debugAll: Boolean = false) {
             } else 0f
         }
 
+    private val lastPickup: String
+        get() {
+            return if (Car.has(GameState.playerEntity)) {
+                val car = Car.get(GameState.playerEntity)
+                if (car.weapons.any())
+                    car.weapons.last().name
+                else
+                    ""
+            } else ""
+        }
     private val weapons: String
         get() {
             return if (Car.has(GameState.playerEntity)) {
@@ -99,13 +110,7 @@ class Hud(private val batch: PolygonSpriteBatch, debugAll: Boolean = false) {
                 verticalGroup {
                     label("Progress")
                     boundProgressBar({ progress }, 0f, 1f)
-                    boundLabel({
-                        """
-                Speed: ${speed} km/h
-                Max Speed: ${topSpeed} km/h
-                """.trimIndent()
-                    })
-                }.cell(align = Align.left)
+                }.cell(align = Align.bottomLeft, grow = true, fill = true, pad = 10f)
 
                 verticalGroup {
                     label("Health")
@@ -115,13 +120,25 @@ class Hud(private val batch: PolygonSpriteBatch, debugAll: Boolean = false) {
                         100f,
                         1f
                     )
-                }
+                }.cell(align = Align.bottomLeft, grow = true, fill = true, pad = 10f)
                 verticalGroup {
                     label("Next Weapon")
                     boundLabel({ weapons })
-                }
-                setFillParent(true)
-            }.align(Align.bottom)
+                    label("Last pickup")
+                    boundLabel({ lastPickup })
+                }.cell(align = Align.bottomLeft, grow = true, fill = true, pad = 10f)
+                verticalGroup {
+                    horizontalGroup {
+                        label("Speed: ")
+                        boundLabel({ "$speed km/h" })
+                    }
+                    horizontalGroup {
+                        label("Top Speed: ")
+                        boundLabel({ "$topSpeed km/h" })
+                    }
+                }.cell(align = Align.bottomRight, grow = true, fill = true, pad = 10f)
+                pack()
+            }
         }
         aStage
     }
