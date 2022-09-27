@@ -209,7 +209,6 @@ object Context : InjectionContext() {
             addSystem(RenderSystem(inject()))
             addSystem(RenderPrimitives(inject()))
             addSystem(RenderExplosionSystem())
-//            addSystem(PhysicsDebugRendererSystem(inject(), inject()))
             addSystem(CarPhysicsSystem())
             addSystem(RobotCarDeathSystem())
             addSystem(PlayerCarDeathSystem())

@@ -39,7 +39,6 @@ class StartScreen(private val roboGame: RoboGame) : BasicScreen(
     private lateinit var stage: Stage
     private fun getStage(): Stage {
         return stage(batch, viewport).apply {
-            isDebugAll = true
             actors {
                 image(splashBackground) {
                     width = stage.width
