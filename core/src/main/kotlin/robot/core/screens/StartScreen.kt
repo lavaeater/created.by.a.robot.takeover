@@ -42,6 +42,11 @@ class StartScreen(private val roboGame: RoboGame) : BasicScreen(
                     height = stage.height
 
                 }
+                table {
+
+                }
+
+
                 val currentPos = vec2(this@apply.width / 2f - 150f, this@apply.height / 2f + 100f)
                 label("Created by a Robot Takeover") {
                     setFontScale(2.5f)

@@ -206,6 +206,7 @@ object Context : InjectionContext() {
             addSystem(RobotCarDeathSystem())
             addSystem(PlayerCarDeathSystem())
             addSystem(PlayerScoreSystem())
+            addSystem(PlayerWonSystem())
             addSystem(RemoveEntitySystem())
             addSystem(UtilityAiSystem())
             addSystem(EnemyNumbersControlSystem())
