@@ -83,8 +83,10 @@ object Context : InjectionContext() {
                                 }
 
                                 is ContactType.RobotAndRobot -> {
-                                    Car.get(contactType.robotA).health -= robotAndRobotDamageRange.random()
-                                    Car.get(contactType.robotB).health -= robotAndRobotDamageRange.random()
+                                    if(Car.has(contactType.robotA) && Car.has(contactType.robotB)) {
+                                        Car.get(contactType.robotA).health -= robotAndRobotDamageRange.random()
+                                        Car.get(contactType.robotB).health -= robotAndRobotDamageRange.random()
+                                    }
                                 }
 
                                 is ContactType.PlayerAndRobot -> {
@@ -100,19 +102,22 @@ object Context : InjectionContext() {
 
                                 ContactType.NotRelevant -> {}
                                 is ContactType.CarAndExplosion -> {
-                                    val exp = contactType.explosion
-                                    val explosionPosition = Box2d.get(exp).body.position
-                                    val carBody = Box2d.get(contactType.car).body
-                                    val car = Car.get(contactType.car)
-                                    val radius = contactType.radius
-                                    val maxDamage = contactType.damage
+                                    if(Car.has(contactType.car) && Box2d.has(contactType.car)) {
+                                        val exp = contactType.explosion
+                                        val explosionPosition = Box2d.get(exp).body.position
+                                        val carBody = Box2d.get(contactType.car).body
+                                        val car = Car.get(contactType.car)
+                                        val radius = contactType.radius
+                                        val maxDamage = contactType.damage
 
-                                    val damageDist = carBody.worldCenter.dst(explosionPosition) / radius
-                                    val actualDamage = damageDist * maxDamage
-                                    car.health -= actualDamage
+                                        val damageDist = carBody.worldCenter.dst(explosionPosition) / radius
+                                        val actualDamage = damageDist * maxDamage
+                                        car.health -= actualDamage
 
-                                    val force = (carBody.worldCenter - explosionPosition).nor() * actualDamage * 100f
-                                    carBody.applyLinearImpulse(force, carBody.worldCenter, true)
+                                        val force =
+                                            (carBody.worldCenter - explosionPosition).nor() * actualDamage * 100f
+                                        carBody.applyLinearImpulse(force, carBody.worldCenter, true)
+                                    }
 
                                 }
 
@@ -187,6 +192,7 @@ object Context : InjectionContext() {
             addSystem(CameraUpdateSystem(inject(), inject()))
             addSystem(RenderSystem(inject()))
             addSystem(RenderPrimitives(inject()))
+            addSystem(RenderExplosionSystem())
 //            addSystem(PhysicsDebugRendererSystem(inject(), inject()))
             addSystem(CarPhysicsSystem())
             addSystem(RobotCarDeathSystem())

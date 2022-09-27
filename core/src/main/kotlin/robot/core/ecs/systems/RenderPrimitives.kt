@@ -6,14 +6,11 @@ import com.badlogic.gdx.graphics.g2d.PolygonSpriteBatch
 import com.badlogic.gdx.math.Circle
 import com.badlogic.gdx.math.Ellipse
 import com.badlogic.gdx.math.MathUtils.radiansToDegrees
-import com.badlogic.gdx.math.Polygon
 import com.badlogic.gdx.math.Rectangle
 import eater.ecs.components.Box2d
 import eater.injection.InjectionContext
 import ktx.ashley.allOf
 import ktx.graphics.use
-import robot.core.GameConstants.MetersPerPixel
-import robot.core.GameConstants.PixelsPerMeter
 import robot.core.ecs.components.Primitive
 import space.earlygrey.shapedrawer.ShapeDrawer
 

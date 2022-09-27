@@ -13,6 +13,7 @@ import eater.core.engine
 import eater.core.world
 import eater.ecs.components.Box2d
 import eater.ecs.components.CameraFollow
+import eater.ecs.components.ExplosionComponent
 import eater.physics.addComponent
 import eater.physics.forwardNormal
 import eater.physics.forwardVelocity
@@ -69,9 +70,12 @@ fun explosionAt(position: Vector2, damage: Float, radius: Float) {
         with<RemoveAfter> {
             time = 0.1f
         }
-        with<Primitive> {
-            primitive = Circle(position, radius)
+        with<ExplosionComponent> {
+            explosionTime = 0.1f
         }
+//        with<Primitive> {
+//            primitive = Circle(position, radius)
+//        }
     }
 }
 
