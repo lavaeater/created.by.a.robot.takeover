@@ -188,7 +188,7 @@ object Context : InjectionContext() {
          */
         when (pickupType) {
             PickupType.Health -> {
-                Car.get(picker).health = MathUtils.clamp(Car.get(picker).health + 25f, 0f, 100f)
+                Car.get(picker).health = MathUtils.clamp(Car.get(picker).health + 75f, 0f, 100f)
             }
 
             PickupType.SpeedBoost -> {
