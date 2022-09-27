@@ -24,6 +24,7 @@ import ktx.math.random
 import ktx.math.times
 import robot.core.GameConstants.GameHeight
 import robot.core.GameConstants.GameWidth
+import robot.core.GameState
 import robot.core.ecs.PickupType
 import robot.core.ecs.components.Car
 import robot.core.ecs.components.GuidedMissile
@@ -66,68 +67,82 @@ object Context : InjectionContext() {
             bindSingleton(createWorld().apply {
                 this.setContactListener(object : ContactListener {
                     override fun beginContact(contact: Contact) {
-                        when (val contactType = ContactType.getContactType(contact)) {
-                            is ContactType.PlayerAndWall -> {
-                                //Take some damage
-                                val car = Car.get(contactType.player)
-                                car.health -= playerWallDamageRange.random()
-                            }
+                        if(GameState.raceStarted) {
+                            when (val contactType = ContactType.getContactType(contact)) {
+                                is ContactType.PlayerAndWall -> {
+                                    //Take some damage
+                                    val car = Car.get(contactType.player)
+                                    car.health -= playerWallDamageRange.random()
+                                }
 
-                            is ContactType.RobotAndWall -> {
-                                val car = Car.get(contactType.robot)
-                                car.health -= robotAndWallDamageRange.random()
-                            }
+                                is ContactType.RobotAndWall -> {
+                                    if(Car.has(contactType.robot)) {
+                                        val car = Car.get(contactType.robot)
+                                        car.health -= robotAndWallDamageRange.random()
+                                    }
+                                }
 
-                            is ContactType.RobotAndRobot -> {
-                                Car.get(contactType.robotA).health -= robotAndRobotDamageRange.random()
-                                Car.get(contactType.robotB).health -= robotAndRobotDamageRange.random()
-                            }
+                                is ContactType.RobotAndRobot -> {
+                                    Car.get(contactType.robotA).health -= robotAndRobotDamageRange.random()
+                                    Car.get(contactType.robotB).health -= robotAndRobotDamageRange.random()
+                                }
 
-                            is ContactType.PlayerAndRobot -> {
-                                Car.get(contactType.player).health -= playerAndRobotDamageRange.random()
-                                Car.get(contactType.robot).health -= robotAndPlayerDamageRange.random()
-                            }
+                                is ContactType.PlayerAndRobot -> {
+                                    Car.get(contactType.player).health -= playerAndRobotDamageRange.random()
+                                    Car.get(contactType.robot).health -= robotAndPlayerDamageRange.random()
+                                }
 
-                            is ContactType.CarAndPickup -> handlePickup(
-                                contactType.car,
-                                contactType.pickup,
-                                contactType.pickupType
-                            )
+                                is ContactType.CarAndPickup -> handlePickup(
+                                    contactType.car,
+                                    contactType.pickup,
+                                    contactType.pickupType
+                                )
 
-                            ContactType.NotRelevant -> {}
-                            is ContactType.CarAndExplosion -> {
-                                val exp = contactType.explosion
-                                val explosionPosition = Box2d.get(exp).body.position
-                                val carBody = Box2d.get(contactType.car).body
-                                val car = Car.get(contactType.car)
-                                val radius = contactType.radius
-                                val maxDamage = contactType.damage
+                                ContactType.NotRelevant -> {}
+                                is ContactType.CarAndExplosion -> {
+                                    val exp = contactType.explosion
+                                    val explosionPosition = Box2d.get(exp).body.position
+                                    val carBody = Box2d.get(contactType.car).body
+                                    val car = Car.get(contactType.car)
+                                    val radius = contactType.radius
+                                    val maxDamage = contactType.damage
 
-                                val damageDist = carBody.worldCenter.dst(explosionPosition) / radius
-                                val actualDamage = damageDist * maxDamage
-                                car.health -= actualDamage
+                                    val damageDist = carBody.worldCenter.dst(explosionPosition) / radius
+                                    val actualDamage = damageDist * maxDamage
+                                    car.health -= actualDamage
 
-                                val force = (carBody.worldCenter - explosionPosition).nor() * actualDamage * 100f
-                                carBody.applyLinearImpulse(force, carBody.worldCenter, true)
+                                    val force = (carBody.worldCenter - explosionPosition).nor() * actualDamage * 100f
+                                    carBody.applyLinearImpulse(force, carBody.worldCenter, true)
 
-                            }
-                            is ContactType.CarAndProjectile -> {
-                                if(GuidedMissile.has(contactType.projectile)) {
-                                    val gm = GuidedMissile.get(contactType.projectile)
-                                    if(gm.armed) {
-                                        explosionLater(Box2d.get(contactType.projectile).body.worldCenter.cpy(), gm.damage, gm.radius)
+                                }
+
+                                is ContactType.CarAndProjectile -> {
+                                    if (GuidedMissile.has(contactType.projectile)) {
+                                        val gm = GuidedMissile.get(contactType.projectile)
+                                        if (gm.armed) {
+                                            explosionLater(
+                                                Box2d.get(contactType.projectile).body.worldCenter.cpy(),
+                                                gm.damage,
+                                                gm.radius
+                                            )
+                                            contactType.projectile.addComponent<Remove>()
+                                        }
+                                    } else {
                                         contactType.projectile.addComponent<Remove>()
                                     }
-                                } else {
+                                }
+
+                                is ContactType.ProjectileAndAnything -> {
+                                    if (GuidedMissile.has(contactType.projectile)) {
+                                        val gm = GuidedMissile.get(contactType.projectile)
+                                        explosionLater(
+                                            Box2d.get(contactType.projectile).body.worldCenter.cpy(),
+                                            gm.damage,
+                                            gm.radius
+                                        )
+                                    }
                                     contactType.projectile.addComponent<Remove>()
                                 }
-                            }
-                            is ContactType.ProjectileAndAnything -> {
-                                if(GuidedMissile.has(contactType.projectile)) {
-                                    val gm = GuidedMissile.get(contactType.projectile)
-                                    explosionLater(Box2d.get(contactType.projectile).body.worldCenter.cpy(), gm.damage, gm.radius)
-                                }
-                                contactType.projectile.addComponent<Remove>()
                             }
                         }
                     }
@@ -144,10 +159,7 @@ object Context : InjectionContext() {
             })
             bindSingleton(getEngine())
             bindSingleton(ShapeDrawer(inject<PolygonSpriteBatch>() as Batch, shapeDrawerRegion))
-            bindSingleton(TrackMania().apply {
-                this.track.addAll(this.getTrack(1000, 10, 50f..150f, -5..5))
-                fixPickups(25)
-            })
+            bindSingleton(TrackMania())
             bindSingleton(Hud(inject()))
         }
     }
@@ -175,6 +187,7 @@ object Context : InjectionContext() {
             addSystem(CameraUpdateSystem(inject(), inject()))
             addSystem(RenderSystem(inject()))
             addSystem(RenderPrimitives(inject()))
+            addSystem(PhysicsDebugRendererSystem(inject(), inject()))
             addSystem(CarPhysicsSystem())
             addSystem(RobotCarDeathSystem())
             addSystem(PlayerCarDeathSystem())

@@ -1,5 +1,6 @@
 package robot.core
 
+import com.badlogic.ashley.core.Entity
 import com.badlogic.gdx.utils.Queue
 import eater.core.MainGame
 import robot.core.ecs.ExplosionData
@@ -22,6 +23,7 @@ object GameState {
     var gameStarted = false
     var playerDied = false
     var playerWon = false
+    lateinit var playerEntity: Entity
 
     fun start() {
         score = 0

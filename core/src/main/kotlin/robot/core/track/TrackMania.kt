@@ -3,6 +3,7 @@ package robot.core.track
 import com.badlogic.gdx.math.CatmullRomSpline
 import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.math.Vector2
+import com.badlogic.gdx.physics.box2d.Body
 import eater.core.world
 import ktx.box2d.body
 import ktx.box2d.chain
@@ -89,6 +90,8 @@ class TrackMania {
         }
     }
 
+    val trackBodies = mutableListOf<Body>()
+
     fun fixBodies(numberOfSections: Int, track: List<SnakeTrackSection>) {
         val startIndex = track.indexOfFirst { !it.hasBody }
         var endIndex = startIndex + numberOfSections - 1
@@ -96,7 +99,7 @@ class TrackMania {
             endIndex = track.lastIndex
 
         val points = track.subList(startIndex, endIndex)
-        world().body {
+        trackBodies.add(world().body {
             userData = UserData.Wall
             chain(*points.map { it.left }.toTypedArray()) {
                 filter {
@@ -104,8 +107,8 @@ class TrackMania {
                     maskBits = Box2dCategories.terrainCollidesWith
                 }
             }
-        }
-        world().body {
+        })
+        trackBodies.add(world().body {
             userData = UserData.Wall
             chain(*points.map { it.right }.toTypedArray()) {
                 filter {
@@ -114,7 +117,7 @@ class TrackMania {
                 }
 
             }
-        }
+        })
     }
 
     fun buildSnakeTrack(
@@ -189,6 +192,20 @@ class TrackMania {
             }
         }
         return currentIndex
+    }
+
+    fun clearTrack() {
+        track.clear()
+        for (b in trackBodies) {
+            world().destroyBody(b)
+        }
+        trackBodies.clear()
+    }
+
+    fun createTrack() {
+        clearTrack()
+        track.addAll(getTrack(1000, 10, 50f..150f, -5..5))
+        fixPickups(25)
     }
 
 }

@@ -42,9 +42,8 @@ import java.util.EnumSet.allOf
 
 class GameScreen(private val game: RoboGame) : KtxScreen, KtxInputAdapter {
     val randomRange = (-500f..500f)
-    lateinit var playerEntity: Entity
 
-    val playerCar by lazy { Car.get(playerEntity) }
+    val playerCar get() = Car.get(GameState.playerEntity)
     val commandMap = CommandMap("Car Controls").apply {
         setBoth(Keys.W, "THROTTLE UP", { removeFlag(Car.forward) }, { addFlag(Car.forward) })
         setBoth(Keys.S, "HMM, REVERSE?", { removeFlag(Car.backwards) }, { addFlag(Car.backwards) })
@@ -56,13 +55,18 @@ class GameScreen(private val game: RoboGame) : KtxScreen, KtxInputAdapter {
     private val trackMania by lazy { inject<TrackMania>() }
 
     private fun fire() {
-        if(playerCar.weapons.any()) {
+        if (playerCar.weapons.any()) {
             val weaponToFire = playerCar.weapons.removeFirst()
-            val playerBody = Box2d.get(playerEntity).body
+            val playerBody = Box2d.get(GameState.playerEntity).body
             val forwardNormal = playerBody.forwardNormal()
 
             val forwardSpeed = playerBody.forwardVelocity().dot(forwardNormal)
-            fireProjectile(playerBody.worldCenter + forwardNormal.cpy().scl(2f), forwardNormal, forwardSpeed, weaponToFire)
+            fireProjectile(
+                playerBody.worldCenter + forwardNormal.cpy().scl(2f),
+                forwardNormal,
+                forwardSpeed,
+                weaponToFire
+            )
         }
     }
 
@@ -92,12 +96,14 @@ class GameScreen(private val game: RoboGame) : KtxScreen, KtxInputAdapter {
 
     override fun show() {
         Gdx.input.inputProcessor = this
-        playerEntity = createPlayerEntity(vec2(),2f, 4f)
-        createStartRobots(MinRobots / 4)
+        trackMania.createTrack()
+
+        GameState.playerEntity = createPlayerEntity(vec2(), 2f, 4f)
+        createStartRobots(MinRobots / 2)
         for (carEntity in engine().getEntitiesFor(allOf(Car::class).get())) {
             Car.get(carEntity).canRace = false
         }
-        for(system in engine().systems) {
+        for (system in engine().systems) {
             system.setProcessing(true)
         }
     }
@@ -105,21 +111,22 @@ class GameScreen(private val game: RoboGame) : KtxScreen, KtxInputAdapter {
     private fun createStartRobots(numberOfRobots: Int) {
         val startSection = trackMania.track.first()
 
-        for(i in 1..numberOfRobots) {
-            val factor = if(i % 2 == 0) 1f else -1f
-            createRobotCar(startSection.center + vec2(5f * i * factor, 0f), 2f, 4f)
+        for (i in 1..numberOfRobots) {
+            val factor = if (i % 2 == 0) 1f else -1f
+            createRobotCar(startSection.center + vec2(4f * i * factor, 0f), 2f, 4f)
         }
     }
 
     override fun hide() {
         Gdx.input.inputProcessor = null
-        for(entity in engine().getEntitiesFor(allOf(Box2d::class).get())) {
+        for (entity in engine().getEntitiesFor(allOf(Box2d::class).get())) {
             val body = Box2d.get(entity).body
             entity.remove<Box2d>()
             world().destroyBody(body)
         }
+        trackMania.clearTrack()
         engine().removeAllEntities()
-        for(system in engine().systems) {
+        for (system in engine().systems) {
             system.setProcessing(false)
         }
     }
@@ -150,7 +157,7 @@ class GameScreen(private val game: RoboGame) : KtxScreen, KtxInputAdapter {
     }
 
     private fun checkRaceStart(delta: Float) {
-        if(GameState.startCountDown > 0f) {
+        if (GameState.startCountDown > 0f) {
             GameState.startCountDown -= delta
             if (GameState.startCountDown < 0f) {
                 for (carEntity in engine().getEntitiesFor(allOf(Car::class).get())) {
@@ -162,7 +169,7 @@ class GameScreen(private val game: RoboGame) : KtxScreen, KtxInputAdapter {
     }
 
     private fun checkGameOver() {
-        if(GameState.gameStarted) {
+        if (GameState.gameStarted) {
             if (GameState.playerDied)
                 game.playerDied()
             else if (GameState.playerWon)
@@ -181,7 +188,7 @@ class GameScreen(private val game: RoboGame) : KtxScreen, KtxInputAdapter {
             world().step(TimeStep, VelIters, PosIters)
             accumulator -= ourTime
         }
-        if(GameState.explosionQueue.any()) {
+        if (GameState.explosionQueue.any()) {
             val ed = GameState.explosionQueue.removeFirst()
             explosionAt(ed.position, ed.damage, ed.radius)
         }
