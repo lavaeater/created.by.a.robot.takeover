@@ -19,7 +19,7 @@ object GameState {
                 field = score
             return field
         }
-    var timesPlayed = 1
+    var timesPlayed = 0
     var gameStarted = false
     var playerDied = false
     var playerWon = false

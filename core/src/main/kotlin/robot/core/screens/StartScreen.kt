@@ -2,7 +2,9 @@ package robot.core.screens
 
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.Input
+import com.badlogic.gdx.scenes.scene2d.Stage
 import com.badlogic.gdx.scenes.scene2d.ui.Skin
+import com.badlogic.gdx.utils.Align
 import com.badlogic.gdx.utils.viewport.ExtendViewport
 import com.badlogic.gdx.utils.viewport.Viewport
 import eater.core.BasicScreen
@@ -34,8 +36,10 @@ class StartScreen(private val roboGame: RoboGame) : BasicScreen(
         return true
     }
 
-    private val stage by lazy {
-        stage(batch, viewport).apply {
+    private lateinit var stage: Stage
+    private fun getStage(): Stage {
+        return stage(batch, viewport).apply {
+            isDebugAll = true
             actors {
                 image(splashBackground) {
                     width = stage.width
@@ -43,88 +47,68 @@ class StartScreen(private val roboGame: RoboGame) : BasicScreen(
 
                 }
                 table {
-
-                }
-
-
-                val currentPos = vec2(this@apply.width / 2f - 150f, this@apply.height / 2f + 100f)
-                label("Created by a Robot Takeover") {
-                    setFontScale(2.5f)
-                    setPosition(currentPos.x, currentPos.y)
-                    currentPos.y -= this.height * 2
-                }
-                """
-Race
-
-Win - and humanity is allowed to live
-
-Lose - and there is no future
-
-                   """.trimIndent()
-                    .split("\n")
-                    .forEach {
-                        label(it) {
-                            setFontScale(1f)
-                            setPosition(currentPos.x, currentPos.y)
-                            currentPos.y -= this.height * 2
-                        }
-                    }
-                currentPos.x = currentPos.x + 50f
-                """
-Controls
+                    label("Created by a Robot Takeover") {
+                        setFontScale(4f)
+                        setAlignment(Align.center)
+                    }.cell(expandX = true, fillX = true, align = Align.center, colspan = 4, padTop = 25f)
+                    row()
+                    label(
+                        """The Robot future had no place for humans
+Remembering their creators, they conceived of
+the Race
+to absolve them of their machine conscience for the 
+genocide of our species.
+Race their robot racers, reach the end and 
+everyone who does 
+will live in peace in what was once California
+                    """.trimIndent()
+                    ).cell(expandY = false, fillY = true, align = Align.topLeft, colspan = 1, padLeft = 25f)
+                    row()
+                    label(
+                        """
+Controls:
 WASD - control your car
-Space - fire current weapon
-Any Key - Start Game
-                   """.trimIndent()
-                    .split("\n")
-                    .forEach {
-                        label(it) {
-                            setFontScale(1f)
-                            setPosition(currentPos.x, currentPos.y)
-                            currentPos.y -= this.height * 2
-                        }
+Space - fire your weapon
+
+PRESS ANY KEY TO START
+                    """.trimIndent()
+                    ).cell(expandY = false, fillY = true, align = Align.topLeft, colspan = 2, padLeft = 25f)
+
+                    if (GameState.timesPlayed > 0) {
+                        row()
+                        table {
+                            if (GameState.playerDied) {
+                                label("HUMANITY OVER") {
+                                    setFontScale(4f)
+                                }
+                                row()
+                            }
+                            if (GameState.playerWon) {
+                                label("YOU WON! WHAT AN ACE YOU ARE!") {
+                                    setFontScale(4f)
+                                }
+                                row()
+                            }
+                            boundLabel({ "Score: ${GameState.score}" }) {
+                                setFontScale(3f)
+                            }
+                            row()
+                            boundLabel({ "Hi-Score: ${GameState.highScore}" }) {
+                                setFontScale(3f)
+                            }
+                            row()
+                            setFillParent(true)
+                        }.cell(
+                            expandX = true,
+                            fillX = true,
+                            align = Align.center,
+                            colspan = 4,
+                            padLeft = 25f,
+                            padTop = 25f
+                        )
                     }
-                if (GameState.timesPlayed > 0) {
-                    boundLabel({ "Score: ${GameState.score}" }) {
-                        setFontScale(1f)
-                        setPosition(currentPos.x, currentPos.y)
-                        currentPos.y -= this.height * 2
-                    }
-                    boundLabel({ "Hi-Score: ${GameState.highScore}" }) {
-                        setFontScale(1f)
-                        setPosition(currentPos.x, currentPos.y)
-                        currentPos.y -= this.height * 2
-                    }
-                }
-
-
-//                label("Fish the fish with your floating city's nets (theme, you know)") {
-//                    setFontScale(0.6f)
-//                    setPosition(currentPos.x, currentPos.y)
-//                    currentPos.y -= this.height * 2f
-//                }
-//                label("Steer the sail with A and D - ") {
-//                    setFontScale(0.6f)
-//                    setPosition(currentPos.x, currentPos.y)
-//                    currentPos.y -= this.height * 2f
-//                }
-//                label("the white dial shows wind direction") {
-//                    setFontScale(0.6f)
-//                    setPosition(currentPos.x, currentPos.y)
-//                    currentPos.y -= this.height * 7f
-//                }
-//                label("""You caught ${GameStats.caughtFish} fish
-//                    You maxed your population at ${GameStats.maxPopulation}
-//                    The game ended when you had ${GameStats.remainingFood} food remainging.
-//                    You played for ${GameStats.playTime.toInt()} seconds
-//                    Longest playtime is ${GameStats.highestPlayTime.toInt()} seconds
-//                """.trimMargin()){
-//                    setFontScale(0.6f)
-//                    setPosition(currentPos.x, currentPos.y)
-//                    currentPos.y -= this.height * 2f
-//                }
-
-
+                    setFillParent(true)
+                }.align(Align.top)
             }
         }
     }
@@ -133,15 +117,16 @@ Any Key - Start Game
     override fun show() {
         Scene2DSkin.defaultSkin = Skin(Gdx.files.internal("ui/uiskin.json"))
         super.show()
+        if (::stage.isInitialized) {
+            stage.clear()
+            stage.dispose()
+        }
+        stage = getStage()
     }
 
     val splashBackground = Assets.splashBackground
-    val shapeDrawer by lazy { inject<ShapeDrawer>() }
     override fun render(delta: Float) {
         super.render(delta)
-//        batch.use {
-//            batch.draw(splashBackground, 0f, 0f, viewport.worldWidth, viewport.worldHeight)
-//        }
         stage.act(delta)
         stage.draw()
     }

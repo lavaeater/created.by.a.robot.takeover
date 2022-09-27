@@ -19,15 +19,16 @@ import eater.injection.InjectionContext
 import eater.physics.addComponent
 import ktx.assets.disposeSafely
 import ktx.box2d.createWorld
-import ktx.math.minus
-import ktx.math.random
-import ktx.math.times
+import ktx.log.debug
+import ktx.log.info
+import ktx.math.*
 import robot.core.GameConstants.GameHeight
 import robot.core.GameConstants.GameWidth
 import robot.core.GameState
 import robot.core.ecs.PickupType
 import robot.core.ecs.components.Car
 import robot.core.ecs.components.GuidedMissile
+import robot.core.ecs.components.Player
 import robot.core.ecs.components.Remove
 import robot.core.ecs.explosionAt
 import robot.core.ecs.explosionLater
@@ -90,8 +91,10 @@ object Context : InjectionContext() {
                                 }
 
                                 is ContactType.PlayerAndRobot -> {
-                                    Car.get(contactType.player).health -= playerAndRobotDamageRange.random()
-                                    Car.get(contactType.robot).health -= robotAndPlayerDamageRange.random()
+                                    if(Car.has(contactType.player) && Car.has(contactType.robot)) {
+                                        Car.get(contactType.player).health -= playerAndRobotDamageRange.random()
+                                        Car.get(contactType.robot).health -= robotAndPlayerDamageRange.random()
+                                    }
                                 }
 
                                 is ContactType.CarAndPickup -> handlePickup(
@@ -110,13 +113,18 @@ object Context : InjectionContext() {
                                         val radius = contactType.radius
                                         val maxDamage = contactType.damage
 
-                                        val damageDist = 1f / (carBody.worldCenter.dst(explosionPosition) / radius)
-                                        val actualDamage = damageDist * maxDamage
-                                        car.health -= actualDamage
+                                        val damageDist = MathUtils.norm(radius , 0f, (carBody.worldCenter.dst(explosionPosition)))
 
-                                        val force =
-                                            (carBody.worldCenter - explosionPosition).nor() * actualDamage * 100f
-                                        carBody.applyLinearImpulse(force, carBody.worldCenter, true)
+                                        if(damageDist > 0f) {
+                                            val actualDamage = damageDist * maxDamage
+                                            if(Player.has(contactType.car))
+                                                info { "$damageDist: $actualDamage" }
+                                            car.health -= actualDamage
+
+                                            val force =
+                                                (carBody.worldCenter - explosionPosition).nor() * actualDamage * 50f
+                                            carBody.applyLinearImpulse(force, carBody.worldCenter + vec2(0f, 1f), true)
+                                        }
                                     }
 
                                 }
@@ -205,7 +213,6 @@ object Context : InjectionContext() {
             addSystem(CarPhysicsSystem())
             addSystem(RobotCarDeathSystem())
             addSystem(PlayerCarDeathSystem())
-            addSystem(PlayerScoreSystem())
             addSystem(PlayerWonSystem())
             addSystem(RemoveEntitySystem())
             addSystem(UtilityAiSystem())

@@ -15,6 +15,8 @@ import eater.core.engine
 import eater.ecs.components.Box2d
 import eater.ecs.components.CameraFollow
 import eater.injection.InjectionContext.Companion.inject
+import eater.physics.forwardNormal
+import eater.physics.forwardVelocity
 import ktx.actors.stage
 import ktx.actors.txt
 import ktx.ashley.allOf
@@ -57,41 +59,50 @@ class Hud(private val batch: PolygonSpriteBatch, debugAll: Boolean = false) {
     private val playerEntities get() = engine().getEntitiesFor(playerFamily)
     private val speed
         get() = if (Box2d.has(GameState.playerEntity))
-            (Box2d.get(GameState.playerEntity).body.linearVelocity.len() * 2).toInt() else 0
+            (Box2d.get(GameState.playerEntity).body.forwardVelocity().dot(Box2d.get(GameState.playerEntity).body.forwardNormal())*2).toInt() else 0
+//            (Box2d.get(GameState.playerEntity).body.linearVelocity.len() * 2).toInt() else 0
+
+    private var topSpeed = 0
+        get() {
+            if(speed > field)
+                field = speed
+            return field
+        }
 
     private val trackMania by lazy { inject<TrackMania>() }
 
-    private val progress: Float get() {
-        return if(Box2d.has(GameState.playerEntity)) {
-            val index = trackMania.getIndexForPosition(Box2d.get(GameState.playerEntity).body.worldCenter.y)
-            MathUtils.norm(0f, trackMania.track.size.toFloat(), index.toFloat())
-        } else 0f
-    }
+    private val progress: Float
+        get() {
+            return if (Box2d.has(GameState.playerEntity)) {
+                val index = trackMania.getIndexForPosition(Box2d.get(GameState.playerEntity).body.worldCenter.y)
+                val normalized = MathUtils.norm(0f, trackMania.track.size.toFloat(), index.toFloat())
+                GameState.score = (normalized * 100).toInt()
+                normalized
+            } else 0f
+        }
 
-    private val weapons: String get() {
-        return if(Car.has(GameState.playerEntity)) {
-            val car = Car.get(GameState.playerEntity)
-            if(car.weapons.any())
-                car.weapons.first().name
+    private val weapons: String
+        get() {
+            return if (Car.has(GameState.playerEntity)) {
+                val car = Car.get(GameState.playerEntity)
+                if (car.weapons.any())
+                    car.weapons.first().name
                 else
                     "No weapons"
-        } else "No weapons"
-    }
+            } else "No weapons"
+        }
 
     val stage by lazy {
         val aStage = stage(batch, hudViewPort)
         aStage.actors {
             table {
                 verticalGroup {
-                    boundLabel({
-                        """
-                Score: ${GameState.score}
-                """.trimIndent()
-                    })
-                    boundProgressBar({progress}, 0f, 1f)
+                    label("Progress")
+                    boundProgressBar({ progress }, 0f, 1f)
                     boundLabel({
                         """
                 Speed: ${speed} km/h
+                Max Speed: ${topSpeed} km/h
                 """.trimIndent()
                     })
                 }.cell(align = Align.left)
@@ -107,7 +118,7 @@ class Hud(private val batch: PolygonSpriteBatch, debugAll: Boolean = false) {
                 }
                 verticalGroup {
                     label("Next Weapon")
-                    boundLabel({weapons})
+                    boundLabel({ weapons })
                 }
                 setFillParent(true)
             }.align(Align.bottom)
