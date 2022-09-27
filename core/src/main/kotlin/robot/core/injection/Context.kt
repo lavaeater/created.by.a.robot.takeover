@@ -38,7 +38,7 @@ import space.earlygrey.shapedrawer.ShapeDrawer
 
 
 object Context : InjectionContext() {
-    val playerWallDamageRange = 2.5f..7.5f
+    val playerWallDamageRange = 1.5f..5f
     val robotAndRobotDamageRange = 5f..10f
     val playerAndRobotDamageRange = 5f..10f
     val robotAndPlayerDamageRange = 10f..20f
@@ -110,7 +110,7 @@ object Context : InjectionContext() {
                                         val radius = contactType.radius
                                         val maxDamage = contactType.damage
 
-                                        val damageDist = carBody.worldCenter.dst(explosionPosition) / radius
+                                        val damageDist = 1f / (carBody.worldCenter.dst(explosionPosition) / radius)
                                         val actualDamage = damageDist * maxDamage
                                         car.health -= actualDamage
 

@@ -12,6 +12,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Skin
 import com.badlogic.gdx.utils.Align
 import com.badlogic.gdx.utils.viewport.ExtendViewport
 import eater.core.engine
+import eater.ecs.components.Box2d
 import eater.ecs.components.CameraFollow
 import eater.injection.InjectionContext.Companion.inject
 import ktx.actors.stage
@@ -53,16 +54,16 @@ class Hud(private val batch: PolygonSpriteBatch, debugAll: Boolean = false) {
 
     private val playerFamily = allOf(Player::class).get()
     private val playerEntities get() = engine().getEntitiesFor(playerFamily)
+    private val speed get() = if(Box2d.has(GameState.playerEntity))
+                (Box2d.get(GameState.playerEntity).body.linearVelocity.len() * 2).toInt() else 0
 
     val stage by lazy {
         val aStage = stage(batch, hudViewPort)
-        aStage.isDebugAll = true
         aStage.actors {
             table {
                 row()
                 boundLabel({
                     """
-                Robots: $robotCount
                 Score: ${GameState.score}
                 """.trimIndent()
                 }).cell(growX = true, align = Align.bottomLeft)
@@ -74,6 +75,11 @@ class Hud(private val batch: PolygonSpriteBatch, debugAll: Boolean = false) {
                     1f
                 ).cell(growX = false, align = Align.bottomLeft)
                 row()
+                boundLabel({
+                    """
+                Speed: ${speed} km/h
+                """.trimIndent()
+                }).cell(growX = true, align = Align.bottomLeft)
                 setFillParent(true)
             }.align(Align.bottom)
         }

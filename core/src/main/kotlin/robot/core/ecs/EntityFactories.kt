@@ -80,10 +80,10 @@ fun explosionAt(position: Vector2, damage: Float, radius: Float) {
             )
         }
         with<RemoveAfter> {
-            time = 0.5f
+            time = 0.2f
         }
         with<ExplosionComponent> {
-            explosionTime = 0.5f
+            explosionTime = 0.2f
         }
 //        with<Primitive> {
 //            primitive = Circle(position, radius)
