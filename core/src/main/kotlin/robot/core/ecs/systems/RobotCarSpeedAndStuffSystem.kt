@@ -51,6 +51,8 @@ class RobotCarSpeedAndStuffSystem : IteratingSystem(allOf(Robot::class, Car::cla
             }
             rCar.maxForwardSpeed =
                 MathUtils.clamp(rCar.maxForwardSpeed, pCar.maxForwardSpeed * RobotMinOfPlayerSpeed, pCar.maxForwardSpeed * RobotMaxOfPlayerSpeed)
+            rCar.maxDriveForce =
+                MathUtils.clamp(rCar.maxDriveForce, pCar.maxDriveForce * RobotMinOfPlayerSpeed, pCar.maxDriveForce * RobotMaxOfPlayerSpeed)
         }
 
     }

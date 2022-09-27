@@ -25,10 +25,15 @@ class EnemyNumbersControlSystem : IntervalSystem(0.5f) {
     }
     override fun updateInterval() {
         if (GameState.raceStarted && engine.getEntitiesFor(players).any()) {
-            if (allRobots.size() < MinRobots) {
-                setPlayer()
-                val playerPointIndex = trackMania.getIndexForPosition(Box2d.get(aPlayer).body.worldCenter.y - 150f)
-                createRobotCar(trackMania.track[playerPointIndex].center, 2f, 4f)
+            if(GameState.fillUpRobotsDelay > 0f)
+                GameState.fillUpRobotsDelay -= interval
+
+            if(GameState.fillUpRobotsDelay <= 0f) {
+                if (allRobots.size() < MinRobots) {
+                    setPlayer()
+                    val playerPointIndex = trackMania.getIndexForPosition(Box2d.get(aPlayer).body.worldCenter.y - 150f)
+                    createRobotCar(trackMania.track[playerPointIndex].center, 2f, 4f)
+                }
             }
         }
     }

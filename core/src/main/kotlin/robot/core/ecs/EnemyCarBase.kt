@@ -5,7 +5,7 @@ object EnemyCarBase {
     val maxTorque = 1..20
     val maxDriveForce = 8..200
     val acceleration = 1..200
-    val maxForwardSpeed = 5..20
+    val maxForwardSpeed = 1..10
 
     val healthFactor = 10f
     val torqueFactor = 100f

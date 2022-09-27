@@ -93,18 +93,21 @@ class GameScreen(private val game: RoboGame) : KtxScreen, KtxInputAdapter {
     override fun show() {
         Gdx.input.inputProcessor = this
         playerEntity = createPlayerEntity(vec2(),2f, 4f)
-        createStartRobots(MinRobots / 3)
+        createStartRobots(MinRobots / 4)
         for (carEntity in engine().getEntitiesFor(allOf(Car::class).get())) {
             Car.get(carEntity).canRace = false
+        }
+        for(system in engine().systems) {
+            system.setProcessing(true)
         }
     }
 
     private fun createStartRobots(numberOfRobots: Int) {
         val startSection = trackMania.track.first()
 
-        for(i in 0 until numberOfRobots) {
+        for(i in 1..numberOfRobots) {
             val factor = if(i % 2 == 0) 1f else -1f
-            createRobotCar(startSection.center + vec2(10f * (i + 1) * factor, 0f), 2f, 4f)
+            createRobotCar(startSection.center + vec2(5f * i * factor, 0f), 2f, 4f)
         }
     }
 
@@ -116,6 +119,9 @@ class GameScreen(private val game: RoboGame) : KtxScreen, KtxInputAdapter {
             world().destroyBody(body)
         }
         engine().removeAllEntities()
+        for(system in engine().systems) {
+            system.setProcessing(false)
+        }
     }
 
     override fun resize(width: Int, height: Int) {

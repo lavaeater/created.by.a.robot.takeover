@@ -1,7 +1,7 @@
 package robot.core.ecs
 
 object CarBase {
-    val maxTorque = 250f
+    val maxTorque = 350f
     val maxForwardSpeed = 3000f
     val maxBackwardSpeed = 200f
     val maxDriveForce = 500f
