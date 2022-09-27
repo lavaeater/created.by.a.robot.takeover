@@ -41,9 +41,11 @@ class RobotCarSpeedAndStuffSystem : IteratingSystem(allOf(Robot::class, Car::cla
                 if (rIndex < pIndex) {
                     rCar.maxForwardSpeed += rCar.maxForwardSpeed * 0.1f
                     rCar.maxDriveForce += rCar.maxDriveForce * 0.1f
+                    rCar.acceleration += rCar.acceleration * 0.1f
                 } else if (pIndex < rIndex) {
                     rCar.maxForwardSpeed -= rCar.maxForwardSpeed * 0.1f
                     rCar.maxDriveForce -= rCar.maxDriveForce * 0.1f
+                    rCar.acceleration -= rCar.acceleration * 0.1f
                 }
                 rCar.maxForwardSpeed =
                     MathUtils.clamp(
@@ -56,6 +58,12 @@ class RobotCarSpeedAndStuffSystem : IteratingSystem(allOf(Robot::class, Car::cla
                         rCar.maxDriveForce,
                         pCar.maxDriveForce * RobotMinOfPlayerSpeed,
                         pCar.maxDriveForce * RobotMaxOfPlayerSpeed
+                    )
+                rCar.acceleration =
+                    MathUtils.clamp(
+                        rCar.acceleration,
+                        pCar.acceleration * RobotMinOfPlayerSpeed,
+                        pCar.acceleration * RobotMaxOfPlayerSpeed
                     )
             }
         }

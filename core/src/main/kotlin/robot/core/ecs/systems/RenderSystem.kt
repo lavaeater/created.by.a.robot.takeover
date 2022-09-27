@@ -40,7 +40,6 @@ class RenderSystem(private val batch: PolygonSpriteBatch) :
     IteratingSystem(allOf(Box2d::class, SpriteComponent::class).get()) {
 
     val trackMania by lazy { inject<TrackMania>() }
-    val track get() = trackMania.track
     val shapeDrawer by lazy { inject<ShapeDrawer>() }
 
     override fun update(deltaTime: Float) {
@@ -49,30 +48,11 @@ class RenderSystem(private val batch: PolygonSpriteBatch) :
             super.update(deltaTime)
         }
     }
-
-    var firstRun = true
-    lateinit var polygons: Array<Polygon>
     val odd = Color(0.21f, 0.21f, 0.21f, 1f)
     val even = Color(0.2f, 0.2f,0.2f,1f)
     private fun renderTrack() {
-        if (firstRun) {
-            firstRun = false
-            polygons = (track.minus(track.last())).mapIndexed { i, t ->
-                val o = track[i + 1]
-                val points = FloatArray(8)
-                points[0] = t.left.x
-                points[1] = t.left.y
-                points[2] = o.left.x
-                points[3] = o.left.y
-                points[4] = o.right.x
-                points[5] = o.right.y
-                points[6] = t.right.x
-                points[7] = t.right.y
-                Polygon(points)
-            }.toTypedArray()
-        }
 
-        for((i,p) in polygons.withIndex()) {
+        for((i,p) in trackMania.polygons.withIndex()) {
             if(i % 2 == 0)
                 shapeDrawer.setColor(even)
             else
@@ -80,15 +60,6 @@ class RenderSystem(private val batch: PolygonSpriteBatch) :
 
             shapeDrawer.filledPolygon(p)
         }
-
-//        shapeDrawer.setColor(Color.DARK_GRAY)
-//        for ((index, section) in track.withIndex()) {
-//            if (index < track.lastIndex) {
-//                shapeDrawer.line(section.left, track[index + 1].left, .25f)
-//                //shapeDrawer.line(section.center, track[index + 1].center, .25f)
-//                shapeDrawer.line(section.right, track[index + 1].right, .25f)
-//            }
-//        }
     }
 
     override fun processEntity(entity: Entity, deltaTime: Float) {

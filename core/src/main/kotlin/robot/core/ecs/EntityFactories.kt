@@ -306,20 +306,20 @@ fun createRobotCar(position: Vector2, width: Float, height: Float): Entity {
             actions.add(RobotActions.chasePlayer)
             actions.add(RobotActions.fireWeapon)
         }
-//        with<Car> {
-//            health = 100f
-//            maxTorque = CarBase.maxTorque * 0.5f
-//            maxDriveForce = CarBase.maxDriveForce * 0.7f
-//            acceleration = CarBase.acceleration * 0.75f
-//            maxForwardSpeed = CarBase.maxForwardSpeed * 0.75f
-//        }
         with<Car> {
-            health = EnemyCarBase.health.random() * EnemyCarBase.healthFactor
-            maxTorque = EnemyCarBase.maxTorque.random() * EnemyCarBase.torqueFactor
-            maxDriveForce = EnemyCarBase.maxDriveForce.random() * EnemyCarBase.forceFactor
-            acceleration = EnemyCarBase.acceleration.random() * EnemyCarBase.accelerationFactor
-            maxForwardSpeed = EnemyCarBase.maxForwardSpeed.random() * EnemyCarBase.speedFactor
+            health = 100f
+            maxTorque = CarBase.maxTorque * 0.9f
+            maxDriveForce = CarBase.maxDriveForce * 0.7f
+            acceleration = CarBase.acceleration * 0.5f
+            maxForwardSpeed = CarBase.maxForwardSpeed * 0.75f
         }
+//        with<Car> {
+//            health = EnemyCarBase.health.random() * EnemyCarBase.healthFactor
+//            maxTorque = EnemyCarBase.maxTorque.random() * EnemyCarBase.torqueFactor
+//            maxDriveForce = EnemyCarBase.maxDriveForce.random() * EnemyCarBase.forceFactor
+//            acceleration = EnemyCarBase.acceleration.random() * EnemyCarBase.accelerationFactor
+//            maxForwardSpeed = EnemyCarBase.maxForwardSpeed.random() * EnemyCarBase.speedFactor
+//        }
     }
 }
 

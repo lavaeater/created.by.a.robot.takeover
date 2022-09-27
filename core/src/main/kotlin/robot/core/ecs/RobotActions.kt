@@ -10,6 +10,7 @@ import ktx.ashley.allOf
 import ktx.math.minus
 import ktx.math.plus
 import robot.core.Assets
+import robot.core.GameState
 import robot.core.ecs.components.Car
 import robot.core.ecs.components.Player
 import robot.core.ecs.components.Robot
@@ -36,7 +37,6 @@ object RobotActions {
      */
     val trackMania = InjectionContext.inject<TrackMania>()
     val playerFam = allOf(Player::class).get()
-    val aPlayer by lazy { engine().getEntitiesFor(playerFam).first() }
 
     val fireWeapon =
         GenericActionWithState("Fire Weapon", {
@@ -66,8 +66,8 @@ object RobotActions {
 
     val chasePlayer = GenericActionWithState("Chase The Player", {
         val robotPos = Box2d.get(it).body.worldCenter
-        if (Box2d.has(aPlayer)) {
-            val playerPos = Box2d.get(aPlayer).body.worldCenter
+        if (Box2d.has(GameState.playerEntity)) {
+            val playerPos = Box2d.get(GameState.playerEntity).body.worldCenter
             if (robotPos.dst(playerPos) < 25f)
                 0.6f
             else 0f
@@ -81,8 +81,8 @@ object RobotActions {
         val body = Box2d.get(entity).body
         val car = Car.get(entity)
 
-        if (Box2d.has(aPlayer)) {
-            val player = Box2d.get(aPlayer).body
+        if (Box2d.has(GameState.playerEntity)) {
+            val player = Box2d.get(GameState.playerEntity).body
 
             val targetDirection = (player.worldCenter - body.worldCenter)
             val bodyForward = body.forwardNormal()
