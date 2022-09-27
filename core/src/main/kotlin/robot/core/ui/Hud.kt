@@ -26,6 +26,7 @@ import robot.core.GameState
 import robot.core.ecs.components.Car
 import robot.core.ecs.components.Player
 import robot.core.ecs.components.Robot
+import robot.core.track.TrackMania
 import space.earlygrey.shapedrawer.ShapeDrawer
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.InvocationKind
@@ -58,6 +59,16 @@ class Hud(private val batch: PolygonSpriteBatch, debugAll: Boolean = false) {
         get() = if (Box2d.has(GameState.playerEntity))
             (Box2d.get(GameState.playerEntity).body.linearVelocity.len() * 2).toInt() else 0
 
+    private val trackMania by lazy { inject<TrackMania>() }
+
+    private val progress: String get() {
+        return if(Box2d.has(GameState.playerEntity)) {
+            val index = trackMania.getIndexForPosition(Box2d.get(GameState.playerEntity).body.worldCenter.y)
+            val normIndex = (MathUtils.norm(0f, trackMania.track.size.toFloat(), index.toFloat()) * 100).toInt()
+            "$normIndex%"
+        } else "0%"
+    }
+
     private val weapons: String get() {
         return if(Car.has(GameState.playerEntity)) {
             val car = Car.get(GameState.playerEntity)
@@ -76,6 +87,7 @@ class Hud(private val batch: PolygonSpriteBatch, debugAll: Boolean = false) {
                     boundLabel({
                         """
                 Score: ${GameState.score}
+                Progress: ${progress}
                 """.trimIndent()
                     })
                     boundLabel({

@@ -5,7 +5,8 @@ import robot.core.GameState
 
 class PlayerScoreSystem: IntervalSystem(1f) {
     override fun updateInterval() {
-        GameState.score++
+        if(GameState.raceStarted)
+            GameState.score++
     }
 
 }

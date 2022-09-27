@@ -206,7 +206,7 @@ class TrackMania {
 
     fun createTrack() {
         clearTrack()
-        track.addAll(getTrack(1000, 10, 50f..150f, -5..5))
+        track.addAll(getTrack(50, 10, 50f..150f, -5..5))
         fixPickups(25)
         fixPolygons()
     }
