@@ -182,6 +182,9 @@ object Context : InjectionContext() {
             PickupType.Health -> {
                 Car.get(picker).health = MathUtils.clamp(Car.get(picker).health + 25f, 0f, 100f)
             }
+            PickupType.SpeedBoost -> {
+                Car.get(picker).maxForwardSpeed += Car.get(picker).maxForwardSpeed * 1.15f
+            }
 
             else -> Car.get(picker).weapons.addLast(pickupType)
         }

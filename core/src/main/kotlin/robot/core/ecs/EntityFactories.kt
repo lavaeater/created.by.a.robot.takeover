@@ -1,6 +1,7 @@
 package robot.core.ecs
 
 import com.badlogic.ashley.core.Entity
+import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.math.Circle
 import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.math.Vector2
@@ -35,9 +36,20 @@ import robot.core.GameState
 import robot.core.ecs.components.*
 import kotlin.experimental.or
 
+fun PickupType.getColor():Color {
+    return when(this) {
+        PickupType.BarrelBomb -> Color.CYAN
+        PickupType.GuidedMissile -> Color.RED
+        PickupType.Health -> Color.GREEN
+        PickupType.MachineGun -> Color.BLUE
+        PickupType.Shotgun -> Color.PURPLE
+        PickupType.SpeedBoost -> Color.YELLOW
+    }
+}
+
 fun createPickup(position: Vector2, pickupType: PickupType) {
     engine().entity {
-        withBox()
+        withBox(pickupType.getColor())
         sensorBox(
             position,
             8f,
@@ -60,7 +72,7 @@ fun explosionAt(position: Vector2, damage: Float, radius: Float) {
     engine().entity {
         with<Box2d> {
             body = sensorCirlce(
-                position,
+                position.cpy(),
                 radius,
                 UserData.Explosion(this@entity.entity, damage, radius),
                 Box2dCategories.explosions,
@@ -68,10 +80,10 @@ fun explosionAt(position: Vector2, damage: Float, radius: Float) {
             )
         }
         with<RemoveAfter> {
-            time = 0.1f
+            time = 0.5f
         }
         with<ExplosionComponent> {
-            explosionTime = 0.1f
+            explosionTime = 0.5f
         }
 //        with<Primitive> {
 //            primitive = Circle(position, radius)
@@ -88,7 +100,7 @@ fun explosionLater(position: Vector2, damage: Float, radius: Float) {
      * And everything in that sensor body for the shooort timeperiod it exists
      * will be hit with damage and forces, I guess
      */
-    GameState.explosionQueue.addLast(ExplosionData(position, damage, radius))
+    GameState.explosionQueue.addLast(ExplosionData(position.cpy(), damage, radius))
 }
 
 fun PickupType.getBehavior(): AiAction {
@@ -107,7 +119,7 @@ fun PickupType.getBehavior(): AiAction {
                 if (h.height > h.maxHeight)
                     h.flightSpeed = -h.flightSpeed
                 else if (h.height < 0f) {
-                    explosionAt(Box2d.get(entity).body.worldCenter, 100f, 25f)
+                    explosionAt(Box2d.get(entity).body.worldCenter, 50f, 20f)
                     entity.addComponent<Remove>()
                 }
 
@@ -178,6 +190,15 @@ fun PickupType.getBehavior(): AiAction {
         }
 
         PickupType.Shotgun -> object : AiAction("No Op") {
+            override fun abort(entity: Entity) {
+
+            }
+
+            override fun act(entity: Entity, deltaTime: Float) {
+            }
+        }
+
+        PickupType.SpeedBoost -> object : AiAction("No Op") {
             override fun abort(entity: Entity) {
 
             }
@@ -284,8 +305,9 @@ private fun EngineEntity.withBox2dBox(
     }
 }
 
-fun EngineEntity.withBox() {
+fun EngineEntity.withBox(tC: Color = Color.WHITE) {
     this.with<SpriteComponent> {
+        tintColor = tC
         texture = Assets.box
         shadow = Assets.boxShadow
     }

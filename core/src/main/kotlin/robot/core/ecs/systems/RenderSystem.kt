@@ -48,14 +48,15 @@ class RenderSystem(private val batch: PolygonSpriteBatch) :
             super.update(deltaTime)
         }
     }
+
     val odd = Color(0.21f, 0.21f, 0.21f, 1f)
     val oddLine = Color(0.18f, 0.18f, 0.18f, 1f)
-    val evenLine = Color(0.23f, 0.23f,0.23f,1f)
-    val even = Color(0.2f, 0.2f,0.2f,1f)
+    val evenLine = Color(0.23f, 0.23f, 0.23f, 1f)
+    val even = Color(0.2f, 0.2f, 0.2f, 1f)
     private fun renderTrack() {
 
-        for((i,p) in trackMania.polygons.withIndex()) {
-            if(i % 2 == 0)
+        for ((i, p) in trackMania.polygons.withIndex()) {
+            if (i % 2 == 0)
                 shapeDrawer.setColor(even)
             else
                 shapeDrawer.setColor(odd)
@@ -63,20 +64,20 @@ class RenderSystem(private val batch: PolygonSpriteBatch) :
             shapeDrawer.filledPolygon(p)
         }
 
-        for((i, left) in trackMania.track.map { it.left }.withIndex()) {
-            if(i % 2 == 0)
+        for ((i, left) in trackMania.track.map { it.left }.withIndex()) {
+            if (i % 2 == 0)
                 shapeDrawer.setColor(oddLine)
             else
                 shapeDrawer.setColor(evenLine)
-            if(i < trackMania.track.lastIndex)
+            if (i < trackMania.track.lastIndex)
                 shapeDrawer.line(left, trackMania.track[i + 1].left)
         }
-        for((i, right) in trackMania.track.map { it.right }.withIndex()) {
-            if(i % 2 == 0)
+        for ((i, right) in trackMania.track.map { it.right }.withIndex()) {
+            if (i % 2 == 0)
                 shapeDrawer.setColor(oddLine)
             else
                 shapeDrawer.setColor(evenLine)
-            if(i < trackMania.track.lastIndex)
+            if (i < trackMania.track.lastIndex)
                 shapeDrawer.line(right, trackMania.track[i + 1].right)
         }
     }
@@ -97,7 +98,9 @@ class RenderSystem(private val batch: PolygonSpriteBatch) :
                 body.angle * radiansToDegrees,
                 MetersPerPixel
             )
+            batch.setColor(sprite.tintColor)
             region.draw(batch, position, body.angle * radiansToDegrees, MetersPerPixel * scale)
+            batch.setColor(Color.WHITE)
         } else {
             shadow.draw(
                 batch,
@@ -105,7 +108,9 @@ class RenderSystem(private val batch: PolygonSpriteBatch) :
                 body.angle * radiansToDegrees,
                 MetersPerPixel
             )
+            batch.setColor(sprite.tintColor)
             region.draw(batch, position, body.angle * radiansToDegrees, MetersPerPixel)
+            batch.setColor(Color.WHITE)
         }
     }
 }

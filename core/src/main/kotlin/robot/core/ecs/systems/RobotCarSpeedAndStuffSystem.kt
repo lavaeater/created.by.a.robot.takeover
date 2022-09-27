@@ -1,6 +1,7 @@
 package robot.core.ecs.systems
 
 import com.badlogic.ashley.core.Entity
+import com.badlogic.ashley.systems.IntervalIteratingSystem
 import com.badlogic.ashley.systems.IteratingSystem
 import com.badlogic.gdx.math.MathUtils
 import eater.ecs.components.Box2d
@@ -14,11 +15,11 @@ import robot.core.ecs.components.Player
 import robot.core.ecs.components.Robot
 import robot.core.track.TrackMania
 
-class RobotCarSpeedAndStuffSystem : IteratingSystem(allOf(Robot::class, Car::class, Box2d::class).get()) {
+class RobotCarSpeedAndStuffSystem : IntervalIteratingSystem(allOf(Robot::class, Car::class, Box2d::class).get(), 0.5f) {
 
     private val trackMania by lazy { inject<TrackMania>() }
-    override fun processEntity(entity: Entity, deltaTime: Float) {
 
+    override fun processEntity(entity: Entity) {
         if(GameState.raceStarted && Box2d.has(GameState.playerEntity)) {
             /*
 
@@ -67,7 +68,6 @@ class RobotCarSpeedAndStuffSystem : IteratingSystem(allOf(Robot::class, Car::cla
                     )
             }
         }
-
     }
 
 }

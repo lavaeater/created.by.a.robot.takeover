@@ -10,8 +10,8 @@ import ktx.math.vec2
 class GuidedMissile:Component, Pool.Poolable {
     var baseSpeed = 0f
     var startDirection = vec2()
-    var damage = 100f
-    var radius = 25f
+    var damage = 25f
+    var radius = 15f
     var flightTime = 2.5f
     var armTime = flightTime * 0.75f
     val armed get() = flightTime < armTime
