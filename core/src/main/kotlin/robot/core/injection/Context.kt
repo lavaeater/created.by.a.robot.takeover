@@ -156,7 +156,6 @@ object Context : InjectionContext() {
                                 }
 
                                 is ContactType.ProjectileAndAnything -> {
-                                    Assets.bump.play()
                                     if (GuidedMissile.has(contactType.projectile)) {
                                         val gm = GuidedMissile.get(contactType.projectile)
                                         explosionLater(

@@ -10,7 +10,7 @@ import robot.core.RoboGame
 fun main() {
     Lwjgl3Application(RoboGame(), Lwjgl3ApplicationConfiguration().apply {
         setTitle("CreatedByARobotTakeover")
-        setFullscreenMode(Lwjgl3ApplicationConfiguration.getDisplayModes().first { it.width == 2560 })
+        setFullscreenMode(Lwjgl3ApplicationConfiguration.getDisplayModes().maxByOrNull { it.width }!!)
 //        setWindowedMode(1920, 1080)
         setWindowIcon(*(arrayOf(128, 64, 32, 16).map { "libgdx$it.png" }.toTypedArray()))
     })
