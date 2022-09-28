@@ -1,6 +1,5 @@
 package robot.core.screens
 
-import com.badlogic.ashley.core.Entity
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.Input.Keys
 import com.badlogic.gdx.graphics.Color
@@ -25,6 +24,7 @@ import ktx.assets.disposeSafely
 import ktx.assets.toInternalFile
 import ktx.graphics.use
 import ktx.math.plus
+import ktx.math.times
 import ktx.math.vec2
 import robot.core.*
 import robot.core.GameConstants.MinRobots
@@ -32,6 +32,7 @@ import robot.core.GameConstants.PosIters
 import robot.core.GameConstants.TimeStep
 import robot.core.GameConstants.VelIters
 import robot.core.ecs.components.Car
+import robot.core.ecs.components.Robot
 import robot.core.ecs.createPlayerEntity
 import robot.core.ecs.createRobotCar
 import robot.core.ecs.explosionAt
@@ -39,9 +40,6 @@ import robot.core.ecs.fireProjectile
 import robot.core.track.TrackMania
 import robot.core.ui.Hud
 import space.earlygrey.shapedrawer.ShapeDrawer
-import java.util.*
-import java.util.EnumSet.allOf
-import kotlin.math.nextUp
 import kotlin.math.roundToInt
 
 class GameScreen(private val game: RoboGame) : KtxScreen, KtxInputAdapter {
@@ -69,7 +67,8 @@ class GameScreen(private val game: RoboGame) : KtxScreen, KtxInputAdapter {
                 playerBody.worldCenter + forwardNormal.cpy().scl(2f),
                 forwardNormal,
                 forwardSpeed,
-                weaponToFire
+                weaponToFire,
+                true
             )
         }
     }
@@ -159,6 +158,39 @@ class GameScreen(private val game: RoboGame) : KtxScreen, KtxInputAdapter {
         hud.render(delta)
         checkGameOver()
         checkRaceStart(delta)
+        renderMiniMap()
+    }
+
+    private val offsetVector = vec2(50f, 50f)
+    private val robots = allOf(Robot::class).get()
+    private val robotPositions get() = engine().getEntitiesFor(robots).map { Box2d.get(it).body.worldCenter }
+
+    private fun renderMiniMap() {
+        shapeDrawer.setColor(Color.GREEN)
+        batch.use {
+            for ((i, center) in trackMania.track.map { it.center }.withIndex()) {
+                if (i < trackMania.track.lastIndex)
+                    shapeDrawer.line(
+                        offsetVector + center * 0.015f,
+                        offsetVector + trackMania.track[i + 1].center * 0.015f
+                    )
+            }
+            if(GameState.playerReady) {
+
+                for(robot in robotPositions)
+                    shapeDrawer.filledCircle(
+                        offsetVector + robot * 0.015f,
+                        0.5f,
+                        Color.RED
+                    )
+
+                shapeDrawer.filledCircle(
+                    offsetVector + Box2d.get(GameState.playerEntity).body.worldCenter * 0.015f,
+                    0.5f,
+                    Color.WHITE
+                )
+            }
+        }
     }
 
     private var drawStartBlorbs = true

@@ -2,8 +2,7 @@ package robot.core.ecs
 
 import com.badlogic.ashley.core.Entity
 import com.badlogic.gdx.graphics.Color
-import com.badlogic.gdx.math.Circle
-import com.badlogic.gdx.math.MathUtils
+import com.badlogic.gdx.math.MathUtils.radiansToDegrees
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.physics.box2d.Body
 import com.badlogic.gdx.physics.box2d.BodyDef
@@ -16,9 +15,7 @@ import eater.ecs.components.Box2d
 import eater.ecs.components.CameraFollow
 import eater.ecs.components.ExplosionComponent
 import eater.physics.addComponent
-import eater.physics.forwardNormal
 import eater.physics.forwardVelocity
-import eater.physics.lateralVelocity
 import ktx.ashley.EngineEntity
 import ktx.ashley.allOf
 import ktx.ashley.entity
@@ -36,14 +33,15 @@ import robot.core.GameState
 import robot.core.ecs.components.*
 import kotlin.experimental.or
 
-fun PickupType.getColor():Color {
-    return when(this) {
+fun PickupType.getColor(): Color {
+    return when (this) {
         PickupType.BarrelBomb -> Color.CYAN
         PickupType.GuidedMissile -> Color.RED
         PickupType.Health -> Color.GREEN
         PickupType.MachineGun -> Color.BLUE
         PickupType.Shotgun -> Color.PURPLE
         PickupType.SpeedBoost -> Color.YELLOW
+        PickupType.Shield -> Color.ORANGE
     }
 }
 
@@ -103,8 +101,9 @@ fun explosionLater(position: Vector2, damage: Float, radius: Float) {
     GameState.explosionQueue.addLast(ExplosionData(position.cpy(), damage, radius))
 }
 
-fun PickupType.getBehavior(): AiAction {
-    val carsAndBodies = allOf(Box2d::class, Car::class).get()
+fun PickupType.getBehavior(player: Boolean): AiAction {
+    val robotCars = allOf(Box2d::class, Robot::class).get()
+    val playerCars = allOf(Box2d::class, Player::class).get()
     return when (this) {
         PickupType.BarrelBomb -> object : AiAction("Barrel Bomb") {
             override fun abort(entity: Entity) {
@@ -134,18 +133,25 @@ fun PickupType.getBehavior(): AiAction {
 
         PickupType.GuidedMissile -> GenericActionWithState("Guided Missile", { 1f }, {}, { entity, state, delta ->
             state.flightTime -= delta
-            if(state.flightTime > 0f) {
+            if (state.flightTime > 0f) {
                 val body = Box2d.get(entity).body
-                if(state.armed) {
+                if (state.armed) {
                     if (state.hasTarget) {
                         val directionToTarget = (state.target!!.worldCenter - body.worldCenter).nor()
                         val currentDirection = body.linearVelocity.nor()
                         currentDirection.lerp(directionToTarget, 0.25f)
 
+                        if ((body.angle * radiansToDegrees - currentDirection.angleDeg()) > 5f) {
+                            body.applyTorque(-150f, true)
+                        } else if ((body.angle * radiansToDegrees - currentDirection.angleDeg()) < -5f) {
+                            body.applyTorque(150f, true)
+                        }
+
+
                         body.applyForce(currentDirection.scl(state.force), body.worldCenter, true)
                     } else {
-                        val potentialTargets = engine().getEntitiesFor(carsAndBodies)
-                        val target = (potentialTargets - entity).map { Box2d.get(it).body }
+                        val potentialTargets = engine().getEntitiesFor(if(player) robotCars else playerCars)
+                        val target = potentialTargets.map { Box2d.get(it).body }
                             .sortedBy { it.worldCenter.dst(body.worldCenter) }.firstOrNull()
                         if (target != null) {
                             state.hasTarget = true
@@ -171,34 +177,7 @@ fun PickupType.getBehavior(): AiAction {
 
         }, GuidedMissile::class)
 
-        PickupType.Health -> object : AiAction("No Op") {
-            override fun abort(entity: Entity) {
-
-            }
-
-            override fun act(entity: Entity, deltaTime: Float) {
-            }
-        }
-
-        PickupType.MachineGun -> object : AiAction("No Op") {
-            override fun abort(entity: Entity) {
-
-            }
-
-            override fun act(entity: Entity, deltaTime: Float) {
-            }
-        }
-
-        PickupType.Shotgun -> object : AiAction("No Op") {
-            override fun abort(entity: Entity) {
-
-            }
-
-            override fun act(entity: Entity, deltaTime: Float) {
-            }
-        }
-
-        PickupType.SpeedBoost -> object : AiAction("No Op") {
+        else -> object : AiAction("No Op") {
             override fun abort(entity: Entity) {
 
             }
@@ -209,13 +188,13 @@ fun PickupType.getBehavior(): AiAction {
     }
 }
 
-fun fireProjectile(position: Vector2, direction: Vector2, shooterSpeed: Float, weaponType: PickupType) {
-    when(weaponType) {
+fun fireProjectile(position: Vector2, direction: Vector2, shooterSpeed: Float, weaponType: PickupType, player: Boolean) {
+    when (weaponType) {
         PickupType.BarrelBomb -> {
             engine().entity {
                 withProjectile(position, .2f, UserData.Projectile(this.entity, weaponType))
                 with<AiComponent> {
-                    actions.add(weaponType.getBehavior())
+                    actions.add(weaponType.getBehavior(player))
                 }
                 with<HeightComponent>()
                 with<SpriteComponent> {
@@ -224,23 +203,25 @@ fun fireProjectile(position: Vector2, direction: Vector2, shooterSpeed: Float, w
                 }
             }
         }
+
         PickupType.GuidedMissile -> {
-                engine().entity {
-                    withProjectile(position, .2f, UserData.Projectile(this.entity, weaponType))
-                    with<AiComponent> {
-                        actions.add(weaponType.getBehavior())
-                    }
-                    with<GuidedMissile> {
-                        startDirection = direction
-                        baseSpeed = shooterSpeed
-                    }
-                    with<SpriteComponent> {
-                        texture = Assets.missile
-                        shadow = Assets.missileShadow
-                        shadowOffset = vec2(3f, -3f)
-                    }
+            engine().entity {
+                withProjectile(position, .2f, UserData.Projectile(this.entity, weaponType))
+                with<AiComponent> {
+                    actions.add(weaponType.getBehavior(player))
+                }
+                with<GuidedMissile> {
+                    startDirection = direction
+                    baseSpeed = shooterSpeed
+                }
+                with<SpriteComponent> {
+                    texture = Assets.missile
+                    shadow = Assets.missileShadow
+                    shadowOffset = vec2(3f, -3f)
                 }
             }
+        }
+
         PickupType.MachineGun -> TODO()
         PickupType.Shotgun -> TODO()
         else -> {
@@ -341,10 +322,11 @@ fun createRobotCar(position: Vector2, width: Float, height: Float): Entity {
         }
         with<Car> {
             health = 100f
-            maxTorque = CarBase.maxTorque * 0.9f
-            maxDriveForce = CarBase.maxDriveForce * 0.7f
-            acceleration = CarBase.acceleration * 0.5f
-            maxForwardSpeed = CarBase.maxForwardSpeed * 0.75f
+            maxTorque = CarBase.maxTorque * 0.8f
+            maxDriveForce = CarBase.maxDriveForce * 0.1f
+            acceleration = CarBase.acceleration * 0.1f
+            maxForwardSpeed = CarBase.maxForwardSpeed * 0.1f
+            immortalAdder = 0f
         }
 //        with<Car> {
 //            health = EnemyCarBase.health.random() * EnemyCarBase.healthFactor

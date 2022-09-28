@@ -86,11 +86,21 @@ class Hud(private val batch: PolygonSpriteBatch, debugAll: Boolean = false) {
         get() {
             return if (Car.has(GameState.playerEntity)) {
                 val car = Car.get(GameState.playerEntity)
-                if (car.weapons.any())
-                    car.weapons.last().name
+                if (car.lastPickup != null)
+                    car.lastPickup!!.name
                 else
                     ""
             } else ""
+        }
+
+    private val shield: String
+        get() {
+            return if(Car.has(GameState.playerEntity)) {
+                val car = Car.get(GameState.playerEntity)
+                if(car.immortal) {
+                    "Shield: ${car.immortalTimer.toInt()} s"
+                } else "Shield: No"
+            } else "Shield: No"
         }
     private val weapons: String
         get() {
@@ -126,6 +136,7 @@ class Hud(private val batch: PolygonSpriteBatch, debugAll: Boolean = false) {
                     boundLabel({ weapons })
                     label("Last pickup")
                     boundLabel({ lastPickup })
+                    boundLabel({ shield })
                 }.cell(align = Align.bottomLeft, grow = true, fill = true, pad = 10f)
                 verticalGroup {
                     horizontalGroup {
@@ -147,17 +158,6 @@ class Hud(private val batch: PolygonSpriteBatch, debugAll: Boolean = false) {
     private val shapeDrawer by lazy { inject<ShapeDrawer>() }
 
     fun render(delta: Float) {
-        shapeDrawer.setColor(Color.GREEN)
-        batch.use {
-            for ((i, center) in trackMania.track.map { it.center }.withIndex()) {
-                if (i < trackMania.track.lastIndex)
-                    shapeDrawer.line(
-                        baseMiniMapVector + center * 0.015f,
-                        baseMiniMapVector + trackMania.track[i + 1].center * 0.015f
-                    )
-            }
-        }
-
         stage.act(delta)
         stage.draw()
 

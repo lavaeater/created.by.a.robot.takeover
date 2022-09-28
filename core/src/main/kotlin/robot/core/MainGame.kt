@@ -4,6 +4,7 @@ import com.badlogic.ashley.core.Entity
 import com.badlogic.gdx.utils.Queue
 import eater.core.MainGame
 import eater.ecs.components.Box2d
+import robot.core.GameConstants.MinRobots
 import robot.core.ecs.ExplosionData
 import robot.core.injection.Context
 import robot.core.screens.GameScreen
@@ -24,10 +25,12 @@ object GameState {
     var gameStarted = false
     var playerDied = false
     var playerWon = false
+    var minRobots = MinRobots
     lateinit var playerEntity: Entity
     val playerReady get() = ::playerEntity.isInitialized && Box2d.has(playerEntity)
 
     fun start() {
+        minRobots = MinRobots
         score = 0
         fillUpRobotsDelay = 5f
         raceStarted = false

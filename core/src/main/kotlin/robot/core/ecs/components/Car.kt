@@ -10,6 +10,7 @@ import robot.core.ecs.PickupType
 
 
 class Car : Component, Poolable {
+    var lastPickup: PickupType? = null
     var canRace = true
     val weapons = Queue<PickupType>()
     var health = 100f
@@ -21,7 +22,20 @@ class Car : Component, Poolable {
     var acceleration = 100f
     var decceleration = 500f
     var controlState = 0
+    var immortalTimer = 1f
+
+    var immortalMax = 1f
+    val immortal get() = immortalTimer > 0f
+    val mortal get() = !immortal
+    var immortalAdder = 1f
+    fun addToImmortalTimer(t: Float) {
+        if(immortalTimer < 0f)
+            immortalTimer = 0f
+        immortalTimer += t
+        immortalMax = immortalTimer
+    }
     override fun reset() {
+        immortalTimer = 1f
         canRace = true
         weapons.clear()
         health = 100f
@@ -32,6 +46,13 @@ class Car : Component, Poolable {
         controlState = 0
         currentDriveForce = 0f
         acceleration = 10f
+    }
+
+    fun takeDamage(damage:Float) {
+        if(mortal) {
+            health -= damage
+            addToImmortalTimer(immortalAdder)
+        }
     }
 
     companion object {

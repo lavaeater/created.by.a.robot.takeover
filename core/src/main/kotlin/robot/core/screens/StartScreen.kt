@@ -26,15 +26,12 @@ class StartScreen(private val roboGame: RoboGame) : BasicScreen(
     roboGame,
     CommandMap("StartScreen").apply {
         setDown(Input.Keys.ENTER, "Start Game") { roboGame.startGame() }
+        setDown(Input.Keys.SPACE, "Start Game") { roboGame.startGame() }
     }
 ) {
 
 
     override val viewport: Viewport = ExtendViewport(512f, 512f)
-    override fun keyDown(keycode: Int): Boolean {
-        roboGame.startGame()
-        return true
-    }
 
     private lateinit var stage: Stage
     private fun getStage(): Stage {
@@ -69,7 +66,7 @@ Controls:
 WASD - control your car
 Space - fire your weapon
 
-PRESS ANY KEY TO START
+PRESS SPACE OR ENTER TO START
                     """.trimIndent()
                     ).cell(expandY = false, fillY = true, align = Align.topLeft, colspan = 2, padLeft = 25f)
 

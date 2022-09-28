@@ -33,6 +33,7 @@ import robot.core.ecs.components.Remove
 import robot.core.ecs.explosionAt
 import robot.core.ecs.explosionLater
 import robot.core.ecs.systems.*
+import robot.core.track.Pickup
 import robot.core.track.TrackMania
 import robot.core.ui.Hud
 import space.earlygrey.shapedrawer.ShapeDrawer
@@ -73,27 +74,27 @@ object Context : InjectionContext() {
                                 is ContactType.PlayerAndWall -> {
                                     //Take some damage
                                     val car = Car.get(contactType.player)
-                                    car.health -= playerWallDamageRange.random()
+                                    car.takeDamage(playerWallDamageRange.random())
                                 }
 
                                 is ContactType.RobotAndWall -> {
                                     if (Car.has(contactType.robot)) {
                                         val car = Car.get(contactType.robot)
-                                        car.health -= robotAndWallDamageRange.random()
+                                        car.takeDamage(robotAndWallDamageRange.random())
                                     }
                                 }
 
                                 is ContactType.RobotAndRobot -> {
                                     if (Car.has(contactType.robotA) && Car.has(contactType.robotB)) {
-                                        Car.get(contactType.robotA).health -= robotAndRobotDamageRange.random()
-                                        Car.get(contactType.robotB).health -= robotAndRobotDamageRange.random()
+                                        Car.get(contactType.robotA).takeDamage(robotAndRobotDamageRange.random())
+                                        Car.get(contactType.robotB).takeDamage(robotAndRobotDamageRange.random())
                                     }
                                 }
 
                                 is ContactType.PlayerAndRobot -> {
-                                    if(Car.has(contactType.player) && Car.has(contactType.robot)) {
-                                        Car.get(contactType.player).health -= playerAndRobotDamageRange.random()
-                                        Car.get(contactType.robot).health -= robotAndPlayerDamageRange.random()
+                                    if (Car.has(contactType.player) && Car.has(contactType.robot)) {
+                                        Car.get(contactType.player).takeDamage(playerAndRobotDamageRange.random())
+                                        Car.get(contactType.robot).takeDamage(robotAndPlayerDamageRange.random())
                                     }
                                 }
 
@@ -113,13 +114,14 @@ object Context : InjectionContext() {
                                         val radius = contactType.radius
                                         val maxDamage = contactType.damage
 
-                                        val damageDist = MathUtils.norm(radius , 0f, (carBody.worldCenter.dst(explosionPosition)))
+                                        val damageDist =
+                                            MathUtils.norm(radius, 0f, (carBody.worldCenter.dst(explosionPosition)))
 
-                                        if(damageDist > 0f) {
+                                        if (damageDist > 0f) {
                                             val actualDamage = damageDist * maxDamage
-                                            if(Player.has(contactType.car))
+                                            if (Player.has(contactType.car))
                                                 info { "$damageDist: $actualDamage" }
-                                            car.health -= actualDamage
+                                            car.takeDamage(actualDamage)
 
                                             val force =
                                                 (carBody.worldCenter - explosionPosition).nor() * actualDamage * 50f
@@ -186,20 +188,26 @@ object Context : InjectionContext() {
          *
          * Player can have any number of weapons, in a list, which is a queue, and we pop that shit.
          */
+        val car = Car.get(picker)
+        car.lastPickup = pickupType
         when (pickupType) {
             PickupType.Health -> {
-                Car.get(picker).health = MathUtils.clamp(Car.get(picker).health + 75f, 0f, 100f)
+                car.health = MathUtils.clamp(car.health + 75f, 0f, 100f)
+            }
+
+            PickupType.Shield -> {
+                car.addToImmortalTimer(5f)
+
             }
 
             PickupType.SpeedBoost -> {
                 if (Car.has(picker)) {
-                    val car = Car.get(picker)
                     car.maxForwardSpeed *= 1.25f
                     car.maxDriveForce *= 1.25f
                 }
             }
 
-            else -> Car.get(picker).weapons.addLast(pickupType)
+            else -> car.weapons.addLast(pickupType)
         }
     }
 
@@ -219,6 +227,7 @@ object Context : InjectionContext() {
             addSystem(EnemyNumbersControlSystem())
             addSystem(RemoveAfterSystem())
             addSystem(UpdateActionsSystem())
+            addSystem(ImmortalitySystem())
             addSystem(RobotCarSpeedAndStuffSystem())
             addSystem(RobotAnnihilationSystem())
         }

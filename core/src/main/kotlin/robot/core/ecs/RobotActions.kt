@@ -58,7 +58,8 @@ object RobotActions {
                         robotBody.worldCenter + forwardNormal.cpy().scl(2f),
                         forwardNormal,
                         forwardSpeed,
-                        weaponToFire
+                        weaponToFire,
+                        false
                     )
                 }
             }, Robot::class

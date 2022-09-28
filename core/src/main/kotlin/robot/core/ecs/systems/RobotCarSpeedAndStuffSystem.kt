@@ -40,13 +40,13 @@ class RobotCarSpeedAndStuffSystem : IntervalIteratingSystem(allOf(Robot::class, 
                 val rCar = Car.get(entity)
                 val rIndex = trackMania.getIndexForPosition(rPos.y)
                 if (rIndex < pIndex) {
-                    rCar.maxForwardSpeed += rCar.maxForwardSpeed * 0.1f
-                    rCar.maxDriveForce += rCar.maxDriveForce * 0.1f
-                    rCar.acceleration += rCar.acceleration * 0.1f
+                    rCar.maxForwardSpeed += rCar.maxForwardSpeed * 0.05f
+                    rCar.maxDriveForce += rCar.maxDriveForce * 0.05f
+                    rCar.acceleration += rCar.acceleration * 0.05f
                 } else if (pIndex < rIndex) {
-                    rCar.maxForwardSpeed -= rCar.maxForwardSpeed * 0.1f
-                    rCar.maxDriveForce -= rCar.maxDriveForce * 0.1f
-                    rCar.acceleration -= rCar.acceleration * 0.1f
+                    rCar.maxForwardSpeed -= rCar.maxForwardSpeed * 0.05f
+                    rCar.maxDriveForce -= rCar.maxDriveForce * 0.05f
+                    rCar.acceleration -= rCar.acceleration * 0.05f
                 }
                 rCar.maxForwardSpeed =
                     MathUtils.clamp(

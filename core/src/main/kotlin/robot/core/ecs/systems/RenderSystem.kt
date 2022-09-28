@@ -5,6 +5,7 @@ import com.badlogic.ashley.systems.IteratingSystem
 import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.g2d.PolygonSpriteBatch
 import com.badlogic.gdx.graphics.g2d.TextureRegion
+import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.math.MathUtils.radiansToDegrees
 import com.badlogic.gdx.math.Polygon
 import com.badlogic.gdx.math.Vector2
@@ -16,6 +17,7 @@ import ktx.math.plus
 import ktx.math.times
 import ktx.math.vec2
 import robot.core.GameConstants.MetersPerPixel
+import robot.core.ecs.components.Car
 import robot.core.ecs.components.HeightComponent
 import robot.core.ecs.components.SpriteComponent
 import robot.core.track.TrackMania
@@ -88,6 +90,15 @@ class RenderSystem(private val batch: PolygonSpriteBatch) :
         val shadow = sprite.shadow
         val body = Box2d.get(entity).body
         val position = body.worldCenter
+        if(Car.has(entity)) {
+            val car = Car.get(entity)
+            if(car.immortal) {
+                val alpha = MathUtils.norm(0f, car.immortalMax, car.immortalTimer)
+                shapeDrawer.filledCircle(position, 4f, Color(0.5f, 0.5f, 1f, alpha))
+            }
+        }
+
+
         if (HeightComponent.has(entity)) {
             val height = HeightComponent.get(entity)
             val scale = 1f + height.height / height.maxHeight

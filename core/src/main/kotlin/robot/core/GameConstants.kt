@@ -14,7 +14,7 @@ object GameConstants {
     const val PosIters = 6
 
     const val MinRobots = 15
-    const val RobotMaxDistance = 500f
-    const val RobotMaxOfPlayerSpeed = 1.15f
-    const val RobotMinOfPlayerSpeed = 0.85f
+    const val RobotMaxDistance = 1000f
+    const val RobotMaxOfPlayerSpeed = 1.25f
+    const val RobotMinOfPlayerSpeed = 0.75f
 }
