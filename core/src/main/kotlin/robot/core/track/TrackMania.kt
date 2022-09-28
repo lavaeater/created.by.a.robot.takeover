@@ -67,7 +67,7 @@ class TrackMania {
                  * ever pickup is an entity creation function that
                  * takes a position
                  */
-                createPickup(s.center + vec2(r.random() * 5f, r.random() * 5f), PickupType.getPickup())
+                createPickup(s.center + vec2(r.random() * 2.5f, r.random() * 2.5f), PickupType.getPickup())
             }
         }
 

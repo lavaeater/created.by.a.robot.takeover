@@ -9,13 +9,13 @@ sealed class PickupType(val name: String, val ammo: Int = 1, val rof: Float = 1f
     object BarrelBomb : PickupType("Barrel Bomb", 1, 1f)
     object SpeedBoost : PickupType("Speed Boost")
     companion object {
-        val randRange = 0..49
+        val randRange = 0..99
         fun getPickup(): PickupType {
             val randVal = randRange.random()
             val key = odds.keys.filter { it.contains(randVal) }.first()
             return odds[key]!!
         }
-        val odds = mapOf(0..4 to Shotgun, 5..9 to MachineGun, 10..14 to GuidedMissile, 15..19 to BarrelBomb, 20..29 to Health, 30..39 to SpeedBoost, 40..49 to Shield )
+        val odds = mapOf(0..9 to Shotgun, 10..19 to MachineGun, 20..24 to GuidedMissile, 25..34 to BarrelBomb, 35..59 to Health, 60..84 to SpeedBoost, 85..99 to Shield )
 
         val allPickupTypes = listOf(Shotgun, MachineGun, GuidedMissile, BarrelBomb, Health, SpeedBoost, Shield)
     }
