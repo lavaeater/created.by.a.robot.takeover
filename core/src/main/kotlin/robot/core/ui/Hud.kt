@@ -1,5 +1,6 @@
 package robot.core.ui
 
+import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.OrthographicCamera
 import com.badlogic.gdx.graphics.g2d.PolygonSpriteBatch
 import com.badlogic.gdx.math.MathUtils
@@ -17,6 +18,9 @@ import eater.physics.forwardVelocity
 import ktx.actors.stage
 import ktx.actors.txt
 import ktx.ashley.allOf
+import ktx.graphics.use
+import ktx.math.plus
+import ktx.math.times
 import ktx.math.vec2
 import ktx.math.vec3
 import ktx.scene2d.*
@@ -139,11 +143,25 @@ class Hud(private val batch: PolygonSpriteBatch, debugAll: Boolean = false) {
         aStage
     }
 
+    private val baseMiniMapVector = vec2(50f, 50f)
     private val shapeDrawer by lazy { inject<ShapeDrawer>() }
 
     fun render(delta: Float) {
+        shapeDrawer.setColor(Color.GREEN)
+        batch.use {
+            for ((i, center) in trackMania.track.map { it.center }.withIndex()) {
+                if (i < trackMania.track.lastIndex)
+                    shapeDrawer.line(
+                        baseMiniMapVector + center * 0.015f,
+                        baseMiniMapVector + trackMania.track[i + 1].center * 0.015f
+                    )
+            }
+        }
+
         stage.act(delta)
         stage.draw()
+
+
     }
 }
 
