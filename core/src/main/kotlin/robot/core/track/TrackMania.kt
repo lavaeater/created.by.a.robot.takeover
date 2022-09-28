@@ -67,7 +67,7 @@ class TrackMania {
                  * ever pickup is an entity creation function that
                  * takes a position
                  */
-                createPickup(s.center + vec2(r.random() * 5f, r.random() * 5f), PickupType.allPickupTypes.random())
+                createPickup(s.center + vec2(r.random() * 5f, r.random() * 5f), PickupType.getPickup())
             }
         }
 
@@ -207,7 +207,7 @@ class TrackMania {
     fun createTrack(sectionCount: Int, fidelity: Int, widthRange: IntRange, changeRange: IntRange) {
         clearTrack()
         track.addAll(getTrack(sectionCount, fidelity, widthRange, changeRange))
-        fixPickups(25)
+        fixPickups(35)
         fixPolygons()
     }
 
