@@ -2,6 +2,7 @@ package robot.core.ecs
 
 import com.badlogic.ashley.core.Entity
 import com.badlogic.gdx.graphics.Color
+import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.math.MathUtils.radiansToDegrees
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.physics.box2d.Body
@@ -143,14 +144,16 @@ fun PickupType.getBehavior(player: Boolean, direction: Vector2 = vec2()): AiActi
                         val currentDirection = body.linearVelocity.nor()
                         currentDirection.lerp(directionToTarget, 0.25f)
 
-                        if ((body.angle * radiansToDegrees - currentDirection.angleDeg()) > 5f) {
-                            body.applyTorque(-150f, true)
-                        } else if ((body.angle * radiansToDegrees - currentDirection.angleDeg()) < -5f) {
-                            body.applyTorque(150f, true)
-                        }
+//                        if ((body.angle * radiansToDegrees - currentDirection.angleDeg()) > 5f) {
+//                            body.applyTorque(-150f, true)
+//                        } else if ((body.angle * radiansToDegrees - currentDirection.angleDeg()) < -5f) {
+//                            body.applyTorque(150f, true)
+//                        }
 
-
+                        body.setTransform(body.position, currentDirection.angleRad() - MathUtils.HALF_PI)
                         body.applyForce(currentDirection.scl(state.force), body.worldCenter, true)
+
+
                     } else {
                         val potentialTargets = engine().getEntitiesFor(if(player) robotCars else playerCars)
                         val target = potentialTargets.map { Box2d.get(it).body }
@@ -257,7 +260,7 @@ fun fireProjectile(position: Vector2, direction: Vector2, shooterSpeed: Float, w
 
         PickupType.MachineGun -> {
             engine().entity {
-                withProjectile(position +  direction.cpy().scl(1.5f), .1f, UserData.Projectile(this.entity, weaponType), direction.cpy().scl(1000f))
+                withProjectile(position +  direction.cpy().scl(1.5f), .1f, UserData.Projectile(this.entity, weaponType), direction.cpy().scl(shooterSpeed + 500f))
                 with<AiComponent> {
                     actions.add(weaponType.getBehavior(true, direction.cpy()))
                 }

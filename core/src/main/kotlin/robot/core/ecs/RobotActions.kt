@@ -67,7 +67,7 @@ object RobotActions {
                     fireProjectile(
                         robotBody.worldCenter + forwardNormal.cpy().scl(2f),
                         forwardNormal,
-                        forwardSpeed,
+                        forwardSpeed + 500f,
                         weaponToFire,
                         false
                     )
