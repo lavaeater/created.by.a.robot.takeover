@@ -89,7 +89,7 @@ object Context : InjectionContext() {
                                 is ContactType.RobotAndRobot -> {
                                     if (Car.has(contactType.robotA) && Car.has(contactType.robotB)) {
                                         Car.get(contactType.robotA).takeDamage(robotAndRobotDamageRange.random())
-                                        Car.get(contactType.robotB).takeDamage(robotAndRobotDamageRange.random())
+//                                        Car.get(contactType.robotB).takeDamage(robotAndRobotDamageRange.random())
                                     }
                                 }
 
@@ -147,6 +147,10 @@ object Context : InjectionContext() {
                                             contactType.projectile.addComponent<Remove>()
                                         }
                                     } else {
+                                        if(Car.has(contactType.car)) {
+                                            val car = Car.get(contactType.car)
+                                            car.takeDamage((1..contactType.weaponType.maxDamage).random().toFloat())
+                                        }
                                         contactType.projectile.addComponent<Remove>()
                                     }
                                 }

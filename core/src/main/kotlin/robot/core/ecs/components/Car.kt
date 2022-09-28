@@ -10,6 +10,7 @@ import robot.core.ecs.PickupType
 
 
 class Car : Component, Poolable {
+    var currentWeapon: PickupType? = null
     var lastPickup: PickupType? = null
     var canRace = true
     val weapons = Queue<PickupType>()
@@ -23,6 +24,7 @@ class Car : Component, Poolable {
     var decceleration = 500f
     var controlState = 0
     var immortalTimer = 1f
+    var currentAmmo = 0
 
     var immortalMax = 1f
     val immortal get() = immortalTimer > 0f

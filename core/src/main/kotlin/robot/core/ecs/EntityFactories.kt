@@ -25,6 +25,7 @@ import ktx.box2d.box
 import ktx.box2d.circle
 import ktx.box2d.filter
 import ktx.math.minus
+import ktx.math.plus
 import ktx.math.vec2
 import robot.core.Assets
 import robot.core.Box2dCategories
@@ -102,7 +103,7 @@ fun explosionLater(position: Vector2, damage: Float, radius: Float) {
     GameState.explosionQueue.addLast(ExplosionData(position.cpy(), damage, radius))
 }
 
-fun PickupType.getBehavior(player: Boolean): AiAction {
+fun PickupType.getBehavior(player: Boolean, direction: Vector2 = vec2()): AiAction {
     val robotCars = allOf(Box2d::class, Robot::class).get()
     val playerCars = allOf(Box2d::class, Player::class).get()
     return when (this) {
@@ -177,6 +178,36 @@ fun PickupType.getBehavior(player: Boolean): AiAction {
 
 
         }, GuidedMissile::class)
+        PickupType.MachineGun -> object: AiAction("Bullet") {
+            override fun abort(entity: Entity) {
+            }
+
+            override fun act(entity: Entity, deltaTime: Float) {
+                if(Box2d.has(entity)) {
+                    val body = Box2d.get(entity).body
+                    if(body.linearVelocity.len() < 50000f) {
+                        val force = direction.cpy().scl(10000f)
+                        body.applyForce(force, body.worldCenter, true)
+                    }
+                }
+            }
+
+        }
+        PickupType.Shotgun -> object: AiAction("Bullet") {
+            override fun abort(entity: Entity) {
+            }
+
+            override fun act(entity: Entity, deltaTime: Float) {
+                if(Box2d.has(entity)) {
+                    val body = Box2d.get(entity).body
+                    if(body.linearVelocity.len() < 50000f) {
+                        val force = direction.cpy().scl(10000f)
+                        body.applyForce(force, body.worldCenter, true)
+                    }
+                }
+            }
+
+        }
 
         else -> object : AiAction("No Op") {
             override fun abort(entity: Entity) {
@@ -224,8 +255,45 @@ fun fireProjectile(position: Vector2, direction: Vector2, shooterSpeed: Float, w
             }
         }
 
-        PickupType.MachineGun -> TODO()
-        PickupType.Shotgun -> TODO()
+        PickupType.MachineGun -> {
+            engine().entity {
+                withProjectile(position +  direction.cpy().scl(1.5f), .1f, UserData.Projectile(this.entity, weaponType), direction.cpy().scl(1000f))
+                with<AiComponent> {
+                    actions.add(weaponType.getBehavior(true, direction.cpy()))
+                }
+                with<SpriteComponent> {
+                    texture = Assets.bullet
+                    shadow = Assets.bullet
+                    shadowOffset = vec2(0f, 0f)
+                }
+            }
+        }
+        PickupType.Shotgun -> {
+            val left = direction.cpy().rotate90(1).scl(1.5f)
+            val right = direction.cpy().rotate90(-1).scl(1.5f)
+            engine().entity {
+                withProjectile(position + left, .1f, UserData.Projectile(this.entity, weaponType), left.cpy().scl(1000f))
+                with<AiComponent> {
+                    actions.add(weaponType.getBehavior(true, left.cpy()))
+                }
+                with<SpriteComponent> {
+                    texture = Assets.bullet
+                    shadow = Assets.bullet
+                    shadowOffset = vec2(0f, 0f)
+                }
+            }
+            engine().entity {
+                withProjectile(position + right, .1f, UserData.Projectile(this.entity, weaponType), right.cpy().scl(1000f))
+                with<AiComponent> {
+                    actions.add(weaponType.getBehavior(true, right.cpy()))
+                }
+                with<SpriteComponent> {
+                    texture = Assets.bullet
+                    shadow = Assets.bullet
+                    shadowOffset = vec2(0f, 0f)
+                }
+            }
+        }
         else -> {
             //No-OP
         }
@@ -324,11 +392,11 @@ fun createRobotCar(position: Vector2, width: Float, height: Float): Entity {
         }
         with<Car> {
             health = 100f
-            maxTorque = CarBase.maxTorque * 0.8f
+            maxTorque = CarBase.maxTorque
             maxDriveForce = CarBase.maxDriveForce * 0.1f
             acceleration = CarBase.acceleration * 0.1f
             maxForwardSpeed = CarBase.maxForwardSpeed * 0.1f
-            immortalAdder = 0.05f
+            immortalAdder = 0.1f
         }
 //        with<Car> {
 //            health = EnemyCarBase.health.random() * EnemyCarBase.healthFactor
@@ -370,7 +438,7 @@ fun createPlayerEntity(position: Vector2, width: Float, height: Float): Entity {
     }
 }
 
-fun EngineEntity.withProjectile(worldPos: Vector2, radius: Float, ud: UserData) {
+fun EngineEntity.withProjectile(worldPos: Vector2, radius: Float, ud: UserData, startVelocity: Vector2 = vec2()) {
     val barrelBomb = (ud as UserData.Projectile).weaponType == PickupType.BarrelBomb
 
     with<Box2d> {
@@ -385,6 +453,7 @@ fun EngineEntity.withProjectile(worldPos: Vector2, radius: Float, ud: UserData) 
                 }
                 density = 0.5f
             }
+            linearVelocity.set(startVelocity)
         }
     }
 }

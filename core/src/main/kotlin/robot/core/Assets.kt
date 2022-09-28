@@ -53,6 +53,11 @@ object Assets: DisposableRegistry by DisposableContainer() {
     val missile by lazy {
         TextureRegion(missileTexture, 0, 0, 16, 16)
     }
+    private val bulletTexture = Texture("weapons/bullet.png".toLocalFile(), true).alsoRegister()
+    val bullet by lazy {
+        TextureRegion(bulletTexture, 0, 0, 16, 16)
+    }
+
     private val missileShadowTexture = Texture("weapons/missile-shadow.png".toLocalFile(), true).alsoRegister()
     val missileShadow by lazy {
         TextureRegion(missileShadowTexture, 0, 0, 16, 16)

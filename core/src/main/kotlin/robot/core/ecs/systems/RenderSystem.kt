@@ -55,6 +55,7 @@ class RenderSystem(private val batch: PolygonSpriteBatch) :
     val oddLine = Color(0.18f, 0.18f, 0.18f, 1f)
     val evenLine = Color(0.23f, 0.23f, 0.23f, 1f)
     val even = Color(0.2f, 0.2f, 0.2f, 1f)
+    val lineColor = Color(0.7f, 0.7f, 0.7f, 1f)
     private fun renderTrack() {
 
         for ((i, p) in trackMania.polygons.withIndex()) {
@@ -64,6 +65,15 @@ class RenderSystem(private val batch: PolygonSpriteBatch) :
                 shapeDrawer.setColor(odd)
 
             shapeDrawer.filledPolygon(p)
+        }
+
+        for ((i, center) in trackMania.track.map { it.center }.withIndex()) {
+            if (i % 2 == 0) {
+                shapeDrawer.setColor(lineColor)
+                if (i < trackMania.track.lastIndex)
+                    shapeDrawer.line(center, trackMania.track[i + 1].center)
+            }
+
         }
 
         for ((i, left) in trackMania.track.map { it.left }.withIndex()) {

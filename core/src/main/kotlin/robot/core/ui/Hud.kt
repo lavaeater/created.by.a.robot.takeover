@@ -106,8 +106,8 @@ class Hud(private val batch: PolygonSpriteBatch, debugAll: Boolean = false) {
         get() {
             return if (Car.has(GameState.playerEntity)) {
                 val car = Car.get(GameState.playerEntity)
-                if (car.weapons.any())
-                    car.weapons.first().name
+                if (car.currentWeapon != null)
+                    car.currentWeapon!!.name
                 else
                     "No weapons"
             } else "No weapons"
@@ -132,7 +132,7 @@ class Hud(private val batch: PolygonSpriteBatch, debugAll: Boolean = false) {
                     )
                 }.cell(align = Align.bottomLeft, grow = true, fill = true, pad = 10f)
                 verticalGroup {
-                    label("Next Weapon")
+                    label("Current Weapon")
                     boundLabel({ weapons })
                     label("Last pickup")
                     boundLabel({ lastPickup })

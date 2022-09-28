@@ -13,7 +13,7 @@ object Box2dCategories {
 
     val carsCollideWith = cars or terrain or projectiles or pickups or explosions or sensors
     val terrainCollidesWith = cars or projectiles or sensors
-    val projectilesCollideWith = cars or terrain or sensors
+    val projectilesCollideWith = cars or terrain
     val pickupsCollideWith = cars
     val explosionsCollideWith = cars
 }

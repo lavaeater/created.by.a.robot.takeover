@@ -41,15 +41,25 @@ object RobotActions {
     val fireWeapon =
         GenericActionWithState("Fire Weapon", {
             val car = Car.get(it)
-            if (car.weapons.any())
+            if (car.weapons.any() || car.currentWeapon != null)
                 0.7f
             else
                 0f
         }, { entity -> },
             { entity, robot, delta ->
                 val car = Car.get(entity)
-                if(car.weapons.any()) {
-                    val weaponToFire = car.weapons.removeFirst()
+                robot.shotTimer -= delta
+                if(car.currentWeapon == null && car.weapons.any()) {
+                    car.currentWeapon = car.weapons.removeFirst()!!
+                    car.currentAmmo = car.currentWeapon!!.ammo
+                }
+
+                if(car.currentWeapon != null && robot.shotTimer < 0f) {
+                    val weaponToFire = car.currentWeapon!!
+                    car.currentAmmo--
+                    if(car.currentAmmo <= 0)
+                        car.currentWeapon = null
+
                     val robotBody = Box2d.get(entity).body
                     val forwardNormal = robotBody.forwardNormal()
 
@@ -61,6 +71,7 @@ object RobotActions {
                         weaponToFire,
                         false
                     )
+                    robot.shotTimer = 1f / weaponToFire.rof
                 }
             }, Robot::class
         )

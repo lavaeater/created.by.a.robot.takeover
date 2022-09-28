@@ -71,6 +71,8 @@ fun Contact.getContactType(): ContactType {
             ContactType.PlayerAndWall(this.getPlayer().player)
         else if (this.hasRobot())
             ContactType.RobotAndWall(this.getRobot().robot)
+        else if (this.hasProjectile())
+            ContactType.ProjectileAndAnything(this.getProjectile().projectile)
         else
             ContactType.NotRelevant
     } else if (this.hasPickup()) {

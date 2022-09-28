@@ -9,7 +9,7 @@ import robot.core.GameState
 class CameraZoomSystem(private val camera: OrthographicCamera): EntitySystem() {
 
     val minZoom = 0.5f
-    val maxZoom = 2.5f
+    val maxZoom = 2f
     var minSpeed = 0f
     var maxSpeed = 0f
 

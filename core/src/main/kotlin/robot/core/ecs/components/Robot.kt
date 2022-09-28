@@ -9,6 +9,7 @@ import ktx.math.vec2
 class Robot : Component, Pool.Poolable {
     val target = vec2()
     var targetIndex = 0
+    var shotTimer = 0f
     override fun reset() {
         target.setZero()
     }

@@ -51,25 +51,47 @@ class GameScreen(private val game: RoboGame) : KtxScreen, KtxInputAdapter {
         setBoth(Keys.S, "HMM, REVERSE?", { removeFlag(Car.backwards) }, { addFlag(Car.backwards) })
         setBoth(Keys.A, "STEER LEFT", { removeFlag(Car.left) }, { addFlag(Car.left) })
         setBoth(Keys.D, "STEER RIGHT", { removeFlag(Car.right) }, { addFlag(Car.right) })
-        setDown(Keys.SPACE, "FIRE") { fire() }
+        setBoth(Keys.SPACE, "FIRE", { stopFiring() }) { startFiring() }
     }
 
     private val trackMania by lazy { inject<TrackMania>() }
 
-    private fun fire() {
-        if (playerCar.weapons.any()) {
-            val weaponToFire = playerCar.weapons.removeFirst()
-            val playerBody = Box2d.get(GameState.playerEntity).body
-            val forwardNormal = playerBody.forwardNormal()
+    private var firing = false
+    private fun startFiring() {
+        firing = true
+    }
 
-            val forwardSpeed = playerBody.forwardVelocity().dot(forwardNormal)
-            fireProjectile(
-                playerBody.worldCenter + forwardNormal.cpy().scl(2f),
-                forwardNormal,
-                forwardSpeed,
-                weaponToFire,
-                true
-            )
+    private fun stopFiring() {
+        firing = false
+    }
+
+    private fun fire() {
+        if (firing) {
+            if (playerCar.currentWeapon == null && playerCar.weapons.any()) {
+                playerCar.currentWeapon = playerCar.weapons.removeFirst()
+                playerCar.currentAmmo = playerCar.currentWeapon!!.ammo
+            }
+            if (playerCar.currentWeapon != null) {
+                val weaponToFire = playerCar.currentWeapon!!
+                if (playerCar.currentAmmo > 0 && shotTimer <= 0f) {
+                    playerCar.currentAmmo--
+                    if (playerCar.currentAmmo <= 0)
+                        playerCar.currentWeapon = null
+
+                    val playerBody = Box2d.get(GameState.playerEntity).body
+                    val forwardNormal = playerBody.forwardNormal()
+
+                    val forwardSpeed = playerBody.forwardVelocity().dot(forwardNormal)
+                    fireProjectile(
+                        playerBody.worldCenter + forwardNormal.cpy().scl(2f),
+                        forwardNormal,
+                        forwardSpeed,
+                        weaponToFire,
+                        true
+                    )
+                    shotTimer = 1f / weaponToFire.rof
+                }
+            }
         }
     }
 
@@ -149,6 +171,8 @@ class GameScreen(private val game: RoboGame) : KtxScreen, KtxInputAdapter {
         return commandMap.execute(keycode, KeyPress.Up)
     }
 
+    private var shotTimer = 0f
+
     override fun render(delta: Float) {
         clearScreen(red = 0.15f, green = 0.15f, blue = 0.15f)
         camera.update(false) //True or false, what's the difference?
@@ -159,6 +183,9 @@ class GameScreen(private val game: RoboGame) : KtxScreen, KtxInputAdapter {
         checkGameOver()
         checkRaceStart(delta)
         renderMiniMap()
+        if (shotTimer > 0f)
+            shotTimer -= delta
+        fire()
     }
 
     private val offsetVector = vec2(50f, 50f)
@@ -175,9 +202,9 @@ class GameScreen(private val game: RoboGame) : KtxScreen, KtxInputAdapter {
                         offsetVector + trackMania.track[i + 1].center * 0.015f
                     )
             }
-            if(GameState.playerReady) {
+            if (GameState.playerReady) {
 
-                for(robot in robotPositions)
+                for (robot in robotPositions)
                     shapeDrawer.filledCircle(
                         offsetVector + robot * 0.015f,
                         0.5f,
@@ -213,9 +240,9 @@ class GameScreen(private val game: RoboGame) : KtxScreen, KtxInputAdapter {
     private val yellowBlorb = Color.YELLOW
     private val greenBlorb = Color.GREEN
     fun drawStartBlorbs() {
-        if(drawStartBlorbs) {
+        if (drawStartBlorbs) {
             val countDown = GameState.startCountDown.roundToInt()
-            val x = when(countDown) {
+            val x = when (countDown) {
                 3 -> 150f
                 2 -> 150f
                 1 -> 200f
@@ -223,7 +250,7 @@ class GameScreen(private val game: RoboGame) : KtxScreen, KtxInputAdapter {
                 else -> 150f
             }
             val blorbPos = vec2(x, 200f)
-            val color = when(countDown) {
+            val color = when (countDown) {
                 3 -> redBlorb
                 2 -> redBlorb
                 1 -> yellowBlorb
