@@ -205,7 +205,8 @@ object Context : InjectionContext() {
 
     private fun getEngine(): Engine {
         return PooledEngine().apply {
-            addSystem(CameraUpdateSystem(inject(), inject()))
+            addSystem(CameraUpdateSystem(inject(), inject(), 0.1f))
+            addSystem(CameraZoomSystem(inject()))
             addSystem(RenderSystem(inject()))
             addSystem(RenderPrimitives(inject()))
             addSystem(RenderExplosionSystem())

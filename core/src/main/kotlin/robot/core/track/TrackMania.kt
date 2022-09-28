@@ -125,15 +125,15 @@ class TrackMania {
         startPoint: Vector2,
         sectionCount: Int,
         fidelity: Int,
-        widthRange: ClosedFloatingPointRange<Float>,
+        widthRange: IntRange,
         changeRange: IntRange
     ): List<SnakeTrackSection> {
         val points = generateTrackPoints(startPoint, sectionCount, fidelity)
-        var previousWidth = (widthRange.start + widthRange.endInclusive) / 2f
+        var previousWidth = (widthRange.first * 10f + widthRange.last * 10f) / 2f
         val startWidth = previousWidth
         return points.mapIndexed { i, p ->
             previousWidth =
-                MathUtils.clamp(previousWidth + changeRange.random() * 10f, widthRange.start, widthRange.endInclusive)
+                MathUtils.clamp(previousWidth + changeRange.random() * 10f, widthRange.first * 10f, widthRange.last * 10f)
             if (i < points.lastIndex && i > 2) {
                 SnakeTrackSection(p).apply { fixSides(points[i + 1], previousWidth) }
             } else {
@@ -165,7 +165,7 @@ class TrackMania {
     fun getTrack(
         sectionCount: Int,
         fidelity: Int,
-        widthRange: ClosedFloatingPointRange<Float>,
+        widthRange: IntRange,
         changeRange: IntRange
     ): List<SnakeTrackSection> {
         val totalPoints = sectionCount * fidelity
@@ -204,9 +204,9 @@ class TrackMania {
         trackBodies.clear()
     }
 
-    fun createTrack() {
+    fun createTrack(sectionCount: Int, fidelity: Int, widthRange: IntRange, changeRange: IntRange) {
         clearTrack()
-        track.addAll(getTrack(50, 10, 50f..150f, -5..5))
+        track.addAll(getTrack(sectionCount, fidelity, widthRange, changeRange))
         fixPickups(25)
         fixPolygons()
     }

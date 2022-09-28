@@ -96,7 +96,7 @@ class GameScreen(private val game: RoboGame) : KtxScreen, KtxInputAdapter {
 
     override fun show() {
         Gdx.input.inputProcessor = this
-        trackMania.createTrack()
+        trackMania.createTrack(50, 10, 5..15, -5..5)
 
         GameState.playerEntity = createPlayerEntity(vec2(), 2f, 4f)
         createStartRobots(MinRobots / 2)

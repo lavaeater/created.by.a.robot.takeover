@@ -1,7 +1,7 @@
 package robot.core
 
 object GameConstants {
-    const val GameWidth =64f
+    const val GameWidth =42f
     const val GameHeight = (16f/9f) * GameWidth
     const val PixelsPerMeter = 4f
     const val MetersPerPixel = 1f / PixelsPerMeter
