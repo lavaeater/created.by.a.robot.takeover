@@ -22,6 +22,7 @@ import ktx.box2d.createWorld
 import ktx.log.debug
 import ktx.log.info
 import ktx.math.*
+import robot.core.Assets
 import robot.core.GameConstants.GameHeight
 import robot.core.GameConstants.GameWidth
 import robot.core.GameState
@@ -75,6 +76,7 @@ object Context : InjectionContext() {
                                     //Take some damage
                                     val car = Car.get(contactType.player)
                                     car.takeDamage(playerWallDamageRange.random())
+                                    Assets.bump.play()
                                 }
 
                                 is ContactType.RobotAndWall -> {
@@ -95,6 +97,7 @@ object Context : InjectionContext() {
                                     if (Car.has(contactType.player) && Car.has(contactType.robot)) {
                                         Car.get(contactType.player).takeDamage(playerAndRobotDamageRange.random())
                                         Car.get(contactType.robot).takeDamage(robotAndPlayerDamageRange.random())
+                                        Assets.bump.play()
                                     }
                                 }
 
@@ -132,6 +135,7 @@ object Context : InjectionContext() {
                                 }
 
                                 is ContactType.CarAndProjectile -> {
+                                    Assets.bump.play()
                                     if (GuidedMissile.has(contactType.projectile)) {
                                         val gm = GuidedMissile.get(contactType.projectile)
                                         if (gm.armed) {
@@ -148,6 +152,7 @@ object Context : InjectionContext() {
                                 }
 
                                 is ContactType.ProjectileAndAnything -> {
+                                    Assets.bump.play()
                                     if (GuidedMissile.has(contactType.projectile)) {
                                         val gm = GuidedMissile.get(contactType.projectile)
                                         explosionLater(
@@ -181,6 +186,8 @@ object Context : InjectionContext() {
 
 
     private fun handlePickup(picker: Entity, pickup: Entity, pickupType: PickupType) {
+        Assets.powerUp.play()
+
         //1. Remove the pickup from the track.
         pickup.addComponent<Remove>()
         /**
@@ -196,7 +203,7 @@ object Context : InjectionContext() {
             }
 
             PickupType.Shield -> {
-                car.addToImmortalTimer(5f)
+                car.addToImmortalTimer(10f)
 
             }
 

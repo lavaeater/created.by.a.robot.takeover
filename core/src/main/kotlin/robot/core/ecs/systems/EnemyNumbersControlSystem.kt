@@ -28,10 +28,10 @@ class EnemyNumbersControlSystem : IntervalSystem(0.25f) {
 
             if (GameState.fillUpRobotsDelay <= 0f) {
                 if (allRobots.size() < GameState.minRobots) {
-                    if((1..5).random() == 1) {
-                        GameState.minRobots++
-                        info { "newMin: ${GameState.minRobots}" }
-                    }
+//                    if((1..5).random() == 1) {
+//                        GameState.minRobots++
+//                        info { "newMin: ${GameState.minRobots}" }
+//                    }
                     val playerPointIndex =
                         trackMania.getIndexForPosition(Box2d.get(GameState.playerEntity).body.worldCenter.y - 150f)
                     createRobotCar(trackMania.track[playerPointIndex].center, 2f, 4f)

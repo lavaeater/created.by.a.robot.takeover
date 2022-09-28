@@ -1,5 +1,7 @@
 package robot.core
 
+import com.badlogic.gdx.Gdx
+import com.badlogic.gdx.audio.Sound
 import com.badlogic.gdx.graphics.Texture
 import com.badlogic.gdx.graphics.g2d.TextureRegion
 import ktx.assets.DisposableContainer
@@ -57,4 +59,10 @@ object Assets: DisposableRegistry by DisposableContainer() {
     }
 
     val splashBackground = Texture("splash/splash.png".toLocalFile(), true).alsoRegister()
+
+    val bump = Gdx.audio.newSound("sounds/bump.wav".toLocalFile()).alsoRegister()
+    val barrelBomb = Gdx.audio.newSound("sounds/barrel-bomb.wav".toLocalFile()).alsoRegister()
+    val powerUp = Gdx.audio.newSound("sounds/powerup.wav".toLocalFile()).alsoRegister()
+    val explosion = Gdx.audio.newSound("sounds/explosion.wav".toLocalFile()).alsoRegister()
+
 }

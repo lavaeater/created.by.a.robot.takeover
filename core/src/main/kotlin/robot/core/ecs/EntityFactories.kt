@@ -67,6 +67,7 @@ fun explosionAt(position: Vector2, damage: Float, radius: Float) {
      * And everything in that sensor body for the shooort timeperiod it exists
      * will be hit with damage and forces, I guess
      */
+    Assets.explosion.play()
     engine().entity {
         with<Box2d> {
             body = sensorCirlce(
@@ -191,6 +192,7 @@ fun PickupType.getBehavior(player: Boolean): AiAction {
 fun fireProjectile(position: Vector2, direction: Vector2, shooterSpeed: Float, weaponType: PickupType, player: Boolean) {
     when (weaponType) {
         PickupType.BarrelBomb -> {
+            Assets.barrelBomb.play()
             engine().entity {
                 withProjectile(position, .2f, UserData.Projectile(this.entity, weaponType))
                 with<AiComponent> {
@@ -326,7 +328,7 @@ fun createRobotCar(position: Vector2, width: Float, height: Float): Entity {
             maxDriveForce = CarBase.maxDriveForce * 0.1f
             acceleration = CarBase.acceleration * 0.1f
             maxForwardSpeed = CarBase.maxForwardSpeed * 0.1f
-            immortalAdder = 0f
+            immortalAdder = 0.05f
         }
 //        with<Car> {
 //            health = EnemyCarBase.health.random() * EnemyCarBase.healthFactor
