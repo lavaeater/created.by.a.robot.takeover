@@ -1,7 +1,5 @@
 package robot.core.ui
 
-import com.badlogic.ashley.core.Entity
-import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.OrthographicCamera
 import com.badlogic.gdx.graphics.g2d.PolygonSpriteBatch
 import com.badlogic.gdx.math.MathUtils
@@ -13,17 +11,15 @@ import com.badlogic.gdx.utils.Align
 import com.badlogic.gdx.utils.viewport.ExtendViewport
 import eater.core.engine
 import eater.ecs.components.Box2d
-import eater.ecs.components.CameraFollow
 import eater.injection.InjectionContext.Companion.inject
 import eater.physics.forwardNormal
 import eater.physics.forwardVelocity
 import ktx.actors.stage
 import ktx.actors.txt
 import ktx.ashley.allOf
-import ktx.graphics.use
-import ktx.math.*
+import ktx.math.vec2
+import ktx.math.vec3
 import ktx.scene2d.*
-import robot.core.Assets
 import robot.core.GameState
 import robot.core.ecs.components.Car
 import robot.core.ecs.components.Player

@@ -3,6 +3,7 @@ package robot.core.screens
 import com.badlogic.ashley.core.Entity
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.Input.Keys
+import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.OrthographicCamera
 import com.badlogic.gdx.graphics.Texture
 import com.badlogic.gdx.graphics.g2d.PolygonSpriteBatch
@@ -22,6 +23,7 @@ import ktx.ashley.allOf
 import ktx.ashley.remove
 import ktx.assets.disposeSafely
 import ktx.assets.toInternalFile
+import ktx.graphics.use
 import ktx.math.plus
 import ktx.math.vec2
 import robot.core.*
@@ -39,6 +41,8 @@ import robot.core.ui.Hud
 import space.earlygrey.shapedrawer.ShapeDrawer
 import java.util.*
 import java.util.EnumSet.allOf
+import kotlin.math.nextUp
+import kotlin.math.roundToInt
 
 class GameScreen(private val game: RoboGame) : KtxScreen, KtxInputAdapter {
     val randomRange = (-500f..500f)
@@ -95,6 +99,7 @@ class GameScreen(private val game: RoboGame) : KtxScreen, KtxInputAdapter {
     private var accumulator = 0f
 
     override fun show() {
+        drawStartBlorbs = true
         Gdx.input.inputProcessor = this
         trackMania.createTrack(50, 10, 5..15, -5..5)
 
@@ -156,14 +161,45 @@ class GameScreen(private val game: RoboGame) : KtxScreen, KtxInputAdapter {
         checkRaceStart(delta)
     }
 
+    private var drawStartBlorbs = true
+
     private fun checkRaceStart(delta: Float) {
         if (GameState.startCountDown > 0f) {
             GameState.startCountDown -= delta
+            drawStartBlorbs()
             if (GameState.startCountDown < 0f) {
+                drawStartBlorbs = false
                 for (carEntity in engine().getEntitiesFor(allOf(Car::class).get())) {
                     Car.get(carEntity).canRace = true
                 }
                 GameState.raceStarted = true
+            }
+        }
+    }
+
+    private val redBlorb = Color.RED
+    private val yellowBlorb = Color.YELLOW
+    private val greenBlorb = Color.GREEN
+    fun drawStartBlorbs() {
+        if(drawStartBlorbs) {
+            val countDown = GameState.startCountDown.roundToInt()
+            val x = when(countDown) {
+                3 -> 150f
+                2 -> 150f
+                1 -> 200f
+                0 -> 250f
+                else -> 150f
+            }
+            val blorbPos = vec2(x, 200f)
+            val color = when(countDown) {
+                3 -> redBlorb
+                2 -> redBlorb
+                1 -> yellowBlorb
+                0 -> greenBlorb
+                else -> redBlorb
+            }
+            batch.use {
+                shapeDrawer.filledCircle(blorbPos, 25f, color)
             }
         }
     }
