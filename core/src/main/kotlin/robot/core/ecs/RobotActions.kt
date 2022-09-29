@@ -3,6 +3,7 @@ package robot.core.ecs
 import eater.ai.GenericActionWithState
 import eater.core.engine
 import eater.ecs.components.Box2d
+import eater.extensions.with
 import eater.injection.InjectionContext
 import eater.physics.forwardNormal
 import eater.physics.forwardVelocity
@@ -16,7 +17,6 @@ import robot.core.ecs.components.Player
 import robot.core.ecs.components.Robot
 import robot.core.ecs.components.SpriteComponent
 import robot.core.track.TrackMania
-import robot.core.with
 import kotlin.math.absoluteValue
 
 object RobotActions {
@@ -45,7 +45,7 @@ object RobotActions {
                 0.7f
             else
                 0f
-        }, { entity -> },
+        }, { _ -> },
             { entity, robot, delta ->
                 val car = Car.get(entity)
                 robot.shotTimer -= delta
@@ -85,7 +85,7 @@ object RobotActions {
             else 0f
         } else
             0f
-    }, {}, { entity, robot, deltaTime ->
+    }, {}, { entity, _, _ ->
 
         val sc = SpriteComponent.get(entity)
         sc.texture = Assets.greenCar
@@ -113,7 +113,7 @@ object RobotActions {
         0.5f
     }, {
 
-    }, { entity, robot, deltaTime ->
+    }, { entity, robot, _ ->
         val sc = SpriteComponent.get(entity)
         sc.texture = Assets.redCar
         /**

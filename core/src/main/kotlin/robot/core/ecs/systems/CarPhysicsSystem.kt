@@ -5,6 +5,7 @@ import com.badlogic.ashley.systems.IteratingSystem
 import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.physics.box2d.Body
 import eater.ecs.components.Box2d
+import eater.extensions.has
 import eater.physics.forwardNormal
 import eater.physics.forwardVelocity
 import eater.physics.lateralVelocity
@@ -12,7 +13,6 @@ import ktx.ashley.allOf
 import robot.core.GameConstants.DragForceMagnitudeFactor
 import robot.core.GameConstants.MaxLateralImpulse
 import robot.core.ecs.components.Car
-import robot.core.has
 
 
 class CarPhysicsSystem : IteratingSystem(allOf(Car::class, Box2d::class).get()) {

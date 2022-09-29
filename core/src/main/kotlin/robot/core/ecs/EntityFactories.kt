@@ -3,7 +3,6 @@ package robot.core.ecs
 import com.badlogic.ashley.core.Entity
 import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.math.MathUtils
-import com.badlogic.gdx.math.MathUtils.radiansToDegrees
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.physics.box2d.Body
 import com.badlogic.gdx.physics.box2d.BodyDef
@@ -15,6 +14,8 @@ import eater.core.world
 import eater.ecs.components.Box2d
 import eater.ecs.components.CameraFollow
 import eater.ecs.components.ExplosionComponent
+import eater.ecs.components.Remove
+import eater.ecs.systems.RemoveAfter
 import eater.physics.addComponent
 import eater.physics.forwardVelocity
 import ktx.ashley.EngineEntity
@@ -379,9 +380,7 @@ fun createRobotCar(position: Vector2, width: Float, height: Float): Entity {
         carBody(
             this, position, width, height, UserData.Robot(this.entity),
             Box2dCategories.cars,
-            Box2dCategories.carsCollideWith,
-            Box2dCategories.sensors,
-            Box2dCategories.cars or Box2dCategories.projectiles or Box2dCategories.pickups
+            Box2dCategories.carsCollideWith
         )
         with<SpriteComponent> {
             texture = Assets.redCar
@@ -421,9 +420,7 @@ fun createPlayerEntity(position: Vector2, width: Float, height: Float): Entity {
         carBody(
             this, position, width, height, UserData.Player(this.entity),
             Box2dCategories.cars,
-            Box2dCategories.carsCollideWith,
-            Box2dCategories.sensors,
-            Box2dCategories.cars or Box2dCategories.projectiles or Box2dCategories.pickups
+            Box2dCategories.carsCollideWith
         )
         with<SpriteComponent> {
             texture = Assets.blueCar
@@ -469,9 +466,7 @@ fun carBody(
     height: Float,
     ud: UserData,
     colliderCategoryBits: Short,
-    colliderMaskBits: Short,
-    sensorBits: Short,
-    sensorMaskBits: Short
+    colliderMaskBits: Short
 ) {
 
     entity.apply {

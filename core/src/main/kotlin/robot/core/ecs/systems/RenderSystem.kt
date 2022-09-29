@@ -4,12 +4,10 @@ import com.badlogic.ashley.core.Entity
 import com.badlogic.ashley.systems.IteratingSystem
 import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.g2d.PolygonSpriteBatch
-import com.badlogic.gdx.graphics.g2d.TextureRegion
 import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.math.MathUtils.radiansToDegrees
-import com.badlogic.gdx.math.Polygon
-import com.badlogic.gdx.math.Vector2
 import eater.ecs.components.Box2d
+import eater.extensions.draw
 import eater.injection.InjectionContext.Companion.inject
 import ktx.ashley.allOf
 import ktx.graphics.use
@@ -22,21 +20,6 @@ import robot.core.ecs.components.HeightComponent
 import robot.core.ecs.components.SpriteComponent
 import robot.core.track.TrackMania
 import space.earlygrey.shapedrawer.ShapeDrawer
-
-fun TextureRegion.draw(batch: PolygonSpriteBatch, position: Vector2, rotation: Float, scale: Float) {
-    batch.draw(
-        this,
-        position.x - this.regionWidth / 2f,
-        position.y - this.regionHeight / 2f,
-        this.regionWidth / 2f,
-        this.regionHeight / 2f,
-        this.regionWidth.toFloat(),
-        this.regionHeight.toFloat(),
-        scale,
-        scale,
-        rotation
-    )
-}
 
 class RenderSystem(private val batch: PolygonSpriteBatch) :
     IteratingSystem(allOf(Box2d::class, SpriteComponent::class).get()) {

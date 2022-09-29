@@ -10,6 +10,8 @@ import com.badlogic.gdx.utils.viewport.ExtendViewport
 import eater.core.engine
 import eater.core.world
 import eater.ecs.components.Box2d
+import eater.extensions.with
+import eater.extensions.without
 import eater.injection.InjectionContext.Companion.inject
 import eater.input.CommandMap
 import eater.input.KeyPress

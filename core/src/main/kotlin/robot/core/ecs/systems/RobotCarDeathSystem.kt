@@ -6,7 +6,7 @@ import eater.ecs.components.Box2d
 import eater.physics.addComponent
 import ktx.ashley.allOf
 import robot.core.ecs.components.Car
-import robot.core.ecs.components.Remove
+import eater.ecs.components.Remove
 import robot.core.ecs.components.Robot
 import robot.core.ecs.explosionLater
 

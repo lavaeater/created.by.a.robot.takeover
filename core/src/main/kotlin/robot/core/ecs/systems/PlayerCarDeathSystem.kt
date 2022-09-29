@@ -8,7 +8,7 @@ import ktx.ashley.allOf
 import robot.core.GameState
 import robot.core.ecs.components.Car
 import robot.core.ecs.components.Player
-import robot.core.ecs.components.Remove
+import eater.ecs.components.Remove
 import robot.core.ecs.explosionAt
 
 class PlayerCarDeathSystem: IteratingSystem(allOf(Car::class, Player::class).get()) {

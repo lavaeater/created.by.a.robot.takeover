@@ -8,19 +8,13 @@ import com.badlogic.gdx.utils.Align
 import com.badlogic.gdx.utils.viewport.ExtendViewport
 import com.badlogic.gdx.utils.viewport.Viewport
 import eater.core.BasicScreen
-import eater.injection.InjectionContext.Companion.inject
+import eater.extensions.boundLabel
 import eater.input.CommandMap
-import ktx.actors.alpha
 import ktx.actors.stage
-import ktx.graphics.use
-import ktx.math.vec2
 import ktx.scene2d.*
 import robot.core.Assets
 import robot.core.GameState
 import robot.core.RoboGame
-import robot.core.ui.boundLabel
-import robot.core.ui.boundProgressBar
-import space.earlygrey.shapedrawer.ShapeDrawer
 
 class StartScreen(private val roboGame: RoboGame) : BasicScreen(
     roboGame,

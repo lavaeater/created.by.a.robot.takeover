@@ -17,13 +17,6 @@ import robot.core.ecs.PickupType
 import robot.core.ecs.UserData
 import robot.core.ecs.createPickup
 
-sealed class Pickup {
-    object GuidedMissile : Pickup()
-    object BarrelBomb : Pickup()
-    object Shotgun : Pickup()
-    object MachingeGun : Pickup()
-}
-
 class TrackMania {
     /**
      * Will manage the race track. How?
@@ -168,7 +161,6 @@ class TrackMania {
         widthRange: IntRange,
         changeRange: IntRange
     ): List<SnakeTrackSection> {
-        val totalPoints = sectionCount * fidelity
         val snakeTrack = buildSnakeTrack(vec2(), sectionCount, fidelity, widthRange, changeRange)
         fixBodies(1000, snakeTrack)
         return snakeTrack
