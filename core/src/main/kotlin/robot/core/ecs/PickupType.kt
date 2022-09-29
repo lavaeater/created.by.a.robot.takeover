@@ -16,7 +16,6 @@ sealed class PickupType(val name: String, val ammo: Int = 1, val rof: Float = 1f
             return odds[key]!!
         }
         val odds = mapOf(0..9 to Shotgun, 10..19 to MachineGun, 20..24 to GuidedMissile, 25..34 to BarrelBomb, 35..59 to Health, 60..84 to SpeedBoost, 85..99 to Shield )
-//        val odds = mapOf(0..99 to GuidedMissile)
 
         val allPickupTypes = listOf(Shotgun, MachineGun, GuidedMissile, BarrelBomb, Health, SpeedBoost, Shield)
     }
